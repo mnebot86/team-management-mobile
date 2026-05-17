@@ -1,5 +1,3 @@
-
-
 import { Text as PaperText, useTheme } from 'react-native-paper';
 import { StyleProp, TextStyle } from 'react-native';
 

@@ -23,6 +23,17 @@ export default function AuthLayout() {
       />
 
       <Tabs.Screen
+        name="teams"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ size }) => (
+            <AppIcon name="account-group-outline" size={size} variant="default" />
+          ),
+          tabBarLabel: 'Teams',
+        }}
+      />
+
+      <Tabs.Screen
         name="settings"
         options={{
           header: () => (

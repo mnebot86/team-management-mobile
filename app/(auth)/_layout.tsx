@@ -18,17 +18,6 @@ export default function AuthLayout() {
         }}
       />
       <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="create-profile"
-        options={{
-          header: () => (
-            <AppHeader
-              title="Create Profile"
-              subtitle="Tell us about yourself"
-            />
-          ),
-        }}
-      />
     </Stack>
   );
 }

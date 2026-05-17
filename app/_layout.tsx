@@ -8,11 +8,12 @@ import { useStoredToken } from '@/hooks/useStoredToken';
 import { lightTheme, darkTheme } from '@/themes/theme';
 import { getMe } from '@/api/auth';
 import AppSnackbar from '@/components/ui/SnackBar';
+import * as SecureToken from 'expo-secure-store';
 
 export default function RootLayout() {
   const scheme = useColorScheme();
   const { setHydrated, setAuth, setProfile, isHydrated } = useSessionStore();
-  const { removeToken, token } = useStoredToken();
+  const { removeToken } = useStoredToken();
 
   const theme = scheme === 'dark' ? darkTheme : lightTheme;
 
@@ -23,7 +24,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     const init = async () => {
+      const token = await SecureToken.getItemAsync('token');
+
       if (!token) {
+        console.log('No token found, skipping session restore');
         setHydrated();
         return;
       }
