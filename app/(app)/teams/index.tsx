@@ -6,6 +6,7 @@ import { FlatList, View } from 'react-native';
 import { router } from 'expo-router';
 import { getTeams } from '@/api/teams';
 import AppSnackbar from '@/components/ui/SnackBar';
+import { ITeam } from '@/types/team';
 
 const Teams = () => {
   const [teams, setTeams] = useState([]);
@@ -21,8 +22,6 @@ const Teams = () => {
     const fetchTeams = async () => {
       try {
         const teams = await getTeams();
-
-        console.log(teams);
 
         setTeams(teams);
       } catch (error) {
@@ -46,9 +45,12 @@ const Teams = () => {
     router.push('/(app)/teams/create-team-modal');
   }
 
+  const handleTeamSelect = ({ team }: { team: ITeam }) => {
+    router.push(`/(app)/teams/team/${team._id}`);
+  };
+
   return (
     <ScreenContainer>
-
       <FlatList
         data={teams}
         keyExtractor={(item: any) => item.team._id}
@@ -64,7 +66,7 @@ const Teams = () => {
           </View>
         )}
         renderItem={({ item }) => (
-          <TeamCard team={item.team} />
+          <TeamCard team={item.team} onPress={() => handleTeamSelect(item)} />
         )}
       // ListEmptyComponent={(
       //   <View style={{ paddingVertical: 40 }}>

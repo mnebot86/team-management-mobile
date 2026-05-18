@@ -3,12 +3,15 @@ import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from 'react-native-paper';
 import Text from '@/components/ui/Text';
+import AppIcon from '@/components/AppIcon';
 
 type AppHeaderProps = {
   title: string;
   subtitle?: string;
   onBackPress?: () => void;
   backLabel?: string;
+  onMenuPress?: () => void;
+  showMenuButton?: boolean;
 };
 
 const AppHeader: React.FC<AppHeaderProps> = ({
@@ -16,15 +19,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   subtitle,
   onBackPress,
   backLabel = 'Back',
+  onMenuPress,
 }) => {
   const theme = useTheme();
 
   return (
-    <SafeAreaView style={{ backgroundColor: theme.colors.primary }}>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.primary }}>
       <View
         style={{
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          paddingBottom: 16,
         }}
       >
         {onBackPress && (
@@ -56,6 +60,23 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           >
             {subtitle}
           </Text.Body>
+        )}
+
+        {!!onMenuPress && (
+          <Pressable
+            onPress={onMenuPress}
+            hitSlop={30}
+            style={{
+              alignSelf: 'flex-start',
+              marginTop: 6,
+            }}
+          >
+            <AppIcon
+              name="menu"
+              variant='accent'
+              size={22}
+            />
+          </Pressable>
         )}
       </View>
     </SafeAreaView>
