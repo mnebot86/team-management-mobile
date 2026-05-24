@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import AppHeader from '@/components/AppHeader';
 
-export default function TeamLayout() {
+export default function TeamsLayout() {
   return (
     <Stack>
       <Stack.Screen

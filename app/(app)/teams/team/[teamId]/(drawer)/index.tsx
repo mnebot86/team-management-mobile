@@ -4,6 +4,7 @@ import Text from '@/components/ui/Text';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { getTeam } from '@/api/teams';
 import { ITeam } from '@/types/team';
+import SnackBar from '@/components/ui/SnackBar';
 
 const TeamDetails = () => {
   const navigation = useNavigation();
@@ -11,6 +12,7 @@ const TeamDetails = () => {
 
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState<ITeam | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -20,15 +22,20 @@ const TeamDetails = () => {
         const resp = await getTeam(teamId as string)
 
         setTeam(resp);
-      } catch (error) {
-        console.log({ error });
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Failed to load team details';
+
+        setError(message);
       } finally {
         setLoading(false);
       }
     }
 
     fetchTeam();
-  }, []);
+  }, [teamId]);
 
   useEffect(() => {
     if (!team) return;
@@ -47,6 +54,14 @@ const TeamDetails = () => {
       <Text.Heading>Next Game</Text.Heading>
       <Text.Heading>Game Plan Notes</Text.Heading>
       <Text.Heading>Practice Attendance</Text.Heading>
+      {!!error && (
+        <SnackBar
+          visible={true}
+          onDismiss={() => setError('')}
+        >
+          {error}
+        </SnackBar>
+      )}
     </ScreenContainer>
   );
 };

@@ -1,35 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
 import AppButton from '@/components/ui/Button';
-import TeamCard from './components/teamCard';
 import { FlatList, View } from 'react-native';
 import { router } from 'expo-router';
-import { getTeams } from '@/api/teams';
 import AppSnackbar from '@/components/ui/SnackBar';
-import { ITeam } from '@/types/team';
 import { useTeamStore } from '@/hooks/useTeamStore';
+import { getTeamRoster } from '@/api/teamMembers';
+import PlayerCard from '@/components/PlayerCard';
 
-const Teams = () => {
-  const { setTeamId } = useTeamStore();
-  const [teams, setTeams] = useState([]);
+const Roster = () => {
+  const { getTeamId } = useTeamStore();
+
+  const [roster, setRoster] = useState([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
     message: '',
   });
 
+  const teamId = getTeamId();
+
   useEffect(() => {
-    setLoading(true);
+    const fetchRoster = async () => {
+      setLoading(true);
 
-    const fetchTeams = async () => {
       try {
-        const teams = await getTeams();
+        const roster = await getTeamRoster(teamId as string);
 
-        setTeams(teams);
-      } catch (error) {
-        const message = error instanceof Error
-          ? error.message
-          : 'Failed to fetch teams';
+        setRoster(roster);
+      } catch (err: any) {
+        const message =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Failed to load roster';
 
         setSnackbar({
           visible: true,
@@ -38,25 +41,34 @@ const Teams = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
-    fetchTeams();
-  }, []);
+    fetchRoster();
+  }, [teamId]);
 
   const handleOpenModal = () => {
-    router.push('/(app)/teams/create-team-modal');
-  }
+    if (!teamId) {
+      setSnackbar({
+        visible: true,
+        message: 'No team selected',
+      });
 
-  const handleTeamSelect = ({ team }: { team: ITeam }) => {
-    setTeamId(team._id);
-    router.push(`/(app)/teams/team/${team._id}`);
-  };
+      return;
+    }
+
+    router.push({
+      pathname: '/(app)/teams/team/[teamId]/create-player-modal',
+      params: {
+        teamId,
+      },
+    });
+  }
 
   return (
     <ScreenContainer>
       <FlatList
-        data={teams}
-        keyExtractor={(item: any) => item.team._id}
+        data={roster}
+        keyExtractor={(item: any) => item.profileId}
         contentContainerStyle={{
           padding: 16,
           gap: 16,
@@ -64,18 +76,20 @@ const Teams = () => {
         ListHeaderComponent={(
           <View style={{ marginBottom: 8 }}>
             <AppButton onPress={handleOpenModal}>
-              Create Team
+              Create Player
             </AppButton>
           </View>
         )}
         renderItem={({ item }) => (
-          <TeamCard team={item.team} onPress={() => handleTeamSelect(item)} />
+          <PlayerCard
+            firstName={item.firstName}
+            lastName={item.lastName}
+            jerseyNumber={item.jerseyNumber}
+            position={item.position}
+            age={item.age}
+            imageUrl={item.imageUrl}
+          />
         )}
-      // ListEmptyComponent={(
-      //   <View style={{ paddingVertical: 40 }}>
-      //     <TeamCard empty />
-      //   </View>
-      // )}
       />
 
       <AppSnackbar
@@ -89,4 +103,4 @@ const Teams = () => {
   );
 };
 
-export default Teams;
+export default Roster;

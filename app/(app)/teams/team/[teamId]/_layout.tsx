@@ -1,37 +1,25 @@
 import AppHeader from '@/components/AppHeader';
-import { Drawer } from 'expo-router/drawer';
+import { Stack } from 'expo-router';
 
-export default function TeamLayout() {
+export default function TeamStackLayout() {
   return (
-    <Drawer>
-      <Drawer.Screen
-        name="index"
+    <Stack>
+      <Stack.Screen
+        name="(drawer)"
         options={{
-          drawerLabel: 'Dashboard',
-          header: ({ options, navigation }) => (
-            <AppHeader
-              title={(options.title as string) ?? 'Team'}
-              subtitle={(options as any).headerSubtitle ?? ''}
-              onBackPress={() => navigation.goBack()}
-              onMenuPress={() => navigation.toggleDrawer()}
-            />
-          ),
+          headerShown: false,
         }}
       />
 
-      <Drawer.Screen
-        name="roster"
+      <Stack.Screen
+        name="create-player-modal"
         options={{
-          drawerLabel: 'Roster',
-          header: ({ options, navigation }) => (
-            <AppHeader
-              title='Roster'
-              subtitle='Manager your players'
-              onMenuPress={() => navigation.toggleDrawer()}
-            />
+          presentation: 'modal',
+          header: () => (
+            <AppHeader title="Create New Player" />
           ),
         }}
       />
-    </Drawer>
+    </Stack>
   );
 }
