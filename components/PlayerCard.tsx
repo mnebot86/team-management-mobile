@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 type PlayerCardProps = {
@@ -9,14 +9,23 @@ type PlayerCardProps = {
   position: string;
   age: number;
   imageUrl: string;
+  onPress?: () => void;
 };
 
-const PlayerCard = ({ firstName, lastName, jerseyNumber, position, age, imageUrl }: PlayerCardProps) => {
+const PlayerCard = ({ firstName, lastName, jerseyNumber, position, age, imageUrl, onPress }: PlayerCardProps) => {
   return (
-    <Pressable style={styles.card}>
+    <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.leftSection}>
         <View style={styles.iconContainer}>
-          <MaterialIcons name="person" size={28} color="#C9A227" />
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.avatarImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <MaterialIcons name="person" size={28} color="#C9A227" />
+          )}
         </View>
 
         <View style={styles.textContainer}>
@@ -56,6 +65,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 16,
   },
   textContainer: {
     justifyContent: 'center',

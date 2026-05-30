@@ -7,12 +7,14 @@ import { userCreateProfile } from "@/api/profile";
 import { useSessionStore } from "@/hooks/useSessionStore";
 import { router } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
+import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
 
 const CreateProfile = () => {
   const { setProfile } = useSessionStore();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [avatar, setAvatar] = useState<AvatarFile>();
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
@@ -25,7 +27,11 @@ const CreateProfile = () => {
     try {
       setLoading(true);
 
-      const profile = await userCreateProfile({ firstName, lastName });
+      const profile = await userCreateProfile({
+        firstName,
+        lastName,
+        avatar,
+      });
       setProfile(profile);
 
       // To reuse this screen for editing profile in the future, we replace the route instead of pushing
@@ -45,6 +51,11 @@ const CreateProfile = () => {
   return (
     <ScreenContainer>
       <View style={{ paddingHorizontal: 16, gap: 16 }}>
+        <AvatarPicker
+          value={avatar}
+          onChange={setAvatar}
+        />
+
         <Input.Text
           label="First Name"
           value={firstName}

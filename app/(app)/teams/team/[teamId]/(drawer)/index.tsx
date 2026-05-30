@@ -5,6 +5,7 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { getTeam } from '@/api/teams';
 import { ITeam } from '@/types/team';
 import SnackBar from '@/components/ui/SnackBar';
+import { getRosterCount } from '@/api/teamMembers';
 
 const TeamDetails = () => {
   const navigation = useNavigation();
@@ -12,6 +13,7 @@ const TeamDetails = () => {
 
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState<ITeam | null>(null);
+  const [rosterCount, setRosterCount] = useState(0);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -46,9 +48,30 @@ const TeamDetails = () => {
     });
   }, [navigation, team]);
 
+  useEffect(() => {
+    const fetchRosterCount = async () => {
+      if (team) return;
+
+      try {
+        const result = await getRosterCount(teamId as string);
+
+        setRosterCount(result.count);
+      } catch (error: any) {
+        const message =
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to load roster count';
+
+        setError(message);
+      }
+    }
+
+    fetchRosterCount();
+  }, [teamId, team]);
+
   return (
     <ScreenContainer>
-      <Text.Heading>Roster</Text.Heading>
+      <Text.Heading>Roster {rosterCount}</Text.Heading>
       <Text.Heading>Next Practice Plan</Text.Heading>
       <Text.Heading>Weather Alerts</Text.Heading>
       <Text.Heading>Next Game</Text.Heading>

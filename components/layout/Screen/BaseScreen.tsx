@@ -14,7 +14,7 @@ const BaseScreen = ({ children, style }: BaseScreenProps) => {
 
   return (
     <SafeAreaView
-      edges={['top', 'bottom', 'left', 'right']}
+      edges={['bottom', 'left', 'right']}
       style={[
         styles.safeArea,
         { backgroundColor: theme.colors.background },

@@ -20,6 +20,19 @@ export default function TeamStackLayout() {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="player/[playerId]"
+        options={{
+          header: ({ options, navigation }) => (
+            <AppHeader
+              title={(options.title as string) ?? 'Player Details'}
+              subtitle={(options as any).headerSubtitle ?? ''}
+              onBackPress={() => navigation.goBack()}
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }

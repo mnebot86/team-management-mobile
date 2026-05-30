@@ -64,6 +64,25 @@ const Roster = () => {
     });
   }
 
+  const handleSelectPlayer = (item: any) => {
+    if (!teamId) {
+      setSnackbar({
+        visible: true,
+        message: 'No team selected',
+      });
+
+      return;
+    }
+
+    router.push({
+      pathname: '/(app)/teams/team/[teamId]/player/[playerId]',
+      params: {
+        teamId,
+        playerId: item.profileId,
+      },
+    });
+  };
+
   return (
     <ScreenContainer>
       <FlatList
@@ -88,6 +107,7 @@ const Roster = () => {
             position={item.position}
             age={item.age}
             imageUrl={item.imageUrl}
+            onPress={() => handleSelectPlayer(item)}
           />
         )}
       />

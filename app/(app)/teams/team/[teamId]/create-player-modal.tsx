@@ -3,6 +3,7 @@ import SnackBar from '@/components/ui/SnackBar';
 import ScreenContainer from '@/components/layout/Screen';
 import Input from '@/components/ui/Input';
 import AppButton from '@/components/ui/Button';
+import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { createAndInsertPlayerToTeam } from '@/api/teamMembers';
@@ -13,6 +14,7 @@ const CreatePlayerModal = () => {
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [avatar, setAvatar] = useState<AvatarFile>();
   const [error, setError] = useState('');
 
   const disabled = React.useMemo(() => {
@@ -28,7 +30,11 @@ const CreatePlayerModal = () => {
         return;
       }
 
-      const payload = { firstName, lastName };
+      const payload = {
+        firstName,
+        lastName,
+        avatar,
+      };
 
       await createAndInsertPlayerToTeam(payload, teamId as string);
     } catch (err: any) {
@@ -43,7 +49,7 @@ const CreatePlayerModal = () => {
 
       router.back();
     }
-  }, [firstName, lastName, router]);
+  }, [firstName, lastName, avatar, router]);
 
   const handleCancel = useCallback(() => {
     setFirstName('');
@@ -56,6 +62,10 @@ const CreatePlayerModal = () => {
 
   return (
     <ScreenContainer>
+      <AvatarPicker
+        value={avatar}
+        onChange={setAvatar}
+      />
       <Input.Text
         label="First Name"
         placeholder="John"
