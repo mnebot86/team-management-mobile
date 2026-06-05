@@ -27,7 +27,6 @@ export default function RootLayout() {
       const token = await SecureToken.getItemAsync('token');
 
       if (!token) {
-        console.log('No token found, skipping session restore');
         setHydrated();
         return;
       }

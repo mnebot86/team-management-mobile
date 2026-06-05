@@ -104,7 +104,7 @@ const Roster = () => {
             firstName={item.firstName}
             lastName={item.lastName}
             jerseyNumber={item.jerseyNumber}
-            position={item.position}
+            positions={item.positions}
             age={item.age}
             imageUrl={item.imageUrl}
             onPress={() => handleSelectPlayer(item)}

@@ -6,13 +6,13 @@ type PlayerCardProps = {
   firstName: string;
   lastName: string;
   jerseyNumber: number;
-  position: string;
+  positions: string[];
   age: number;
   imageUrl: string;
   onPress?: () => void;
 };
 
-const PlayerCard = ({ firstName, lastName, jerseyNumber, position, age, imageUrl, onPress }: PlayerCardProps) => {
+const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, age, imageUrl, onPress }: PlayerCardProps) => {
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <View style={styles.leftSection}>
@@ -31,7 +31,7 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, position, age, imageUrl
         <View style={styles.textContainer}>
           <Text style={styles.title}>{firstName} {lastName}</Text>
           <Text style={styles.subtitle}>
-            #{jerseyNumber} • {position} • Age {age}
+            #{jerseyNumber} • {positions?.join(', ')} • Age {age}
           </Text>
         </View>
       </View>

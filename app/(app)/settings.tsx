@@ -25,14 +25,12 @@ const Settings = () => {
       logout();
       router.replace('/(auth)/login');
     } catch (err: any) {
-      const message = err?.message || 'Logout failed';
+      const message = err?.message || 'Unable to logout. Please try again.';
 
       setSnackbar({
         visible: true,
         message,
       });
-
-      console.log('Logout failed:', err);
     }
   };
 

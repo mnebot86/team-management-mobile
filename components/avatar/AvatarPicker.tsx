@@ -16,7 +16,7 @@ export interface AvatarFile {
 }
 
 interface AvatarPickerProps {
-  value?: AvatarFile;
+  value?: AvatarFile | string;
   onChange: (image?: AvatarFile) => void;
   size?: number;
 }
@@ -110,11 +110,15 @@ const AvatarPicker = ({
     });
   };
 
+  const imageUrl = typeof value === 'string'
+    ? value
+    : value?.uri;
+
   return (
     <View style={styles.container}>
       <Pressable onPress={handleOpenOptions}>
         <AvatarImage
-          imageUrl={value?.uri}
+          imageUrl={imageUrl}
           size={size}
         />
       </Pressable>

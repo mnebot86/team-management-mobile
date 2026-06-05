@@ -11,6 +11,7 @@ type AppHeaderProps = {
   onBackPress?: () => void;
   backLabel?: string;
   onMenuPress?: () => void;
+  onEditPress?: () => void;
   showMenuButton?: boolean;
 };
 
@@ -20,6 +21,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onBackPress,
   backLabel = 'Back',
   onMenuPress,
+  onEditPress,
 }) => {
   const theme = useTheme();
 
@@ -43,6 +45,26 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             }}
           >
             <Text.Body variant="accent">← {backLabel}</Text.Body>
+          </Pressable>
+        )}
+
+        {!!onEditPress && (
+          <Pressable
+            onPress={onEditPress}
+            hitSlop={20}
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              zIndex: 1,
+              padding: 6,
+            }}
+          >
+            <AppIcon
+              name="pencil"
+              variant="accent"
+              size={22}
+            />
           </Pressable>
         )}
 

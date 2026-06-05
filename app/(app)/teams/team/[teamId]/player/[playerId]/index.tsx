@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 
@@ -54,8 +54,11 @@ const PlayerDetails = () => {
 
     navigation.setOptions({
       title: `${player.firstName} ${player.lastName}`,
+      onEditPress: () => {
+        router.push(`/teams/team/${teamId}/player/${playerId}/edit`);
+      },
     });
-  }, [navigation, player]);
+  }, [navigation, player, playerId, teamId]);
 
   if (isLoading) {
     return (
@@ -90,10 +93,6 @@ const PlayerDetails = () => {
         </View>
 
         <View style={styles.sectionCard}>
-          <Text.Heading style={styles.sectionTitle}>
-            Player Information
-          </Text.Heading>
-
           <View style={styles.infoRow}>
             <Text.Caption style={styles.label}>First Name</Text.Caption>
             <Text.Body>{player?.firstName || '--'}</Text.Body>
@@ -111,7 +110,7 @@ const PlayerDetails = () => {
 
           <View style={styles.infoRow}>
             <Text.Caption style={styles.label}>Position</Text.Caption>
-            <Text.Body>{player?.position || '--'}</Text.Body>
+            <Text.Body>{player?.positions?.join(', ') || '--'}</Text.Body>
           </View>
 
           <View style={styles.infoRow}>
