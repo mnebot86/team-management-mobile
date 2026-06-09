@@ -17,6 +17,32 @@ export default function TeamStackLayout() {
           headerShown: false,
         }}
       />
+
+      <Stack.Screen
+        name="create-schedule-modal"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Create Schedule Event"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="pick-date-modal"
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: [0.25, 0.5, 1],
+          sheetInitialDetentIndex: 1,
+          header: () => (
+            <AppHeader
+              title="Pick Date"
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }

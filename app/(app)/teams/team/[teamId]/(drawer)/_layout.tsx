@@ -32,6 +32,20 @@ export default function TeamDashboardLayout() {
           ),
         }}
       />
+
+      <Drawer.Screen
+        name="schedule"
+        options={{
+          drawerLabel: 'Schedule',
+          header: ({ navigation }) => (
+            <AppHeader
+              title='Schedule'
+              subtitle='Manager your events'
+              onMenuPress={() => navigation.toggleDrawer()}
+            />
+          ),
+        }}
+      />
     </Drawer>
   );
 }
