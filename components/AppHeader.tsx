@@ -13,6 +13,7 @@ type AppHeaderProps = {
   onMenuPress?: () => void;
   onEditPress?: () => void;
   showMenuButton?: boolean;
+  headerContent?: React.ReactNode;
 };
 
 const AppHeader: React.FC<AppHeaderProps> = ({
@@ -22,6 +23,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   backLabel = 'Back',
   onMenuPress,
   onEditPress,
+  headerContent,
 }) => {
   const theme = useTheme();
 
@@ -68,9 +70,23 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           </Pressable>
         )}
 
-        <Text.Heading style={{ color: theme.colors.onPrimary }}>
-          {title}
-        </Text.Heading>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text.Heading style={{ color: theme.colors.onPrimary }}>
+            {title}
+          </Text.Heading>
+
+          {!!headerContent && (
+            <View style={{ marginLeft: 12 }}>
+              {headerContent}
+            </View>
+          )}
+        </View>
 
         {subtitle && (
           <Text.Body
@@ -85,20 +101,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         )}
 
         {!!onMenuPress && (
-          <Pressable
-            onPress={onMenuPress}
-            hitSlop={30}
-            style={{
-              alignSelf: 'flex-start',
-              marginTop: 6,
-            }}
-          >
-            <AppIcon
-              name="menu"
-              variant='accent'
-              size={22}
-            />
-          </Pressable>
+          <View style={{ marginTop: 12 }}>
+            <Pressable
+              onPress={onMenuPress}
+              hitSlop={30}
+            >
+              <AppIcon
+                name="menu"
+                variant="accent"
+                size={22}
+              />
+            </Pressable>
+          </View>
         )}
       </View>
     </SafeAreaView>

@@ -1,7 +1,12 @@
+import React from 'react';
 import AppHeader from '@/components/AppHeader';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
+import AppButton from '@/components/ui/Button';
 
-export default function TeamDashboardLayout() {
+export const TeamDashboardLayout = () => {
+  const { teamId } = useLocalSearchParams<{ teamId: string }>();
+
   return (
     <Drawer>
       <Drawer.Screen
@@ -46,6 +51,34 @@ export default function TeamDashboardLayout() {
           ),
         }}
       />
+
+      <Drawer.Screen
+        name="plans"
+        options={{
+          drawerLabel: 'Plans',
+          header: ({ navigation }) => (
+            <AppHeader
+              title='Plans'
+              subtitle='Manager your plans'
+              onMenuPress={() => navigation.toggleDrawer()}
+              headerContent={(
+                <AppButton
+                  icon="plus"
+                  fullWidth={false}
+                  compact
+                  onPress={() => {
+                    router.push(`/teams/team/${teamId}/create-plan-modal`);
+                  }}
+                >
+                  New Plan
+                </AppButton>
+              )}
+            />
+          ),
+        }}
+      />
     </Drawer>
   );
 }
+
+export default TeamDashboardLayout;

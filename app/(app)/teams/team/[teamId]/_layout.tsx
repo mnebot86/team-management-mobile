@@ -43,6 +43,42 @@ export default function TeamStackLayout() {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="create-plan-modal"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Create Practice Plan"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="edit-plan-modal"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Edit Practice Plan"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="plan/[planId]"
+        options={{
+          header: ({ navigation }) => (
+            <AppHeader
+              title="Practice Plan Details"
+              onBackPress={() => navigation.goBack()}
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }
