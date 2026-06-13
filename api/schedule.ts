@@ -11,3 +11,15 @@ export const getTeamSchedule = async (teamId: string) => {
 
   return response.data.data;
 };
+
+export const getNextPractice = async (teamId: string) => {
+  const response = await api.get(`schedules/team/${teamId}/next-practice`);
+
+  return response.data.data;
+};
+
+export const getNextGame = async (teamId: string) => {
+  const response = await api.get(`schedules/team/${teamId}/next-game`);
+
+  return response.data.data;
+};
