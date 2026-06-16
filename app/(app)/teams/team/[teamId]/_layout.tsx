@@ -79,6 +79,18 @@ export default function TeamStackLayout() {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="schedule/[scheduleId]"
+        options={{
+          header: ({ navigation }) => (
+            <AppHeader
+              title="Event Details"
+              onBackPress={() => navigation.goBack()}
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }

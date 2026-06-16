@@ -23,3 +23,9 @@ export const getNextGame = async (teamId: string) => {
 
   return response.data.data;
 };
+
+export const updateAttendance = async (scheduleId: string, payload: any) => {
+  const response = await api.patch(`/schedules/${scheduleId}/attendance`, payload);
+
+  return response.data.data;
+};

@@ -17,7 +17,7 @@ const Schedule = () => {
 
   const [loading, setLoading] = useState(false);
   const [sections, setSections] = useState<any[]>([]);
-  
+
   const teamId = getTeamId();
 
   useEffect(() => {
@@ -65,6 +65,19 @@ const Schedule = () => {
     visible: false,
     message: '',
   });
+
+  const handleOnSchedulePress = (schedule: any) => {
+    if (!teamId) return;
+
+    router.push({
+      pathname: '/(app)/teams/team/[teamId]/schedule/[scheduleId]',
+      params: {
+        teamId,
+        scheduleId: schedule.scheduleId ?? schedule._id,
+        schedule: JSON.stringify(schedule),
+      },
+    });
+  };
 
   return (
     <ScreenContainer>
@@ -115,7 +128,7 @@ const Schedule = () => {
         renderItem={({ item }) => (
           <EventCard
             data={item}
-            onPress={() => console.log('Selected event:', item._id)}
+            onPress={() => handleOnSchedulePress(item)}
           />
         )}
       />
