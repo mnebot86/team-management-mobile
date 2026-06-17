@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
-import { Button as PaperButton, ButtonProps as PaperButtonProps, useTheme } from 'react-native-paper';
+import { Button as PaperButton, ButtonProps as PaperButtonProps } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 type AppButtonProps = Omit<PaperButtonProps, 'mode'> & {
   variant?: 'primary' | 'secondary' | 'text' | 'danger' | 'outline';
@@ -24,7 +25,7 @@ const AppButton = ({
   labelStyle,
   ...props
 }: AppButtonProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const mode = mapVariantToMode(variant);
 
@@ -44,12 +45,12 @@ const AppButton = ({
         setPressed(false);
         props.onPressOut?.(e);
       }}
-      rippleColor={isDanger ? theme.colors.error : theme.colors.primary}
+      rippleColor={isDanger ? theme.colors.error : theme.colors.button.primaryBackground}
       style={[
         {
           width: fullWidth ? '100%' : undefined,
           borderRadius: rounded ? 28 : 8,
-          borderColor: isDanger ? theme.colors.error : undefined,
+          borderColor: isDanger ? theme.colors.error : theme.colors.button.border,
           opacity: pressed ? 0.85 : 1,
         },
         style,
@@ -65,8 +66,8 @@ const AppButton = ({
           color: isDanger
             ? theme.colors.error
             : mode === 'contained'
-              ? theme.colors.onPrimary
-              : undefined,
+              ? theme.colors.button.primaryText
+              : theme.colors.button.secondaryText,
         },
         labelStyle,
       ]}

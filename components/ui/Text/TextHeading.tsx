@@ -1,5 +1,6 @@
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText } from 'react-native-paper';
 import { StyleProp, TextStyle } from 'react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 type TextHeadingProps = {
   children: React.ReactNode;
@@ -7,14 +8,14 @@ type TextHeadingProps = {
 };
 
 const TextHeading = ({ children, style }: TextHeadingProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <PaperText
       variant="headlineMedium"
       style={[
         {
-          color: theme.colors.onSurface,
+          color: theme.colors.text.primary,
           fontWeight: '700',
         },
         style,

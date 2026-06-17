@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { TextInput } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 import InputText from './InputText';
 
@@ -23,6 +24,7 @@ const InputDateTime = ({
   style,
 }: InputDateTimeProps) => {
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
+  const theme = useAppTheme();
 
   const displayValue = value
     ? mode === 'date'
@@ -45,6 +47,7 @@ const InputDateTime = ({
       right={
         <TextInput.Icon
           icon={mode === 'date' ? 'calendar' : 'clock-outline'}
+          color={theme.colors.icon.secondary}
         />
       }
       onPressIn={() => {

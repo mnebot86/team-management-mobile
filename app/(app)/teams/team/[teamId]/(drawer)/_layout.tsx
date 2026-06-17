@@ -3,12 +3,15 @@ import AppHeader from '@/components/AppHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import AppButton from '@/components/ui/Button';
+import { getDrawerOptions } from '@/constants/navigationTheme';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 export const TeamDashboardLayout = () => {
+  const theme = useAppTheme();
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
 
   return (
-    <Drawer>
+    <Drawer screenOptions={{ ...getDrawerOptions(theme) }}>
       <Drawer.Screen
         name="index"
         options={{

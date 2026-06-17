@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View, Platform, Linking } from 'react-native';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { useTheme, Button } from 'react-native-paper';
+import { Button } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 
@@ -38,7 +39,7 @@ type ScheduleAttendancePlayer = {
 };
 
 const ScheduleDetails = () => {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const navigation = useNavigation();
 
   const styles = useMemo(() => createStyles(theme.colors), [theme.colors]);
@@ -295,24 +296,24 @@ const ScheduleDetails = () => {
         <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
 
         <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.primaryContainer }]}>
+          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.success }]}>
             <Text.Body style={styles.summaryLabelPrimary}>Present</Text.Body>
-            <Text.Heading style={{ color: theme.colors.primary }}>{presentCount}</Text.Heading>
+            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{presentCount}</Text.Heading>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.secondaryContainer }]}>
+          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.warning }]}>
             <Text.Body style={styles.summaryLabelSecondary}>Late</Text.Body>
-            <Text.Heading style={{ color: theme.colors.secondary }}>{lateCount}</Text.Heading>
+            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{lateCount}</Text.Heading>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.errorContainer }]}>
+          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.error }]}>
             <Text.Body style={styles.summaryLabelError}>Absent</Text.Body>
-            <Text.Heading style={{ color: theme.colors.error }}>{absentCount}</Text.Heading>
+            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{absentCount}</Text.Heading>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.surfaceVariant }]}>
+          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.neutral }]}>
             <Text.Body style={styles.summaryLabelOutline}>Unmarked</Text.Body>
-            <Text.Heading style={{ color: theme.colors.outline }}>{unmarkedCount}</Text.Heading>
+            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{unmarkedCount}</Text.Heading>
           </View>
         </View>
 
@@ -434,10 +435,10 @@ const createStyles = (colors: any) =>
       paddingVertical: 4,
     },
     typeChip: {
-      backgroundColor: colors.primaryContainer,
+      backgroundColor: colors.event.practice.background,
     },
     awayChip: {
-      backgroundColor: colors.secondaryContainer,
+      backgroundColor: colors.event.game.background,
     },
     chipText: {
       fontWeight: '600',
@@ -512,12 +513,14 @@ const createStyles = (colors: any) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: colors.primaryContainer,
+      backgroundColor: colors.avatar.background,
+      borderWidth: 1,
+      borderColor: colors.avatar.border,
       alignItems: 'center',
       justifyContent: 'center',
     },
     avatarInitials: {
-      color: colors.primary,
+      color: colors.avatar.icon,
       fontWeight: '700',
     },
     playerInfo: {

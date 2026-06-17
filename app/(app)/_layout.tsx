@@ -2,10 +2,14 @@ import AppIcon from '@/components/AppIcon';
 import React from 'react';
 import { Tabs } from 'expo-router';
 import AppHeader from '@/components/AppHeader';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { getTabBarOptions } from '@/constants/navigationTheme';
 
 export default function AuthLayout() {
+  const theme = useAppTheme();
+
   return (
-    <Tabs>
+    <Tabs screenOptions={{ ...getTabBarOptions(theme) }}>
       <Tabs.Screen
         name="dashboard"
         options={{

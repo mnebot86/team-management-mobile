@@ -1,4 +1,5 @@
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { StyleProp, TextStyle } from 'react-native';
 
 type TextMutedProps = {
@@ -7,14 +8,14 @@ type TextMutedProps = {
 };
 
 const TextMuted = ({ children, style }: TextMutedProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <PaperText
       variant="bodyMedium"
       style={[
         {
-          color: theme.colors.onSurfaceVariant,
+          color: theme.colors.text.secondary,
         },
         style,
       ]}

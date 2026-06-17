@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { useTheme } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import Text from '@/components/ui/Text';
 
 export interface SelectOption {
@@ -26,7 +26,7 @@ const InputSelect = ({
   onValueChange,
   style,
 }: SelectProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <View style={style}>
@@ -38,30 +38,30 @@ const InputSelect = ({
         style={{
           minHeight: 64,
           borderWidth: 1,
-          borderColor: theme.colors.outline,
+          borderColor: theme.colors.card.border,
           borderRadius: 8,
           paddingHorizontal: 16,
           paddingVertical: 12,
-          backgroundColor: theme.colors.background,
+          backgroundColor: theme.colors.card.background,
         }}
         placeholderStyle={{
-          color: theme.colors.onSurfaceVariant,
+          color: theme.colors.text.secondary,
           fontSize: 16,
           lineHeight: 24,
         }}
         selectedTextStyle={{
-          color: theme.colors.onSurface,
+          color: theme.colors.text.primary,
           fontSize: 16,
           lineHeight: 24,
         }}
         itemTextStyle={{
-          color: theme.colors.onSurface,
+          color: theme.colors.text.primary,
         }}
         containerStyle={{
           borderRadius: 12,
-          backgroundColor: theme.colors.surface,
+          backgroundColor: theme.colors.card.elevatedBackground,
         }}
-        activeColor={theme.colors.surfaceVariant}
+        activeColor={theme.colors.screen.headerBackground}
         data={options}
         labelField="label"
         valueField="value"

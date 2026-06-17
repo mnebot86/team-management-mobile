@@ -1,7 +1,8 @@
 import React from 'react';
 import dayjs from 'dayjs';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
-import { Card, Chip, useTheme } from 'react-native-paper';
+import { Card, Chip } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import Text from '@/components/ui/Text';
 import {
   Calendar,
@@ -42,33 +43,34 @@ interface EventCardProps {
   onPress?: () => void;
 }
 
-const EVENT_CONFIG = {
-  practice: {
-    label: 'Practice',
-    icon: Dumbbell,
-    accent: '#000000',
-    chipBackground: '#F3F4F6',
-  },
-  game: {
-    label: 'Game',
-    icon: Trophy,
-    accent: '#D4AF37',
-    chipBackground: '#F3E5B5',
-  },
-  event: {
-    label: 'Team Event',
-    icon: Users,
-    accent: '#6B7280',
-    chipBackground: '#E5E7EB',
-  },
-} as const;
 
 export const EventCard = ({
   data,
   onPress,
 }: EventCardProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const colors = theme.colors;
+
+  const EVENT_CONFIG = {
+    practice: {
+      label: 'Practice',
+      icon: Dumbbell,
+      accent: colors.event.practice.accent,
+      chipBackground: colors.event.practice.background,
+    },
+    game: {
+      label: 'Game',
+      icon: Trophy,
+      accent: colors.event.game.accent,
+      chipBackground: colors.event.game.background,
+    },
+    event: {
+      label: 'Team Event',
+      icon: Users,
+      accent: colors.event.event.accent,
+      chipBackground: colors.event.event.background,
+    },
+  } as const;
 
   const time = data.occurrenceStartDate ?? data.startTime ?? data.startDate;
   const endTime = data.endTime;
@@ -114,7 +116,13 @@ export const EventCard = ({
 
   return (
     <Pressable onPress={onPress}>
-      <Card style={styles.card} mode="elevated">
+      <Card
+        style={[
+          styles.card,
+          { backgroundColor: colors.card.background },
+        ]}
+        mode="elevated"
+      >
         <View style={styles.container}>
           <View style={styles.leftSection}>
             <View
@@ -130,11 +138,11 @@ export const EventCard = ({
               style={[
                 styles.iconContainer,
                 {
-                  backgroundColor: colors.surfaceVariant,
+                  backgroundColor: colors.card.elevatedBackground,
                 },
               ]}
             >
-              <Icon size={20} color={theme.colors.onSurface} />
+              <Icon size={20} color={theme.colors.icon.primary} />
             </View>
           </View>
 
@@ -153,15 +161,15 @@ export const EventCard = ({
             </View>
 
             <View style={styles.infoRow}>
-              <Calendar size={18} color={colors.onSurfaceVariant} />
-              <Text.Body style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+              <Calendar size={18} color={colors.text.secondary} />
+              <Text.Body style={[styles.infoText, { color: colors.text.secondary }]}>
                 {formattedDate}
               </Text.Body>
             </View>
 
             <View style={styles.infoRow}>
-              <Clock3 size={18} color={colors.onSurfaceVariant} />
-              <Text.Body style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+              <Clock3 size={18} color={colors.text.secondary} />
+              <Text.Body style={[styles.infoText, { color: colors.text.secondary }]}>
                 {formattedTimeRange}
               </Text.Body>
             </View>
@@ -171,7 +179,7 @@ export const EventCard = ({
               disabled={!address}
               style={styles.infoRow}
             >
-              <MapPin size={18} color={colors.onSurfaceVariant} />
+              <MapPin size={18} color={colors.text.secondary} />
 
               <Text.Body
                 style={[
@@ -188,7 +196,7 @@ export const EventCard = ({
           </View>
 
           <View style={styles.chevronContainer}>
-            <ChevronRight size={24} color={colors.outline} />
+            <ChevronRight size={24} color={colors.icon.secondary} />
           </View>
         </View>
       </Card>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Surface, useTheme } from 'react-native-paper';
+import { Surface } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { styles } from './styles';
 
 type BaseScreenProps = {
@@ -10,21 +11,21 @@ type BaseScreenProps = {
 };
 
 const BaseScreen = ({ children, style }: BaseScreenProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <SafeAreaView
       edges={['bottom', 'left', 'right']}
       style={[
         styles.safeArea,
-        { backgroundColor: theme.colors.background },
+        { backgroundColor: theme.colors.screen.background },
       ]}
     >
       <Surface
         elevation={0}
         style={[
           styles.surface,
-          { backgroundColor: theme.colors.background },
+          { backgroundColor: theme.colors.screen.background },
           style,
         ]}
       >

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import Text from '@/components/ui/Text';
 import AppIcon from '@/components/AppIcon';
 
@@ -25,10 +25,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onEditPress,
   headerContent,
 }) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
-    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.primary }}>
+    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.screen.headerBackground }}>
       <View
         style={{
           paddingHorizontal: 16,
@@ -46,7 +46,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
               marginBottom: 8,
             }}
           >
-            <Text.Body variant="accent">← {backLabel}</Text.Body>
+            <Text.Body style={{ color: theme.colors.text.primary }}>
+              ← {backLabel}
+            </Text.Body>
           </Pressable>
         )}
 
@@ -64,7 +66,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           >
             <AppIcon
               name="pencil"
-              variant="accent"
               size={22}
             />
           </Pressable>
@@ -77,7 +78,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             justifyContent: 'space-between',
           }}
         >
-          <Text.Heading style={{ color: theme.colors.onPrimary }}>
+          <Text.Heading style={{ color: theme.colors.text.primary }}>
             {title}
           </Text.Heading>
 
@@ -91,8 +92,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         {subtitle && (
           <Text.Body
             style={{
-              color: theme.colors.onPrimary,
-              opacity: 0.7,
+              color: theme.colors.text.secondary,
               marginTop: 4,
             }}
           >
@@ -108,7 +108,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             >
               <AppIcon
                 name="menu"
-                variant="accent"
                 size={22}
               />
             </Pressable>

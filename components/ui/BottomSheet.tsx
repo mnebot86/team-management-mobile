@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
-import { Modal, Portal, useTheme } from 'react-native-paper';
+import { Modal, Portal } from 'react-native-paper';
 import { View } from 'react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -15,7 +16,7 @@ export const BottomSheet = ({
   title,
   children,
 }: BottomSheetProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <Portal>
@@ -23,7 +24,7 @@ export const BottomSheet = ({
         visible={visible}
         onDismiss={onClose}
         contentContainerStyle={{
-          backgroundColor: theme.colors.surface,
+          backgroundColor: theme.colors.overlay.background,
           marginHorizontal: 16,
           marginBottom: 0,
           padding: 20,
@@ -37,7 +38,7 @@ export const BottomSheet = ({
             width: 48,
             height: 4,
             borderRadius: 2,
-            backgroundColor: theme.colors.outline,
+            backgroundColor: theme.colors.overlay.handle,
             alignSelf: 'center',
             marginBottom: 16,
           }}

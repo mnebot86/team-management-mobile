@@ -1,5 +1,6 @@
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText } from 'react-native-paper';
 import { StyleProp, TextStyle } from 'react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 type TextCaptionProps = {
   children: React.ReactNode;
@@ -7,14 +8,14 @@ type TextCaptionProps = {
 };
 
 const TextCaption = ({ children, style }: TextCaptionProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <PaperText
       variant="bodySmall"
       style={[
         {
-          color: theme.colors.onSurfaceVariant,
+          color: theme.colors.text.secondary,
         },
         style,
       ]}

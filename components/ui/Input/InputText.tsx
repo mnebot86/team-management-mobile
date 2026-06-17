@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
-import { TextInput, TextInputProps, useTheme } from 'react-native-paper';
+import { TextInput, TextInputProps } from 'react-native-paper';
 import Text from '@/components/ui/Text';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 type InputTextProps = TextInputProps & {
   label?: string;
@@ -9,7 +10,7 @@ type InputTextProps = TextInputProps & {
 };
 
 const InputText = ({ label, containerStyle, style, ...props }: InputTextProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   return (
     <View style={[{ width: '100%' }, containerStyle]}>
@@ -22,10 +23,16 @@ const InputText = ({ label, containerStyle, style, ...props }: InputTextProps) =
       <TextInput
         {...props}
         mode="outlined"
-        style={[{ width: '100%' }, style]}
-        outlineColor={theme.colors.outline}
+        style={[
+          {
+            width: '100%',
+            backgroundColor: theme.colors.card.background,
+          },
+          style,
+        ]}
+        outlineColor={theme.colors.card.border}
         activeOutlineColor={theme.colors.primary}
-        textColor={theme.colors.onSurface}
+        textColor={theme.colors.text.primary}
       />
     </View>
   );

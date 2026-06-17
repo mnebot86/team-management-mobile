@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { StyleProp, TextStyle, GestureResponderEvent } from 'react-native';
 
 type TextBodyProps = {
@@ -10,13 +11,13 @@ type TextBodyProps = {
 };
 
 const TextBody = ({ children, style, variant = 'default', onPress }: TextBodyProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const getColor = () => {
-    if (variant === 'muted') return theme.colors.onSurfaceVariant;
-    if (variant === 'accent') return (theme.colors as any).accent ?? theme.colors.primary;
+    if (variant === 'muted') return theme.colors.text.secondary;
+    if (variant === 'accent') return theme.colors.text.accent;
 
-    return theme.colors.onSurface;
+    return theme.colors.text.primary;
   };
 
   return (

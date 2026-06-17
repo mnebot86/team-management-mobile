@@ -6,7 +6,8 @@ import {
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Text, useTheme } from 'react-native-paper';
+import { Text } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import AvatarImage from './AvatarImage';
 
 export interface AvatarFile {
@@ -26,7 +27,7 @@ const AvatarPicker = ({
   onChange,
   size = 120,
 }: AvatarPickerProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const handleOpenOptions = () => {
     Alert.alert('Profile Photo', 'Choose an option', [
@@ -125,7 +126,7 @@ const AvatarPicker = ({
 
       <Text
         variant="bodyMedium"
-        style={[styles.label, { color: theme.colors.primary }]}
+        style={[styles.label, { color: theme.colors.text.accent }]}
         onPress={handleOpenOptions}>
         Add Photo
       </Text>

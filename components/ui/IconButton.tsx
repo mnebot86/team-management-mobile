@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconButton as PaperIconButton, IconButtonProps } from 'react-native-paper';
-import { useTheme } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 export type AppIconButtonProps = IconButtonProps & {
   variant?: 'default' | 'primary' | 'secondary' | 'danger';
@@ -12,19 +12,19 @@ const IconButton: React.FC<AppIconButtonProps> = ({
   containerColor,
   ...props
 }) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const colors = {
     default: {
-      iconColor: theme.colors.onSurface,
+      iconColor: theme.colors.icon.primary,
       containerColor: 'transparent',
     },
     primary: {
-      iconColor: theme.colors.primary,
+      iconColor: theme.colors.icon.accent,
       containerColor: 'transparent',
     },
     secondary: {
-      iconColor: theme.colors.secondary,
+      iconColor: theme.colors.icon.secondary,
       containerColor: 'transparent',
     },
     danger: {

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTheme } from 'react-native-paper';
+import { useAppTheme } from '@/hooks/useAppTheme';
 import { AvatarImageProps } from './types';
 
 const AvatarImage = ({ imageUrl, size = 120 }: AvatarImageProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const styles = createStyles(size, theme.colors);
 
@@ -22,7 +22,7 @@ const AvatarImage = ({ imageUrl, size = 120 }: AvatarImageProps) => {
           <MaterialCommunityIcons
             name="account"
             size={size * 0.45}
-            color={theme.colors.outline}
+            color={theme.colors.avatar.icon}
           />
         </View>
       )}
@@ -33,8 +33,11 @@ const AvatarImage = ({ imageUrl, size = 120 }: AvatarImageProps) => {
 const createStyles = (
   size: number,
   colors: {
-    surfaceVariant: string;
-    outline: string;
+    avatar: {
+      background: string;
+      border: string;
+      icon: string;
+    };
   },
 ) =>
   StyleSheet.create({
@@ -44,8 +47,8 @@ const createStyles = (
       borderRadius: size / 2,
       overflow: 'hidden',
       borderWidth: 2,
-      borderColor: colors.outline,
-      backgroundColor: colors.surfaceVariant,
+      borderColor: colors.avatar.border,
+      backgroundColor: colors.avatar.background,
       justifyContent: 'center',
       alignItems: 'center',
     },

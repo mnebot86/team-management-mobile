@@ -1,8 +1,9 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { Card, Chip, Divider, useTheme } from 'react-native-paper';
+import { Card, Chip, Divider } from 'react-native-paper';
 import Text from '@/components/ui/Text';
 import AppIcon from '@/components/AppIcon';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 export type PracticePlanCardProps = {
   data: {
@@ -24,7 +25,7 @@ const PracticePlan = ({
   onEdit,
   onDelete,
 }: PracticePlanCardProps) => {
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const {
     title,
@@ -38,6 +39,7 @@ const PracticePlan = ({
         style={{
           borderRadius: 24,
           marginBottom: 16,
+          backgroundColor: theme.colors.card.background,
         }}
       >
         <Card.Content
@@ -66,7 +68,7 @@ const PracticePlan = ({
                   borderRadius: 20,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: theme.colors.secondaryContainer,
+                  backgroundColor: theme.colors.card.elevatedBackground,
                   marginRight: 16,
                 }}
               >
@@ -139,7 +141,7 @@ const PracticePlan = ({
             ))}
           </View>
 
-          <Divider />
+          <Divider style={{ backgroundColor: theme.colors.card.border }} />
 
           <View
             style={{
