@@ -43,13 +43,15 @@ const Teams = () => {
     fetchTeams();
   }, []);
 
-  const handleOpenModal = () => {
-    router.push('/(app)/teams/create-team-modal');
-  }
-
   const handleTeamSelect = ({ team }: { team: ITeam }) => {
     setTeamId(team._id);
-    router.push(`/(app)/teams/team/${team._id}`);
+
+    router.push({
+      pathname: '/teams/team/[teamId]',
+      params: {
+        teamId: team._id,
+      },
+    });
   };
 
   return (
@@ -61,15 +63,11 @@ const Teams = () => {
           padding: 16,
           gap: 16,
         }}
-        ListHeaderComponent={(
-          <View style={{ marginBottom: 8 }}>
-            <AppButton onPress={handleOpenModal}>
-              Create Team
-            </AppButton>
-          </View>
-        )}
         renderItem={({ item }) => (
-          <TeamCard team={item.team} onPress={() => handleTeamSelect(item)} />
+          <TeamCard
+            team={item.team}
+            onPress={() => handleTeamSelect({ team: item.team })}
+          />
         )}
       // ListEmptyComponent={(
       //   <View style={{ paddingVertical: 40 }}>

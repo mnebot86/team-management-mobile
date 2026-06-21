@@ -96,7 +96,7 @@ const CreateAccount = () => {
         />
 
         <Button
-          variant="primary"
+          variant='secondary'
           disabled={isDisabled}
           onPress={handleSubmit}>
           Continue

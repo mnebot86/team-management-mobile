@@ -107,14 +107,14 @@ const Login = () => {
       />
 
       <View style={{ width: '100%', alignItems: 'flex-end', marginBottom: 24 }}>
-        <Pressable>
+        <Pressable onPress={() => router.push('/(auth)/forget-password')}>
           <Text.Body variant="accent">
             Forgot Password?
           </Text.Body>
         </Pressable>
       </View>
 
-      <Button onPress={handleLogin} disabled={disabled}>
+      <Button onPress={handleLogin} disabled={disabled} variant='secondary'>
         Sign In
       </Button>
 

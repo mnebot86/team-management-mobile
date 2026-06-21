@@ -1,6 +1,7 @@
 import React from 'react';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import AppHeader from '@/components/AppHeader';
+import AppButton from '@/components/ui/Button';
 
 export default function TeamsLayout() {
   return (
@@ -12,6 +13,18 @@ export default function TeamsLayout() {
             <AppHeader
               title="Teams"
               subtitle="Manage your teams"
+              headerContent={(
+                <AppButton
+                  icon="plus"
+                  variant='header'
+                  fullWidth={false}
+                  onPress={() => {
+                    router.push('/(app)/teams/create-team-modal');
+                  }}
+                >
+                  New Team
+                </AppButton>
+              )}
             />
           ),
         }}

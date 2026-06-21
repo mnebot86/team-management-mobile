@@ -18,6 +18,24 @@ export default function AuthLayout() {
         }}
       />
       <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="forget-password" options={{
+        header: ({ navigation }) => (
+          <AppHeader
+            title="Forget Password"
+            subtitle="Enter your email to receive a reset link"
+            onBackPress={() => navigation.goBack()}
+          />
+        ),
+      }} />
+      <Stack.Screen name="reset-password" options={{
+        header: ({ navigation }) => (
+          <AppHeader
+            title="Reset Password"
+            subtitle="Enter your new password"
+            onBackPress={() => navigation.goBack()}
+          />
+        ),
+      }} />
     </Stack>
   );
 }

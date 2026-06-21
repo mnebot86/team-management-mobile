@@ -79,6 +79,12 @@ type ThemeColors = {
     tabBarBackground: HexColor;
   };
 
+  auth: {
+    headerBackground: HexColor;
+    headerText: HexColor;
+    headerSubtitle: HexColor;
+  };
+
   drawer: {
     background: HexColor;
     activeBackground: HexColor;
@@ -111,6 +117,7 @@ type ThemeColors = {
     secondaryBackground: HexColor;
     secondaryText: HexColor;
     border: HexColor;
+    ripple: HexColor;
   };
 
   icon: {
@@ -169,6 +176,12 @@ export const COLORS = {
       tabBarBackground: WHITE,
     },
 
+    auth: {
+      headerBackground: BLACK,
+      headerText: WHITE,
+      headerSubtitle: GRAY_300,
+    },
+
     drawer: {
       background: WHITE,
       activeBackground: GOLD_100,
@@ -201,6 +214,7 @@ export const COLORS = {
       secondaryBackground: WHITE,
       secondaryText: BLACK,
       border: BLACK,
+      ripple: GRAY_200,
     },
 
     icon: {
@@ -258,6 +272,12 @@ export const COLORS = {
       tabBarBackground: DARK_SURFACE,
     },
 
+    auth: {
+      headerBackground: BLACK,
+      headerText: WHITE,
+      headerSubtitle: GRAY_300,
+    },
+
     drawer: {
       background: DARK_SURFACE,
       activeBackground: GOLD_900,
@@ -290,6 +310,7 @@ export const COLORS = {
       secondaryBackground: DARK_SURFACE,
       secondaryText: GRAY_100,
       border: GOLD_LIGHT,
+      ripple: GOLD_DARK,
     },
 
     icon: {

@@ -67,6 +67,7 @@ export const TeamDashboardLayout = () => {
               headerContent={(
                 <AppButton
                   icon="plus"
+                  variant='header'
                   fullWidth={false}
                   compact
                   onPress={() => {
