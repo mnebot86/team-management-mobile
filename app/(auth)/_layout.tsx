@@ -32,7 +32,7 @@ export default function AuthLayout() {
           <AppHeader
             title="Reset Password"
             subtitle="Enter your new password"
-            onBackPress={() => navigation.goBack()}
+            onBackPress={() => navigation.replace('login')}
           />
         ),
       }} />
