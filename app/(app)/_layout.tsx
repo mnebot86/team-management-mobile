@@ -15,11 +15,11 @@ export default function AuthLayout() {
         options={{
           header: () => (
             <AppHeader
-              title="Dashboard"
+              title="Home"
               subtitle="Welcome back, Coach!"
             />
           ),
-          tabBarIcon: ({ size }) => (
+          tabBarIcon: ({ size }: { size: number }) => (
             <AppIcon name="view-dashboard-outline" size={size} variant="default" />
           ),
           tabBarLabel: 'Dashboard',
@@ -30,7 +30,7 @@ export default function AuthLayout() {
         name="teams"
         options={{
           headerShown: false,
-          tabBarIcon: ({ size }) => (
+          tabBarIcon: ({ size }: { size: number }) => (
             <AppIcon name="account-group-outline" size={size} variant="default" />
           ),
           tabBarLabel: 'Teams',
@@ -46,7 +46,7 @@ export default function AuthLayout() {
               subtitle="Manage your account"
             />
           ),
-          tabBarIcon: ({ size }) => (
+          tabBarIcon: ({ size }: { size: number }) => (
             <AppIcon name="cog-outline" size={size} variant="default" />
           ),
           tabBarLabel: 'Settings',
