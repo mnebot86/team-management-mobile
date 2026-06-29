@@ -2,7 +2,9 @@ import axios from 'axios';
 import { useSessionStore } from '@/hooks/useSessionStore';
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const BASE_URL = process.env.APP_ENV === 'staging'
+  ? process.env.EXPO_PUBLIC_API_URL_STAGING
+  : process.env.EXPO_PUBLIC_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
