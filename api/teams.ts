@@ -22,8 +22,15 @@ export const getTeams = async () => {
   return response.data.data;
 };
 
+export const getActiveTeamsCount = async () => {
+  const response = await api.get('/active-team-count');
+
+  return response.data.data;
+};
+
 export const getTeam = async (teamId: string) => {
   const response = await api.get(`/teams/${teamId}`);
 
   return response.data.data;
 };
+

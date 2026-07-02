@@ -85,6 +85,7 @@ const Login = () => {
         label="Email"
         placeholder="you@example.com"
         left={<TextInput.Icon icon="email-outline" />}
+        autoCapitalize='none'
         style={{ marginBottom: 16 }}
         onChangeText={(text) => {
           setEmail(text);

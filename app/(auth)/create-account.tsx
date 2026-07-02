@@ -68,6 +68,7 @@ const CreateAccount = () => {
         <Input.Text
           label="Email Address"
           placeholder="you@example.com"
+          autoCapitalize="none"
           value={email}
           onChangeText={setEmail}
           style={{ marginBottom: 16 }}
@@ -76,6 +77,7 @@ const CreateAccount = () => {
         <Input.Text
           label="Password"
           placeholder="••••••••"
+          autoCapitalize="none"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -89,6 +91,7 @@ const CreateAccount = () => {
         <Input.Text
           label="Confirm Password"
           placeholder="••••••••"
+          autoCapitalize="none"
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
