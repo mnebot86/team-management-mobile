@@ -42,7 +42,8 @@ const Login = () => {
       await saveToken(token);
       setAuth(user, token);
 
-      router.push('/(app)/dashboard');
+      // router.push('/(app)/dashboard'); hide while in development
+      router.push('/(app)/teams');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Login failed';
 

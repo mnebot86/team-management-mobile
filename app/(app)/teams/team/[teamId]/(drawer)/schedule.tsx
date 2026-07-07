@@ -43,24 +43,6 @@ const Schedule = () => {
     loadSchedule();
   }, [teamId]);
 
-  const handleOpenModal = () => {
-    if (!teamId) {
-      setSnackbar({
-        visible: true,
-        message: 'No team selected',
-      });
-
-      return;
-    }
-
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/create-schedule-modal',
-      params: {
-        teamId,
-      },
-    });
-  }
-
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
     message: '',
@@ -90,13 +72,6 @@ const Schedule = () => {
           padding: 16,
           paddingBottom: 32,
         }}
-        ListHeaderComponent={(
-          <View style={{ marginBottom: 8 }}>
-            <AppButton onPress={handleOpenModal}>
-              New Event
-            </AppButton>
-          </View>
-        )}
         renderSectionHeader={({ section }) => (
           <View
             style={{

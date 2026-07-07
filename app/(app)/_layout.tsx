@@ -13,6 +13,7 @@ export default function AuthLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
+          href: null, // hide while in development
           header: () => (
             <AppHeader
               title="Home"

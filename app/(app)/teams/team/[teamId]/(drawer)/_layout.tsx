@@ -36,6 +36,19 @@ export const TeamDashboardLayout = () => {
               title='Roster'
               subtitle='Manager your players'
               onMenuPress={() => navigation.toggleDrawer()}
+              headerContent={(
+                <AppButton
+                  icon="plus"
+                  variant='header'
+                  fullWidth={false}
+                  compact
+                  onPress={() => {
+                    router.push('/(app)/teams/team/[teamId]/create-player-modal');
+                  }}
+                >
+                  New Player
+                </AppButton>
+              )}
             />
           ),
         }}
@@ -50,6 +63,19 @@ export const TeamDashboardLayout = () => {
               title='Schedule'
               subtitle='Manager your events'
               onMenuPress={() => navigation.toggleDrawer()}
+              headerContent={(
+                <AppButton
+                  icon="plus"
+                  variant='header'
+                  fullWidth={false}
+                  compact
+                  onPress={() => {
+                    router.push('/(app)/teams/team/[teamId]/create-schedule-modal');
+                  }}
+                >
+                  New Event
+                </AppButton>
+              )}
             />
           ),
         }}

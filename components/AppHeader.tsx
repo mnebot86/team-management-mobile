@@ -31,8 +31,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.screen.headerBackground }}>
       <View
         style={{
-          paddingHorizontal: 16,
-          paddingBottom: 16,
+          padding: 12,
         }}
       >
         {onBackPress && (

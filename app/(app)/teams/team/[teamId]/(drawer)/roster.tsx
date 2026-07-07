@@ -46,24 +46,6 @@ const Roster = () => {
     fetchRoster();
   }, [teamId]);
 
-  const handleOpenModal = () => {
-    if (!teamId) {
-      setSnackbar({
-        visible: true,
-        message: 'No team selected',
-      });
-
-      return;
-    }
-
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/create-player-modal',
-      params: {
-        teamId,
-      },
-    });
-  }
-
   const handleSelectPlayer = (item: any) => {
     if (!teamId) {
       setSnackbar({
@@ -92,13 +74,6 @@ const Roster = () => {
           padding: 16,
           gap: 16,
         }}
-        ListHeaderComponent={(
-          <View style={{ marginBottom: 8 }}>
-            <AppButton onPress={handleOpenModal}>
-              Create Player
-            </AppButton>
-          </View>
-        )}
         renderItem={({ item }) => (
           <PlayerCard
             firstName={item.firstName}

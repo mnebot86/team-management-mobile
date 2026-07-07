@@ -91,6 +91,18 @@ export default function TeamStackLayout() {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="create-player-modal"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Create Player"
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }
