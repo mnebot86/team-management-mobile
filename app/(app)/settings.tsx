@@ -10,6 +10,7 @@ import {
 
 } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
+import { disconnectSocket } from '@/socket';
 
 const Settings = () => {
   const { logout } = useSessionStore();
@@ -22,7 +23,11 @@ const Settings = () => {
   const handleLogout = async () => {
     try {
       await removeToken();
+
+      disconnectSocket();
+
       logout();
+
       router.replace('/(auth)/login');
     } catch (err: any) {
       const message = err?.message || 'Unable to logout. Please try again.';

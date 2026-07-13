@@ -4,13 +4,14 @@ import ScreenContainer from '@/components/layout/Screen';
 import Input from '@/components/ui/Input';
 import AppButton from '@/components/ui/Button';
 import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { View } from 'react-native';
 import { createAndInsertPlayerToTeam } from '@/api/teamMembers';
-import { useLocalSearchParams } from 'expo-router';
+import { useTeamStore } from '@/hooks/useTeamStore';
 
 const CreatePlayerModal = () => {
-  const { teamId } = useLocalSearchParams();
+  const { getTeamId } = useTeamStore();
+
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -25,6 +26,8 @@ const CreatePlayerModal = () => {
     setLoading(true);
 
     try {
+      const teamId = getTeamId();
+
       if (!teamId) {
         setError('No team selected');
         return;

@@ -10,7 +10,7 @@ import { useDateTimeStore } from '@/hooks/useDateTimeStore';
 import { createSchedule } from '@/api/schedule';
 
 const CreateScheduleModal = () => {
-  const { teamId } = useLocalSearchParams<{ teamId: string }>();
+  const { teamId } = useLocalSearchParams();
 
   const [title, setTitle] = useState('');
   const [eventType, setEventType] = useState('practice');

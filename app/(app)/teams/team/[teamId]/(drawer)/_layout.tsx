@@ -70,7 +70,7 @@ export const TeamDashboardLayout = () => {
                   fullWidth={false}
                   compact
                   onPress={() => {
-                    router.push('/(app)/teams/team/[teamId]/create-schedule-modal');
+                    router.push(`/(app)/teams/team/${teamId}/create-schedule-modal`);
                   }}
                 >
                   New Event

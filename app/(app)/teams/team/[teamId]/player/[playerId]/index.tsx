@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 
@@ -21,33 +21,36 @@ const PlayerDetails = () => {
   const [player, setPlayer] = useState<any>(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchPlayerDetails = async () => {
-      setIsLoading(true);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPlayerDetails = async () => {
+        setIsLoading(true);
 
-      if (!playerId || !teamId) {
-        setError('Missing player or team information');
-        return;
-      }
+        if (!playerId || !teamId) {
+          setError('Missing player or team information');
+          setIsLoading(false);
+          return;
+        }
 
-      try {
-        const response = await getTeamMember(teamId as string, playerId as string);
+        try {
+          const response = await getTeamMember(teamId as string, playerId as string);
 
-        setPlayer(response);
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to load player details';
+          setPlayer(response);
+        } catch (err: any) {
+          const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load player details';
 
-        setError(message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          setError(message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
-    fetchPlayerDetails();
-  }, [playerId, teamId]);
+      fetchPlayerDetails();
+    }, [playerId, teamId]),
+  );
 
   useEffect(() => {
     if (!player) return;

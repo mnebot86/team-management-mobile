@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View, Platform, Linking } from 'react-native';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Button } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -67,8 +67,6 @@ const ScheduleDetails = () => {
     schedule?.occurrenceStartDate ?? schedule?.startDate,
   );
 
-  console.log('Schedule', JSON.stringify(schedule, null, 2));
-
   const dateLabel = eventDate.isSame(dayjs(), 'day')
     ? 'Today'
     : eventDate.format('MMM D, YYYY');
@@ -96,47 +94,48 @@ const ScheduleDetails = () => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    const loadAttendance = async () => {
+  useFocusEffect(
+    useCallback(() => {
+      const loadAttendance = async () => {
+        if (!teamId || Array.isArray(teamId)) {
+          return;
+        }
 
-      if (!teamId || Array.isArray(teamId)) {
-        return;
-      }
+        setIsLoading(true);
 
-      setIsLoading(true);
+        try {
+          const players = await getTeamRoster(teamId);
 
-      try {
-        const players = await getTeamRoster(teamId);
-
-        const attendanceStatusMap = new Map<string, AttendanceStatus>(
-          (schedule?.attendance ?? []).map((record: any) => [
-            record.profileId,
-            record.status as AttendanceStatus,
-          ]),
-        );
-
-        const attendancePlayers = players
-          .filter((player: TeamRosterPlayer) => player.role === 'player')
-          .map((player: TeamRosterPlayer) =>
-            mapPlayerToAttendance({
-              profileId: player.profileId,
-              firstName: player.firstName,
-              lastName: player.lastName,
-              jerseyNumber: player.jerseyNumber,
-              status: (attendanceStatusMap.get(player.profileId) ?? null) as AttendanceStatus,
-            }),
+          const attendanceStatusMap = new Map<string, AttendanceStatus>(
+            (schedule?.attendance ?? []).map((record: any) => [
+              record.profileId,
+              record.status as AttendanceStatus,
+            ]),
           );
 
-        setAttendance(attendancePlayers);
-      } catch (error) {
-        setError('Unable to load roster. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+          const attendancePlayers = players
+            .filter((player: TeamRosterPlayer) => player.role === 'player')
+            .map((player: TeamRosterPlayer) =>
+              mapPlayerToAttendance({
+                profileId: player.profileId,
+                firstName: player.firstName,
+                lastName: player.lastName,
+                jerseyNumber: player.jerseyNumber,
+                status: (attendanceStatusMap.get(player.profileId) ?? null) as AttendanceStatus,
+              }),
+            );
 
-    loadAttendance();
-  }, [schedule, teamId]);
+          setAttendance(attendancePlayers);
+        } catch {
+          setError('Unable to load roster. Please try again.');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadAttendance();
+    }, [schedule, teamId]),
+  );
 
   if (!schedule) {
     return (

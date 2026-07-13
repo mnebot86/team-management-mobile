@@ -1,7 +1,24 @@
+import { useEffect } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { joinTeam, leaveTeam } from '@/socket';
 import AppHeader from '@/components/AppHeader';
 import { Stack } from 'expo-router';
 
 export default function TeamStackLayout() {
+  const { teamId } = useLocalSearchParams<{ teamId: string }>();
+
+  useEffect(() => {
+    if (!teamId) {
+      return;
+    }
+
+    joinTeam(teamId);
+
+    return () => {
+      leaveTeam(teamId);
+    };
+  }, [teamId]);
+
   return (
     <Stack>
       <Stack.Screen

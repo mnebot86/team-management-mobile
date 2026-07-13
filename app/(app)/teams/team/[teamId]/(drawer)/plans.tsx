@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
 import { FlatList, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import PracticePlan from '@/components/PracticePlan';
@@ -19,31 +19,37 @@ const Plans = () => {
 
   const teamId = getTeamId();
 
-  useEffect(() => {
-    const fetchPlans = async () => {
-      setLoading(true);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPlans = async () => {
+        if (!teamId) {
+          return;
+        }
 
-      try {
-        const plans = await getPracticePlans(teamId as string);
+        setLoading(true);
 
-        setPlans(plans);
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to load plans';
+        try {
+          const plans = await getPracticePlans(teamId);
 
-        setSnackbar({
-          visible: true,
-          message,
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
+          setPlans(plans);
+        } catch (err: any) {
+          const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load plans';
 
-    fetchPlans();
-  }, [teamId]);
+          setSnackbar({
+            visible: true,
+            message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchPlans();
+    }, [teamId]),
+  );
 
   const handleCreatePlan = () => {
     if (!teamId) {

@@ -16,5 +16,6 @@ export default function Index() {
   //   return <Redirect href="/(onboarding)/welcome" />;
   // }
 
-  return <Redirect href="/(app)/dashboard" />;
+  // return <Redirect href="/(app)/dashboard" />; 
+  return <Redirect href="/(app)/teams" />; //Until dashboard is finish
 }

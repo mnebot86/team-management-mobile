@@ -9,6 +9,7 @@ import { lightTheme, darkTheme } from '@/themes/theme';
 import { getMe } from '@/api/auth';
 import AppSnackbar from '@/components/ui/SnackBar';
 import * as SecureToken from 'expo-secure-store';
+import { connectSocket } from '@/socket/service';
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -35,6 +36,8 @@ export default function RootLayout() {
         const { user, profile } = await getMe();
 
         setAuth(user, token);
+
+        connectSocket(process.env.EXPO_PUBLIC_SOCKET_URL!, token);
 
         if (profile) {
           setProfile(profile);

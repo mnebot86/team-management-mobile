@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 
 import ScreenContainer from '@/components/layout/Screen';
@@ -27,42 +27,44 @@ const EditPlayerScreen = () => {
   const [avatar, setAvatar] = useState<AvatarFile>();
   const [avatarPublicId, setAvatarPublicId] = useState('');
 
-  useEffect(() => {
-    const fetchPlayer = async () => {
-      setIsLoading(true);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPlayer = async () => {
+        setIsLoading(true);
 
-      if (!teamId || !playerId) {
-        setError('Missing player information');
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const player = await getTeamMember(teamId as string, playerId as string);
-
-        setFirstName(player?.firstName || '');
-        setLastName(player?.lastName || '');
-        setJerseyNumber(player?.jerseyNumber?.toString() || '');
-        setPositions(player?.positions || '');
-
-        if (player?.avatar) {
-          setAvatar(player.avatar);
-          setAvatarPublicId(player.avatar.publicId || '');
+        if (!teamId || !playerId) {
+          setError('Missing player information');
+          setIsLoading(false);
+          return;
         }
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to load player';
 
-        setError(message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        try {
+          const player = await getTeamMember(teamId as string, playerId as string);
 
-    fetchPlayer();
-  }, [playerId, teamId]);
+          setFirstName(player?.firstName || '');
+          setLastName(player?.lastName || '');
+          setJerseyNumber(player?.jerseyNumber?.toString() || '');
+          setPositions(player?.positions || '');
+
+          if (player?.avatar) {
+            setAvatar(player.avatar);
+            setAvatarPublicId(player.avatar.publicId || '');
+          }
+        } catch (err: any) {
+          const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load player';
+
+          setError(message);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchPlayer();
+    }, [teamId, playerId]),
+  );
 
   const handleSave = async () => {
     if (!firstName.trim()) {

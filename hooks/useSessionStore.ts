@@ -24,6 +24,7 @@ type SessionState = {
 
   getUser: () => User | null;
   getProfile: () => Profile | null;
+  getToken: () => string | null;
 };
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -58,4 +59,5 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   getUser: () => get().user,
   getProfile: () => get().profile,
+  getToken: () => get().token,
 }));

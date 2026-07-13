@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
 import AppButton from '@/components/ui/Button';
 import { FlatList, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import { getTeamRoster } from '@/api/teamMembers';
@@ -20,31 +20,37 @@ const Roster = () => {
 
   const teamId = getTeamId();
 
-  useEffect(() => {
-    const fetchRoster = async () => {
+  useFocusEffect(
+    useCallback(() => {
+      if (!teamId) {
+        return;
+      }
+
       setLoading(true);
 
-      try {
-        const roster = await getTeamRoster(teamId as string);
+      const fetchRoster = async () => {
+        try {
+          const roster = await getTeamRoster(teamId as string);
 
-        setRoster(roster);
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to load roster';
+          setRoster(roster);
+        } catch (err: any) {
+          const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load roster';
 
-        setSnackbar({
-          visible: true,
-          message,
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
+          setSnackbar({
+            visible: true,
+            message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchRoster();
-  }, [teamId]);
+      fetchRoster();
+    }, [teamId]),
+  );
 
   const handleSelectPlayer = (item: any) => {
     if (!teamId) {

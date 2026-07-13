@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation, useFocusEffect } from 'expo-router';
 import { getTeam } from '@/api/teams';
 import { ITeam } from '@/types/team';
 import SnackBar from '@/components/ui/SnackBar';
@@ -36,28 +36,37 @@ const TeamDetails = () => {
     });
   };
 
-  useEffect(() => {
-    const fetchTeam = async () => {
+  useFocusEffect(
+    useCallback(() => {
+      if (!teamId) return;
+
       setLoading(true);
 
-      try {
-        const resp = await getTeam(teamId as string)
+      Promise.all([
+        getTeam(teamId as string),
+        getRosterCount(teamId as string),
+        getNextPractice(teamId as string),
+        getNextGame(teamId as string),
+      ])
+        .then(([team, roster, practice, game]) => {
+          setTeam(team);
+          setRosterCount(roster.count);
+          setNextPractice(practice);
+          setNextGame(game);
+        })
+        .catch((error: any) => {
+          const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to load team data';
 
-        setTeam(resp);
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to load team details';
-
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTeam();
-  }, [teamId]);
+          setError(message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }, [teamId])
+  );
 
   useEffect(() => {
     if (!team) return;
@@ -67,73 +76,6 @@ const TeamDetails = () => {
       headerSubtitle: `${team.ageGroup} ${team.sport}`,
     });
   }, [navigation, team]);
-
-  useEffect(() => {
-    const fetchRosterCount = async () => {
-      if (!teamId) return;
-
-      try {
-        const result = await getRosterCount(teamId as string);
-
-        setRosterCount(result.count);
-      } catch (error: any) {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          'Failed to load roster count';
-
-        setError(message);
-      }
-    }
-
-    fetchRosterCount();
-  }, [teamId, team]);
-
-  useEffect(() => {
-    const fetchNextPractice = async () => {
-      setLoading(true);
-
-      try {
-        const practice = await getNextPractice(teamId as string);
-
-        setNextPractice(practice);
-      } catch (error: any) {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          'Failed to load next game';
-
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchNextPractice();
-  }, [teamId]);
-
-  useEffect(() => {
-    const fetchNextGame = async () => {
-      setLoading(true);
-
-      try {
-        const game = await getNextGame(teamId as string);
-
-        setNextGame(game);
-      } catch (error: any) {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          'Failed to load next practice';
-
-        setError(message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchNextGame();
-  }, [teamId]);
 
   if (loading) {
     return <LoadingScreen message="Loading team dashboard..." />;

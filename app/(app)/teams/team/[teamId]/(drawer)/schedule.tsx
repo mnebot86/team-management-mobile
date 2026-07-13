@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
-import AppButton from '@/components/ui/Button';
 import { SectionList, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import EventCard from '@/components/EventCard';
@@ -20,28 +19,31 @@ const Schedule = () => {
 
   const teamId = getTeamId();
 
-  useEffect(() => {
-    const loadSchedule = async () => {
-      if (!teamId) return;
+  useFocusEffect(
+    useCallback(() => {
+      const loadSchedule = async () => {
+        if (!teamId) return;
 
-      try {
-        setLoading(true);
+        try {
+          setLoading(true);
 
-        const response = await getTeamSchedule(teamId);
+          const response = await getTeamSchedule(teamId);
 
-        setSections(response ?? []);
-      } catch (error) {
-        setSnackbar({
-          visible: true,
-          message: 'Failed to load schedule',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+          setSections(response ?? []);
+        } catch {
+          setSnackbar({
+            visible: true,
+            message: 'Failed to load schedule',
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    loadSchedule();
-  }, [teamId]);
+      loadSchedule();
+    }, [teamId]),
+  );
+
 
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,

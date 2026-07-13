@@ -10,7 +10,7 @@ type TeamState = {
 
 export const useTeamStore = create<TeamState>((set, get) => ({
   teamId: null,
-
+  teamList: [],
   setTeamId: (teamId) =>
     set({
       teamId,
