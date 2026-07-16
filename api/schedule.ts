@@ -18,6 +18,12 @@ export const getNextPractice = async (teamId: string) => {
   return response.data.data;
 };
 
+export const getLastPractice = async (teamId: string) => {
+  const response = await api.get(`schedules/team/${teamId}/last-practice`);
+
+  return response.data.data;
+};
+
 export const getNextGame = async (teamId: string) => {
   const response = await api.get(`schedules/team/${teamId}/next-game`);
 
@@ -26,6 +32,12 @@ export const getNextGame = async (teamId: string) => {
 
 export const updateAttendance = async (scheduleId: string, payload: any) => {
   const response = await api.patch(`/schedules/${scheduleId}/attendance`, payload);
+
+  return response.data.data;
+};
+
+export const getPlayerAttendanceRecord = async (profileId: string) => {
+  const response = await api.get(`/schedules/player/${profileId}/attendance`);
 
   return response.data.data;
 };

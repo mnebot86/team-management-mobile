@@ -7,7 +7,9 @@ import { useTheme } from 'react-native-paper';
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import { getTeamMember } from '@/api/teamMembers';
+import { getPlayerAttendanceRecord } from '@/api/schedule';
 import SnackBar from '@/components/ui/SnackBar';
+import { AttendanceCard } from '@/components/AttendenceCard';
 
 const PlayerDetails = () => {
   const theme = useTheme();
@@ -19,6 +21,12 @@ const PlayerDetails = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [player, setPlayer] = useState<any>(null);
+  const [attendance, setAttendance] = useState({
+    present: 0,
+    late: 0,
+    absent: 0,
+    total: 0,
+  });
   const [error, setError] = useState('');
 
   useFocusEffect(
@@ -34,8 +42,10 @@ const PlayerDetails = () => {
 
         try {
           const response = await getTeamMember(teamId as string, playerId as string);
+          const attendanceRecord = await getPlayerAttendanceRecord(playerId as string);
 
           setPlayer(response);
+          setAttendance(attendanceRecord);
         } catch (err: any) {
           const message =
             err?.response?.data?.message ||
@@ -129,6 +139,17 @@ const PlayerDetails = () => {
               <Text.Body>{player.linkCode}</Text.Body>
             </View>
           )}
+        </View>
+
+        <View>
+          <Text.Caption style={styles.label}>Attendance Record</Text.Caption>
+          <AttendanceCard
+            heading="Attendance Rate"
+            present={attendance.present}
+            late={attendance.late}
+            absent={attendance.absent}
+            total={attendance.total}
+          />
         </View>
       </View>
 

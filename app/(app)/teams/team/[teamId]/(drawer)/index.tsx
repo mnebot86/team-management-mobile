@@ -9,8 +9,13 @@ import { getRosterCount } from '@/api/teamMembers';
 import { Card, Divider } from 'react-native-paper';
 import LoadingScreen from '@/components/LoadingScreen';
 import { View } from 'react-native';
-import { getNextGame, getNextPractice } from '@/api/schedule';
+import {
+  getLastPractice,
+  getNextGame,
+  getNextPractice,
+} from '@/api/schedule';
 import EventCard from '@/components/EventCard';
+import { AttendanceCard } from '@/components/AttendenceCard';
 
 const TeamDetails = () => {
   const navigation = useNavigation();
@@ -20,6 +25,11 @@ const TeamDetails = () => {
   const [team, setTeam] = useState<ITeam | null>(null);
   const [nextPractice, setNextPractice] = useState<any>(null);
   const [nextGame, setNextGame] = useState<any>(null);
+  const [lastPracticeAttendance, setLastPracticeAttendance] = useState({
+    present: 0,
+    absent: 0,
+    total: 0,
+  });
   const [rosterCount, setRosterCount] = useState(0);
   const [error, setError] = useState('');
 
@@ -47,12 +57,14 @@ const TeamDetails = () => {
         getRosterCount(teamId as string),
         getNextPractice(teamId as string),
         getNextGame(teamId as string),
+        getLastPractice(teamId as string),
       ])
-        .then(([team, roster, practice, game]) => {
+        .then(([team, roster, practice, game, lastPractice]) => {
           setTeam(team);
           setRosterCount(roster.count);
           setNextPractice(practice);
           setNextGame(game);
+          setLastPracticeAttendance(lastPractice);
         })
         .catch((error: any) => {
           const message =
@@ -86,6 +98,23 @@ const TeamDetails = () => {
       <View style={{ padding: 16, gap: 24 }}>
         <View>
           <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
+            Upcoming Game
+          </Text.Caption>
+
+          {nextGame && (
+            <EventCard
+              data={nextGame}
+              onPress={handleOpenSchedule}
+            />
+          )}
+
+          {!nextGame && (
+            <Text.Muted>No upcoming game scheduled.</Text.Muted>
+          )}
+        </View>
+
+        <View>
+          <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
             Upcoming Practice
           </Text.Caption>
 
@@ -103,32 +132,15 @@ const TeamDetails = () => {
 
         <View>
           <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
-            Upcoming Game
+            Last Practice Attendance
           </Text.Caption>
 
-          {nextGame && (
-            <EventCard
-              data={nextGame}
-              onPress={handleOpenSchedule}
-            />
-          )}
-
-          {!nextGame && (
-            <Text.Muted>No upcoming game scheduled.</Text.Muted>
-          )}
+          <AttendanceCard
+            present={lastPracticeAttendance.present}
+            absent={lastPracticeAttendance.absent}
+            total={lastPracticeAttendance.total}
+          />
         </View>
-
-        <Card style={{ borderRadius: 24 }}>
-          <Card.Content>
-            <Text.Subheading>Team Snapshot</Text.Subheading>
-
-            <Divider style={{ marginVertical: 12 }} />
-
-            <Text.Body>Players: {rosterCount}</Text.Body>
-            <Text.Body>Upcoming Practices: 3</Text.Body>
-            <Text.Body>Upcoming Games: 2</Text.Body>
-          </Card.Content>
-        </Card>
       </View>
 
       {!!error && (
