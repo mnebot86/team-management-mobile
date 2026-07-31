@@ -107,6 +107,20 @@ export const TeamDashboardLayout = () => {
           ),
         }}
       />
+
+      <Drawer.Screen
+        name="settings"
+        options={{
+          drawerLabel: 'Settings',
+          header: ({ navigation }) => (
+            <AppHeader
+              title='Settings'
+              subtitle='Configure your team'
+              onMenuPress={() => navigation.toggleDrawer()}
+            />
+          ),
+        }}
+      />
     </Drawer>
   );
 }

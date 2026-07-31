@@ -34,8 +34,9 @@ const CreateProfile = () => {
       });
       setProfile(profile);
 
-      // To reuse this screen for editing profile in the future, we replace the route instead of pushing
-      router.replace('/(onboarding)/welcome');
+      // Rethinking this path
+      // router.replace('/(onboarding)/welcome');
+      router.replace('/(app)/teams');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
 

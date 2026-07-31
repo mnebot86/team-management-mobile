@@ -17,3 +17,9 @@ export const editPracticePlan = async (planId: string, payload: any) => {
 
   return response.data.data;
 };
+
+export const deletePracticePlan = async (planId: string) => {
+  const response = await api.delete(`/practices/${planId}`);
+
+  return response.data.data;
+};

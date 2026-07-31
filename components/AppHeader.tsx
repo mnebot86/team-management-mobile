@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppTheme } from '@/hooks/useAppTheme';
-import Text from '@/components/ui/Text';
+
 import AppIcon from '@/components/AppIcon';
+import Input from '@/components/ui/Input';
+import Text from '@/components/ui/Text';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 type AppHeaderProps = {
   title: string;
@@ -14,6 +16,7 @@ type AppHeaderProps = {
   onEditPress?: () => void;
   showMenuButton?: boolean;
   headerContent?: React.ReactNode;
+  textInputProps?: React.ComponentProps<typeof Input.Text>;
 };
 
 const AppHeader: React.FC<AppHeaderProps> = ({
@@ -24,11 +27,17 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onMenuPress,
   onEditPress,
   headerContent,
+  textInputProps,
 }) => {
   const theme = useAppTheme();
 
   return (
-    <SafeAreaView edges={['top']} style={{ backgroundColor: theme.colors.screen.headerBackground }}>
+    <SafeAreaView
+      edges={['top']}
+      style={{
+        backgroundColor: theme.colors.screen.headerBackground,
+      }}
+    >
       <View
         style={{
           padding: 12,
@@ -97,6 +106,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           >
             {subtitle}
           </Text.Body>
+        )}
+
+        {textInputProps && (
+          <View
+            style={{
+              marginTop: subtitle ? 16 : 12,
+            }}
+          >
+            <Input.Text {...textInputProps} />
+          </View>
         )}
 
         {!!onMenuPress && (

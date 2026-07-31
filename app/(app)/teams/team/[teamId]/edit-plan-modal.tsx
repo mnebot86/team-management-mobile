@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -56,13 +56,13 @@ const EditPlanModal = () => {
     );
   };
 
-  const handleDeleteSection = (sectionId: string) => {
+  const handleDeleteSection = useCallback((sectionId: string) => {
     setSections((current) =>
       current.filter((section) => section.id !== sectionId)
     );
-  };
+  }, []);
 
-  const handleAddSection = () => {
+  const handleAddSection = useCallback(() => {
     setSections((current) => [
       ...current,
       {
@@ -72,9 +72,9 @@ const EditPlanModal = () => {
         description: '',
       },
     ]);
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const payload = {
       title,
       description: notes,
@@ -88,7 +88,7 @@ const EditPlanModal = () => {
     };
 
     await editPracticePlan(planId, payload);
-  };
+  }, [title, notes, durationMinutes, sections, planId]);
 
   return (
     <ScreenContainer.Scroll>

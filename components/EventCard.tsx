@@ -111,8 +111,8 @@ export const EventCard = ({
   const displayTitle = type === 'game' && details
     ? details
     : title;
+
   const config = EVENT_CONFIG[type];
-  const Icon = config.icon;
 
   return (
     <Pressable onPress={onPress}>
@@ -124,28 +124,6 @@ export const EventCard = ({
         mode="elevated"
       >
         <View style={styles.container}>
-          <View style={styles.leftSection}>
-            <View
-              style={[
-                styles.accentBar,
-                {
-                  backgroundColor: config.accent,
-                },
-              ]}
-            />
-
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  backgroundColor: colors.card.elevatedBackground,
-                },
-              ]}
-            >
-              <Icon size={20} color={theme.colors.icon.primary} />
-            </View>
-          </View>
-
           <View style={styles.content}>
             <View style={styles.headerRow}>
               <Text.Heading style={styles.title}>

@@ -49,7 +49,7 @@ const WelcomeScreen = () => {
         </Pressable>
 
         <Pressable
-          // onPress={() => router.push("/join-team")}
+          onPress={() => router.push("/(app)/teams")}
           style={{
             backgroundColor: theme.colors.surface,
             borderRadius: 20,

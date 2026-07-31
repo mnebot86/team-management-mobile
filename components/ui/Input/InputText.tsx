@@ -1,15 +1,24 @@
 import React from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
 import { TextInput, TextInputProps } from 'react-native-paper';
+
 import Text from '@/components/ui/Text';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type InputTextProps = TextInputProps & {
   label?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  rightIcon?: React.ComponentProps<typeof TextInput.Icon>['icon'];
 };
 
-const InputText = ({ label, containerStyle, style, ...props }: InputTextProps) => {
+const InputText = ({
+  label,
+  containerStyle,
+  style,
+  rightIcon,
+  right,
+  ...props
+}: InputTextProps) => {
   const theme = useAppTheme();
 
   return (
@@ -33,6 +42,11 @@ const InputText = ({ label, containerStyle, style, ...props }: InputTextProps) =
         outlineColor={theme.colors.card.border}
         activeOutlineColor={theme.colors.primary}
         textColor={theme.colors.text.primary}
+        right={
+          rightIcon
+            ? <TextInput.Icon icon={rightIcon} />
+            : right
+        }
       />
     </View>
   );

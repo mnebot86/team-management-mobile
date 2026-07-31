@@ -2,15 +2,20 @@ import React, { useState, useCallback } from 'react';
 import { getSocket } from '@/socket';
 import ScreenContainer from '@/components/layout/Screen';
 import TeamCard from './components/teamCard';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { getTeams } from '@/api/teams';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { ITeam } from '@/types/team';
 import { useTeamStore } from '@/hooks/useTeamStore';
+import AppIcon from '@/components/AppIcon';
+import Text from '@/components/ui/Text';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const Teams = () => {
+  const theme = useAppTheme();
   const { setTeamId } = useTeamStore();
+
   const [teams, setTeams] = useState<{ team: ITeam }[]>([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
@@ -76,6 +81,25 @@ const Teams = () => {
             padding: 16,
             gap: 16,
           }}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <AppIcon
+                name="account-group-outline"
+                size={72}
+                variant="default"
+              />
+              <Text.Heading>
+                No Teams Yet
+              </Text.Heading>
+
+              <Text.Body style={[
+                styles.emptyText,
+                { color: theme.colors.onSurfaceVariant },
+              ]}>
+                Create your first team or join an existing team using an invite code.
+              </Text.Body>
+            </View>
+          }
           renderItem={({ item }) => (
             <TeamCard
               team={item.team}
@@ -97,3 +121,18 @@ const Teams = () => {
 };
 
 export default Teams;
+
+const styles = StyleSheet.create({
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 64,
+  },
+  emptyText: {
+    marginTop: 12,
+    textAlign: 'center',
+    opacity: 0.8,
+  },
+});

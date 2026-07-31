@@ -4,7 +4,7 @@ import ScreenContainer from '@/components/layout/Screen';
 import Input from '@/components/ui/Input';
 import AppButton from '@/components/ui/Button';
 import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { View } from 'react-native';
 import { createAndInsertPlayerToTeam } from '@/api/teamMembers';
 import { useTeamStore } from '@/hooks/useTeamStore';

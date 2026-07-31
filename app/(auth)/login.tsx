@@ -75,7 +75,7 @@ const Login = () => {
       </View>
 
       <Text.Heading style={{ marginBottom: 8 }}>
-        Welcome Back
+        Teams
       </Text.Heading>
 
       <Text.Muted style={{ marginBottom: 24 }}>

@@ -3,6 +3,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { joinTeam, leaveTeam } from '@/socket';
 import AppHeader from '@/components/AppHeader';
 import { Stack } from 'expo-router';
+import AppButton from '@/components/ui/Button';
+import { router } from 'expo-router';
 
 export default function TeamStackLayout() {
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
@@ -12,10 +14,10 @@ export default function TeamStackLayout() {
       return;
     }
 
-    joinTeam(teamId);
+    // joinTeam(teamId);
 
     return () => {
-      leaveTeam(teamId);
+      // leaveTeam(teamId);
     };
   }, [teamId]);
 
@@ -116,6 +118,43 @@ export default function TeamStackLayout() {
           header: () => (
             <AppHeader
               title="Create Player"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="invite-code"
+        options={{
+          header: ({ navigation }) => (
+            <AppHeader
+              title="Invite Code"
+              onBackPress={() => navigation.goBack()}
+              headerContent={(
+                <AppButton
+                  icon="plus"
+                  variant='header'
+                  fullWidth={false}
+                  compact
+                  onPress={() => {
+                    router.push(`/teams/team/${teamId}/create-visit-code-modal`);
+                  }}
+                >
+                  New Code
+                </AppButton>
+              )}
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="create-visit-code-modal"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Create Visit Code"
             />
           ),
         }}

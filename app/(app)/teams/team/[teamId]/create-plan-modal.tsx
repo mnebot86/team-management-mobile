@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -19,20 +19,35 @@ const CreatePlanModal = () => {
     message: '',
   });
 
-  const handleCreate = async () => {
-    const payload = {
-      teamId,
-      title,
-      description,
-      totalDurationMinutes: Number(durationMinutes),
-      status: 'draft',
-      sections: [],
-    };
+  const handleCreate = useCallback(async () => {
+    try {
+      const payload = {
+        teamId,
+        title,
+        description,
+        totalDurationMinutes: Number(durationMinutes),
+        status: 'draft',
+        sections: [],
+      };
 
-    await createPracticePlan(teamId, payload);
+      await createPracticePlan(teamId, payload);
 
-    router.back();
-  };
+      router.back();
+    } catch (error) {
+      setSnackbar({
+        visible: true,
+        message: error instanceof Error
+          ? error.message
+          : 'Failed to create practice plan.',
+      });
+    }
+  }, [
+    router,
+    teamId,
+    title,
+    description,
+    durationMinutes
+  ]);
 
   return (
     <ScreenContainer.Scroll>

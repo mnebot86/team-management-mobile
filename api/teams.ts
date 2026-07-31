@@ -6,6 +6,16 @@ interface CreateTeamParams {
   sport: string;
 };
 
+export interface CreateInviteCode {
+  role: 'player' | 'coach' | 'parent';
+  maxUses: number;
+  expiresAt: Date | null;
+}
+
+export interface JoinTeam {
+  code: string
+}
+
 export const createTeam = async ({ name, ageGroup, sport }: CreateTeamParams) => {
   const response = await api.post('/teams', {
     name,
@@ -34,3 +44,20 @@ export const getTeam = async (teamId: string) => {
   return response.data.data;
 };
 
+export const createInviteCode = async (payload: CreateInviteCode, teamId: string) => {
+  const response = await api.post(`/teams/${teamId}/invites`, payload);
+
+  return response.data.data;
+};
+
+export const getTeamInviteCodes = async (teamId: string) => {
+  const response = await api.get(`/teams/${teamId}/invites`);
+
+  return response.data.data;
+};
+
+export const joinTeamByCode = async (payload: JoinTeam) => {
+  const response = await api.post(`/teams/join`, payload);
+
+  return response.data.data;
+};

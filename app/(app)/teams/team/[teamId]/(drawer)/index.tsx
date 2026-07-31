@@ -96,39 +96,35 @@ const TeamDetails = () => {
   return (
     <ScreenContainer>
       <View style={{ padding: 16, gap: 24 }}>
-        <View>
-          <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
-            Upcoming Game
-          </Text.Caption>
+        {nextGame ? (
+          <View>
+            <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
+              Upcoming Game
+            </Text.Caption>
 
-          {nextGame && (
-            <EventCard
-              data={nextGame}
-              onPress={handleOpenSchedule}
-            />
-          )}
+            {nextGame && (
+              <EventCard
+                data={nextGame}
+                onPress={handleOpenSchedule}
+              />
+            )}
+          </View>
+        ) : null}
 
-          {!nextGame && (
-            <Text.Muted>No upcoming game scheduled.</Text.Muted>
-          )}
-        </View>
+        {nextPractice ? (
+          <View>
+            <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
+              Upcoming Practice
+            </Text.Caption>
 
-        <View>
-          <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
-            Upcoming Practice
-          </Text.Caption>
-
-          {nextPractice && (
-            <EventCard
-              data={nextPractice}
-              onPress={handleOpenSchedule}
-            />
-          )}
-
-          {!nextPractice && (
-            <Text.Muted>No upcoming practice scheduled.</Text.Muted>
-          )}
-        </View>
+            {nextPractice && (
+              <EventCard
+                data={nextPractice}
+                onPress={handleOpenSchedule}
+              />
+            )}
+          </View>
+        ) : null}
 
         <View>
           <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>

@@ -61,24 +61,6 @@ const PracticePlan = ({
                 flex: 1,
               }}
             >
-              <View
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 20,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: theme.colors.card.elevatedBackground,
-                  marginRight: 16,
-                }}
-              >
-                <AppIcon
-                  name="clipboard-text-outline"
-                  size={28}
-                  variant="accent"
-                />
-              </View>
-
               <View style={{ flex: 1 }}>
                 <Text.Heading>{title}</Text.Heading>
 
@@ -135,7 +117,18 @@ const PracticePlan = ({
             }}
           >
             {sections.map((section, index) => (
-              <Chip key={`${section.title}-${index}`} compact>
+              <Chip
+                key={`${section.title}-${index}`}
+                compact
+                mode="outlined"
+                style={{
+                  backgroundColor: theme.colors.card.elevatedBackground,
+                  borderColor: theme.colors.card.border,
+                }}
+                textStyle={{
+                  color: theme.colors.text.primary,
+                }}
+              >
                 {section.title}
               </Chip>
             ))}

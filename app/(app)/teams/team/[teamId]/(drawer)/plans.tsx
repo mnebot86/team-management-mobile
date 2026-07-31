@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import PracticePlan from '@/components/PracticePlan';
-import { getPracticePlans } from '@/api/practices';
+import { deletePracticePlan, getPracticePlans } from '@/api/practices';
 
 const Plans = () => {
   const { getTeamId } = useTeamStore();
@@ -51,25 +51,7 @@ const Plans = () => {
     }, [teamId]),
   );
 
-  const handleCreatePlan = () => {
-    if (!teamId) {
-      setSnackbar({
-        visible: true,
-        message: 'No team selected',
-      });
-
-      return;
-    }
-
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/create-plan-modal',
-      params: {
-        teamId: teamId,
-      },
-    });
-  };
-
-  const handleSelectPlan = (item: any) => {
+  const handleSelectPlan = useCallback((item: any) => {
     if (!teamId) {
       setSnackbar({
         visible: true,
@@ -87,9 +69,9 @@ const Plans = () => {
         plan: JSON.stringify(item),
       },
     });
-  };
+  }, [router, teamId]);
 
-  const handleEdit = (item: any) => {
+  const handleEdit = useCallback((item: any) => {
     if (!teamId) {
       setSnackbar({
         visible: true,
@@ -107,7 +89,27 @@ const Plans = () => {
         plan: JSON.stringify(item),
       },
     });
-  };
+  }, [router, teamId]);
+
+  const handleDelete = useCallback(async (item: any) => {
+    try {
+      await deletePracticePlan(item._id);
+
+      setPlans((current) =>
+        current.filter((plan: any) => plan._id !== item._id)
+      );
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to delete practice plan';
+
+      setSnackbar({
+        visible: true,
+        message,
+      });
+    }
+  }, []);
 
   return (
     <ScreenContainer>
@@ -123,7 +125,7 @@ const Plans = () => {
             data={item}
             onPress={() => handleSelectPlan(item)}
             onEdit={() => handleEdit(item)}
-            onDelete={() => console.log('Delete plan', item._id)}
+            onDelete={() => handleDelete(item)}
           />
         )}
         refreshing={loading}

@@ -1,4 +1,3 @@
-import { StringifyConfig } from 'expo-router/build/fork/getPathFromState';
 import api from './axios';
 
 interface CreateAndInsertPlayerToTeamParams {

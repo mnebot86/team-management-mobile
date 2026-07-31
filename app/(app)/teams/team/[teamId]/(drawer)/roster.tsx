@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
-import AppButton from '@/components/ui/Button';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';

@@ -1,5 +1,5 @@
 import { Provider as PaperProvider } from 'react-native-paper';
-import { Slot } from 'expo-router';
+import { router, Slot, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import { useEffect, useState } from 'react';
@@ -13,21 +13,31 @@ import { connectSocket } from '@/socket/service';
 
 export default function RootLayout() {
   const scheme = useColorScheme();
-  const { setHydrated, setAuth, setProfile, isHydrated } = useSessionStore();
+  const {
+    setHydrated,
+    setAuth,
+    setProfile,
+    isHydrated,
+    token,
+  } = useSessionStore();
+
   const { removeToken } = useStoredToken();
 
   const theme = scheme === 'dark' ? darkTheme : lightTheme;
 
-  const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
+  const segments = useSegments();
+  const inAuthGroup = segments[0] === '(auth)';
+
+  const [snackbar, setSnackbar] = useState({
     visible: false,
     message: '',
   });
 
   useEffect(() => {
     const init = async () => {
-      const token = await SecureToken.getItemAsync('token');
+      const storedToken = await SecureToken.getItemAsync('token');
 
-      if (!token) {
+      if (!storedToken) {
         setHydrated();
         return;
       }
@@ -35,33 +45,52 @@ export default function RootLayout() {
       try {
         const { user, profile } = await getMe();
 
-        setAuth(user, token);
+        setAuth(user, storedToken);
 
-        connectSocket(process.env.EXPO_PUBLIC_SOCKET_URL!, token);
+        connectSocket(process.env.EXPO_PUBLIC_SOCKET_URL!, storedToken);
 
         if (profile) {
           setProfile(profile);
         }
       } catch (err: any) {
-        const message = err?.message || 'Session restore failed';
+        const status = err?.response?.status;
+        const message = err?.message ?? '';
+
+        if (
+          status === 401 ||
+          message.toLowerCase().includes('token') ||
+          message.toLowerCase().includes('jwt')
+        ) {
+          await removeToken();
+          return;
+        }
 
         setSnackbar({
           visible: true,
-          message,
+          message: message || 'Session restore failed',
         });
-
-        if (err?.response?.status === 401) {
-          await removeToken();
-        }
       } finally {
         setHydrated();
       }
     };
 
     init();
-  }, [setAuth, setProfile, setHydrated]);
+  }, []);
 
-  if (!isHydrated) return null;
+  useEffect(() => {
+    if (
+      isHydrated &&
+      !token &&
+      !inAuthGroup
+    ) {
+      router.replace('/(auth)/login');
+    }
+
+  }, [isHydrated, token, inAuthGroup]);
+
+  if (!isHydrated) {
+    return null;
+  }
 
   return (
     <PaperProvider theme={theme}>
