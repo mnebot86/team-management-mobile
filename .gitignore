@@ -40,5 +40,6 @@ yarn-error.*
 /ios
 /android
 
-.yarn
-!.yarn/releases
+.yarn/*
+!.yarn/releases/
+!.yarn/releases/**
