@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
+let socketToken: string | null = null;
 
 export const connectSocket = (
   url: string,
@@ -8,9 +9,11 @@ export const connectSocket = (
 ) => {
   console.log('Connecting to socket at:', url);
 
-  if (socket) {
+  if (socket && socketToken === token) {
     return socket;
   }
+
+  socket?.disconnect();
 
   socket = io(url, {
     transports: ['websocket'],
@@ -19,6 +22,7 @@ export const connectSocket = (
     },
     forceNew: true,
   });
+  socketToken = token;
 
   socket.on('connect', () => {
     console.log('✅ Socket Connected');
@@ -49,4 +53,5 @@ export const getSocket = () => {
 export const disconnectSocket = () => {
   socket?.disconnect();
   socket = null;
+  socketToken = null;
 };

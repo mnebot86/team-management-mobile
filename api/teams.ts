@@ -57,7 +57,10 @@ export const getTeamInviteCodes = async (teamId: string) => {
 };
 
 export const joinTeamByCode = async (payload: JoinTeam) => {
-  const response = await api.post(`/teams/join`, payload);
+  const response = await api.post(`/teams/join`, payload, {
+    retryUnauthorizedOnce: true,
+    skipSessionLogoutOnUnauthorized: true,
+  });
 
   return response.data.data;
 };

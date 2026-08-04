@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { getSocket } from '@/socket';
 import ScreenContainer from '@/components/layout/Screen';
 import TeamCard from './components/teamCard';
@@ -22,6 +22,7 @@ const Teams = () => {
     visible: false,
     message: '',
   });
+
 
   useFocusEffect(
     useCallback(() => {
@@ -49,6 +50,27 @@ const Teams = () => {
       fetchTeams();
     }, []),
   );
+
+  useEffect(() => {
+    try {
+      const socket = getSocket();
+
+      const handleTeamCreated = (team: ITeam) => {
+        setTeams((current) => [
+          { team },
+          ...current.filter(({ team: existing }) => existing._id !== team._id),
+        ]);
+      };
+
+      socket.on('team.created', handleTeamCreated);
+
+      return () => {
+        socket.off('team.created', handleTeamCreated);
+      };
+    } catch {
+      return;
+    }
+  }, []);
 
   const handleTeamSelect = ({ team }: { team: ITeam }) => {
     setTeamId(team._id);

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -12,6 +12,7 @@ import { Snackbar, Surface } from 'react-native-paper';
 
 import {
   getNotifications as fetchNotifications,
+  markNotificationRead,
 } from '@/api/notification';
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
@@ -20,7 +21,6 @@ import {
   useNotificationStore,
 } from '@/hooks/useNotification';
 import { useSessionStore } from '@/hooks/useSessionStore';
-import { getSocket } from '@/socket/service';
 
 dayjs.extend(relativeTime);
 
@@ -33,8 +33,8 @@ const Notifications = () => {
     (state) => state.setNotifications,
   );
 
-  const addNotification = useNotificationStore(
-    (state) => state.addNotification,
+  const markAsRead = useNotificationStore(
+    (state) => state.markAsRead,
   );
 
   const profile = useSessionStore(
@@ -80,36 +80,30 @@ const Notifications = () => {
     }, [profile?._id, setNotifications]),
   );
 
-  useEffect(() => {
+  const handleNotificationPress = async (notificationId: string) => {
     if (!profile?._id) {
       return;
     }
 
-    const socket = getSocket();
-
-    const handleNotification = (notification: Notification) => {
-      addNotification(notification, profile._id);
-    };
-
-    socket.on(
-      'notification:new',
-      handleNotification,
-    );
-
-    return () => {
-      socket.off(
-        'notification:new',
-        handleNotification,
-      );
-    };
-  }, [addNotification, profile]);
+    try {
+      await markNotificationRead(notificationId);
+      markAsRead(notificationId, profile._id);
+    } catch (error) {
+      setSnackbar({
+        visible: true,
+        message: error instanceof Error
+          ? error.message
+          : 'Failed to mark notification as read',
+      });
+    }
+  };
 
   const renderItem = ({
     item,
   }: {
     item: Notification;
   }) => (
-    <Pressable>
+    <Pressable onPress={() => handleNotificationPress(item._id)}>
       <Surface
         elevation={0}
         style={styles.card}

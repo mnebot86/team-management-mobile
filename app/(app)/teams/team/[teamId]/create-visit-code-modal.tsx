@@ -7,7 +7,7 @@ import Text from '@/components/ui/Text';
 import { useDateTimeStore } from '@/hooks/useDateTimeStore';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 const CreateVisitCodeModal = () => {
@@ -25,7 +25,7 @@ const CreateVisitCodeModal = () => {
 
   const teamId = getTeamId();
 
-  const handleGenerateInvite = async () => {
+  const handleGenerateInvite = useCallback(async () => {
     if (!unlimitedUses && (!maxUses || Number(maxUses) <= 0)) {
       setSnackbar({
         visible: true,
@@ -56,7 +56,7 @@ const CreateVisitCodeModal = () => {
         message,
       });
     }
-  };
+  }, [unlimitedUses, maxUses, neverExpires, role, recurrenceEndDate, teamId]);
 
   return (
     <ScreenContainer>

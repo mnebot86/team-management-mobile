@@ -9,7 +9,7 @@ import { lightTheme, darkTheme } from '@/themes/theme';
 import { getMe } from '@/api/auth';
 import AppSnackbar from '@/components/ui/SnackBar';
 import * as SecureToken from 'expo-secure-store';
-import { connectSocket } from '@/socket/service';
+import { connectSocket, disconnectSocket } from '@/socket/service';
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -47,8 +47,6 @@ export default function RootLayout() {
 
         setAuth(user, storedToken);
 
-        connectSocket(process.env.EXPO_PUBLIC_SOCKET_URL!, storedToken);
-
         if (profile) {
           setProfile(profile);
         }
@@ -76,6 +74,27 @@ export default function RootLayout() {
 
     init();
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      disconnectSocket();
+      return;
+    }
+
+    const socketUrl = process.env.EXPO_PUBLIC_SOCKET_URL;
+
+    if (!socketUrl) {
+      setSnackbar({
+        visible: true,
+        message: 'Socket URL is not configured',
+      });
+      return;
+    }
+
+    connectSocket(socketUrl, token);
+
+    return () => disconnectSocket();
+  }, [token]);
 
   useEffect(() => {
     if (

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
 import { SectionList, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
@@ -8,6 +8,7 @@ import EventCard from '@/components/EventCard';
 import Text from '@/components/ui/Text';
 import { useTheme } from 'react-native-paper';
 import { getTeamSchedule } from '@/api/schedule';
+import { getSocket } from '@/socket';
 
 const Schedule = () => {
   const { getTeamId } = useTeamStore();
@@ -19,30 +20,53 @@ const Schedule = () => {
 
   const teamId = getTeamId();
 
+  const loadSchedule = useCallback(async () => {
+    if (!teamId) return;
+
+    try {
+      setLoading(true);
+
+      const response = await getTeamSchedule(teamId);
+
+      setSections(response ?? []);
+    } catch {
+      setSnackbar({
+        visible: true,
+        message: 'Failed to load schedule',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [teamId]);
+
   useFocusEffect(
     useCallback(() => {
-      const loadSchedule = async () => {
-        if (!teamId) return;
+      loadSchedule();
+    }, [loadSchedule]),
+  );
 
-        try {
-          setLoading(true);
+  useEffect(() => {
+    if (!teamId) return;
 
-          const response = await getTeamSchedule(teamId);
-
-          setSections(response ?? []);
-        } catch {
-          setSnackbar({
-            visible: true,
-            message: 'Failed to load schedule',
-          });
-        } finally {
-          setLoading(false);
+    try {
+      const socket = getSocket();
+      const handleScheduleChange = (schedule: { teamId?: string }) => {
+        if (!schedule.teamId || schedule.teamId === teamId) {
+          loadSchedule();
         }
       };
 
-      loadSchedule();
-    }, [teamId]),
-  );
+      socket.on('schedule.created', handleScheduleChange);
+      socket.on('schedule.updated', handleScheduleChange);
+
+      return () => {
+        socket.off('schedule.created', handleScheduleChange);
+        socket.off('schedule.updated', handleScheduleChange);
+      };
+    } catch {
+      return;
+    }
+  }, [loadSchedule, teamId]);
 
 
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({

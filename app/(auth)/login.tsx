@@ -8,14 +8,14 @@ import Input from '@/components/ui/Input';
 import AppIcon from '@/components/AppIcon';
 import { useTheme } from 'react-native-paper';
 import { useCallback, useMemo, useState } from 'react';
-import { login } from '@/api/auth';
+import { getMe, login } from '@/api/auth';
 import { useSessionStore } from '@/hooks/useSessionStore';
 import { useStoredToken } from '@/hooks/useStoredToken';
 import SnackBar from '@/components/ui/SnackBar';
 
 const Login = () => {
   const theme = useTheme();
-  const { setAuth } = useSessionStore();
+  const { setAuth, setProfile } = useSessionStore();
   const { saveToken } = useStoredToken();
 
   const [email, setEmail] = useState('');
@@ -41,6 +41,12 @@ const Login = () => {
 
       await saveToken(token);
       setAuth(user, token);
+
+      const session = await getMe();
+
+      if (session.profile) {
+        setProfile(session.profile);
+      }
 
       // router.push('/(app)/dashboard'); hide while in development
       router.push('/(app)/teams');

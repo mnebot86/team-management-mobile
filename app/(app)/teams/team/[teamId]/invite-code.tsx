@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 
 import * as Clipboard from 'expo-clipboard';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { getTeamInviteCodes } from '@/api/teams';
 import ScreenContainer from '@/components/layout/Screen';
@@ -198,19 +198,19 @@ const InviteCodeScreen = () => {
   const [sections, setSections] = useState<InviteSection[]>([]);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchInviteCodes = async () => {
-      try {
-        const data = await getTeamInviteCodes(teamId as string);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchInviteCodes = async () => {
+        try {
+          const data = await getTeamInviteCodes(teamId as string);
+          setSections(data);
+        } catch (error) {
+          console.error('Failed to fetch invite codes:', error);
+        }
+      };
 
-        setSections(data);
-      } catch (error) {
-        console.error('Failed to fetch invite codes:', error);
-      }
-    };
-
-    fetchInviteCodes();
-  }, [teamId]);
+      fetchInviteCodes();
+    }, [teamId]));
 
   const handleToggleStatus = useCallback(async (inviteId: string) => {
     try {

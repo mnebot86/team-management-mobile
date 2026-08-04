@@ -39,6 +39,9 @@ type NotificationState = {
     profileId: string,
   ) => void;
 
+  markAllAsRead: (profileId: string) => void;
+  setUnreadCount: (count: number) => void;
+
   clear: () => void;
 
   getNotifications: () => Notification[];
@@ -80,7 +83,7 @@ export const useNotificationStore = create<NotificationState>(
     ) => {
       const notifications = [
         notification,
-        ...get().notifications,
+        ...get().notifications.filter(({ _id }) => _id !== notification._id),
       ];
 
       set({
@@ -91,6 +94,22 @@ export const useNotificationStore = create<NotificationState>(
         ),
       });
     },
+
+    markAllAsRead: (profileId) => {
+      const readAt = new Date().toISOString();
+      const notifications = get().notifications.map((notification) => ({
+        ...notification,
+        recipients: notification.recipients.map((recipient) =>
+          recipient.profileId === profileId
+            ? { ...recipient, readAt: recipient.readAt ?? readAt }
+            : recipient,
+        ),
+      }));
+
+      set({ notifications, unreadCount: 0 });
+    },
+
+    setUnreadCount: (unreadCount) => set({ unreadCount }),
 
     markAsRead: (
       notificationId,

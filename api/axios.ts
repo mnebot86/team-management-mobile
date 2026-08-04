@@ -4,6 +4,14 @@ import { router } from 'expo-router';
 
 import { useSessionStore } from '@/hooks/useSessionStore';
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    retryUnauthorizedOnce?: boolean;
+    skipSessionLogoutOnUnauthorized?: boolean;
+    hasRetriedUnauthorized?: boolean;
+  }
+}
+
 const BASE_URL = process.env.APP_ENV === 'staging'
   ? process.env.EXPO_PUBLIC_API_URL_STAGING
   : process.env.EXPO_PUBLIC_API_URL;
@@ -36,7 +44,28 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const config = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      config?.retryUnauthorizedOnce &&
+      !config.hasRetriedUnauthorized
+    ) {
+      config.hasRetriedUnauthorized = true;
+
+      return axiosInstance.request(config);
+    }
+
     if (error.response?.status === 401 && !isRedirecting) {
+      if (config?.skipSessionLogoutOnUnauthorized) {
+        const data = error.response.data;
+        const message = typeof data === 'string'
+          ? data
+          : data?.message || data?.error || 'Unable to authorize this request.';
+
+        return Promise.reject(new Error(message));
+      }
+
       isRedirecting = true;
 
       try {
