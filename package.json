@@ -49,6 +49,5 @@
     "babel-plugin-module-resolver": "^5.0.3",
     "typescript": "~5.9.2"
   },
-  "private": true,
-  "packageManager": "yarn@4.14.1"
+  "private": true
 }
