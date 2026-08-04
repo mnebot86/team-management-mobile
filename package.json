@@ -18,6 +18,7 @@
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-navigation/drawer": "^7.5.0",
     "axios": "^1.15.2",
+    "babel-preset-expo": "~54.0.10",
     "dayjs": "^1.11.21",
     "expo": "~54.0.36",
     "expo-clipboard": "~8.0.8",

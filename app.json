@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Team Management",
-    "slug": "team-management",
+    "slug": "team-app-mobile",
     "scheme": "teamapp",
     "version": "1.0.0",
     "orientation": "portrait",
