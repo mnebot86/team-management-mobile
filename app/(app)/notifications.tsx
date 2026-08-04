@@ -1,0 +1,178 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { Snackbar, Surface } from 'react-native-paper';
+
+import {
+  getNotifications as fetchNotifications,
+} from '@/api/notification';
+import ScreenContainer from '@/components/layout/Screen';
+import Text from '@/components/ui/Text';
+import {
+  Notification,
+  useNotificationStore,
+} from '@/hooks/useNotification';
+import { useSessionStore } from '@/hooks/useSessionStore';
+import { getSocket } from '@/socket/service';
+
+dayjs.extend(relativeTime);
+
+const Notifications = () => {
+  const notifications = useNotificationStore(
+    (state) => state.notifications,
+  );
+
+  const setNotifications = useNotificationStore(
+    (state) => state.setNotifications,
+  );
+
+  const addNotification = useNotificationStore(
+    (state) => state.addNotification,
+  );
+
+  const profile = useSessionStore(
+    (state) => state.profile,
+  );
+
+  const [loading, setLoading] = useState(false);
+
+  const [snackbar, setSnackbar] = useState({
+    visible: false,
+    message: '',
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!profile?._id) {
+        return;
+      }
+
+      setLoading(true);
+
+      const loadNotifications = async () => {
+        try {
+          const data = await fetchNotifications();
+
+          setNotifications(data, profile._id);
+        } catch (err: any) {
+          const message =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to load notifications';
+
+          setSnackbar({
+            visible: true,
+            message,
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadNotifications();
+    }, [profile?._id, setNotifications]),
+  );
+
+  useEffect(() => {
+    if (!profile?._id) {
+      return;
+    }
+
+    const socket = getSocket();
+
+    const handleNotification = (notification: Notification) => {
+      addNotification(notification, profile._id);
+    };
+
+    socket.on(
+      'notification:new',
+      handleNotification,
+    );
+
+    return () => {
+      socket.off(
+        'notification:new',
+        handleNotification,
+      );
+    };
+  }, [addNotification, profile]);
+
+  const renderItem = ({
+    item,
+  }: {
+    item: Notification;
+  }) => (
+    <Pressable>
+      <Surface
+        elevation={0}
+        style={styles.card}
+      >
+        <View style={styles.content}>
+          <Text.Subheading>
+            {item.title}
+          </Text.Subheading>
+
+          <Text.Body style={styles.message}>
+            {item.message}
+          </Text.Body>
+
+          <Text.Caption>
+            {dayjs(item.createdAt).fromNow()}
+          </Text.Caption>
+        </View>
+      </Surface>
+    </Pressable>
+  );
+
+  return (
+    <ScreenContainer>
+      <FlatList
+        data={notifications}
+        keyExtractor={(item) => item._id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
+
+      <Snackbar
+        visible={snackbar.visible}
+        onDismiss={() =>
+          setSnackbar({
+            visible: false,
+            message: '',
+          })
+        }
+      >
+        {snackbar.message}
+      </Snackbar>
+    </ScreenContainer>
+  );
+};
+
+const styles = StyleSheet.create({
+  list: {
+    paddingVertical: 8,
+  },
+  card: {
+    backgroundColor: 'transparent',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#D9D9D9',
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+  },
+  content: {
+    gap: 6,
+  },
+  message: {
+    marginTop: 2,
+  },
+});
+
+export default Notifications;

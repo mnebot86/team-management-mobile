@@ -2,10 +2,13 @@ import { io, Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
 
-export const connectSocket = (url: string, token: string) => {
+export const connectSocket = (
+  url: string,
+  token: string,
+) => {
   console.log('Connecting to socket at:', url);
 
-  if (socket?.connected) {
+  if (socket) {
     return socket;
   }
 
@@ -14,6 +17,22 @@ export const connectSocket = (url: string, token: string) => {
     auth: {
       token,
     },
+    forceNew: true,
+  });
+
+  socket.on('connect', () => {
+    console.log('✅ Socket Connected');
+    console.log('Socket ID:', socket?.id);
+  });
+
+  socket.on('connect_error', error => {
+    console.log('❌ Socket Connect Error');
+    console.log(error.message);
+  });
+
+  socket.on('disconnect', reason => {
+    console.log('❌ Socket Disconnected');
+    console.log(reason);
   });
 
   return socket;

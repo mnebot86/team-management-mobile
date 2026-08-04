@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 
 type User = {
-  id: string;
+  _id: string;
   email: string;
 };
 
 type Profile = {
-  id: string;
+  _id: string;
   name?: string;
 };
 
