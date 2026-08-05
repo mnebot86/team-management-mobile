@@ -19,6 +19,15 @@ const CreatePlanModal = () => {
     message: '',
   });
 
+  const handleClose = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.dismiss();
+  }, [router]);
+
   const handleCreate = useCallback(async () => {
     try {
       const payload = {
@@ -31,8 +40,7 @@ const CreatePlanModal = () => {
       };
 
       await createPracticePlan(teamId, payload);
-
-      router.back();
+      handleClose();
     } catch (error) {
       setSnackbar({
         visible: true,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleProp, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Surface } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -21,16 +21,22 @@ const BaseScreen = ({ children, style }: BaseScreenProps) => {
         { backgroundColor: theme.colors.screen.background },
       ]}
     >
-      <Surface
-        elevation={0}
-        style={[
-          styles.surface,
-          { backgroundColor: theme.colors.screen.background },
-          style,
-        ]}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        {children}
-      </Surface>
+        <Surface
+          elevation={0}
+          style={[
+            styles.surface,
+            { backgroundColor: theme.colors.screen.background },
+            style,
+          ]}
+        >
+          {children}
+        </Surface>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

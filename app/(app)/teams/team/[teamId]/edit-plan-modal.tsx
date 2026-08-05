@@ -74,6 +74,15 @@ const EditPlanModal = () => {
     ]);
   }, []);
 
+  const handleClose = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.dismiss();
+  }, [router]);
+
   const handleSave = useCallback(async () => {
     const payload = {
       title,
@@ -88,7 +97,9 @@ const EditPlanModal = () => {
     };
 
     await editPracticePlan(planId, payload);
-  }, [title, notes, durationMinutes, sections, planId]);
+
+    handleClose();
+  }, [title, notes, durationMinutes, sections, planId, handleClose]);
 
   return (
     <ScreenContainer.Scroll>
