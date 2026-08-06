@@ -49,8 +49,15 @@ export const createAndInsertPlayerToTeam = async (
   return response.data.data;
 };
 
-export const getTeamRoster = async (teamId: string) => {
-  const response = await api.get(`/team-members/${teamId}`);
+export type TeamRosterRole = 'player' | 'coach';
+
+export const getTeamRoster = async (
+  teamId: string,
+  role?: TeamRosterRole,
+) => {
+  const response = await api.get(`/team-members/${teamId}`, {
+    params: role ? { role } : undefined,
+  });
 
   return response.data.data;
 };

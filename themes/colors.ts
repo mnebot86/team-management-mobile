@@ -120,6 +120,14 @@ type ThemeColors = {
     ripple: HexColor;
   };
 
+  segment: {
+    background: HexColor;
+    selectedBackground: HexColor;
+    selectedText: HexColor;
+    text: HexColor;
+    border: HexColor;
+  };
+
   icon: {
     primary: HexColor;
     secondary: HexColor;
@@ -217,6 +225,14 @@ export const COLORS = {
       ripple: GRAY_200,
     },
 
+    segment: {
+      background: WHITE,
+      selectedBackground: GOLD_100,
+      selectedText: BLACK,
+      text: GRAY_600,
+      border: GRAY_200,
+    },
+
     icon: {
       primary: BLACK,
       secondary: GRAY_600,
@@ -311,6 +327,14 @@ export const COLORS = {
       secondaryText: GRAY_100,
       border: GOLD_LIGHT,
       ripple: GOLD_DARK,
+    },
+
+    segment: {
+      background: DARK_SURFACE,
+      selectedBackground: GOLD_900,
+      selectedText: GOLD_LIGHT,
+      text: GRAY_300,
+      border: GRAY_800,
     },
 
     icon: {

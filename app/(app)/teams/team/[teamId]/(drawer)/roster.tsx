@@ -6,12 +6,23 @@ import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import { getTeamRoster } from '@/api/teamMembers';
 import PlayerCard from '@/components/PlayerCard';
+import SegmentBar from '@/components/ui/SegmentBar';
+import type { SegmentOption } from '@/components/ui/SegmentBar';
+
+type RosterFilter = 'all' | 'player' | 'coach';
+
+const rosterFilters: SegmentOption<RosterFilter>[] = [
+  { value: 'all', label: 'All' },
+  { value: 'player', label: 'Players' },
+  { value: 'coach', label: 'Coaches' },
+];
 
 const Roster = () => {
   const { getTeamId } = useTeamStore();
 
   const [roster, setRoster] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<RosterFilter>('all');
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
     message: '',
@@ -25,14 +36,24 @@ const Roster = () => {
         return;
       }
 
+      let isActive = true;
       setLoading(true);
 
       const fetchRoster = async () => {
         try {
-          const roster = await getTeamRoster(teamId as string);
+          const roster = await getTeamRoster(
+            teamId as string,
+            filter === 'all' ? undefined : filter,
+          );
 
-          setRoster(roster);
+          if (isActive) {
+            setRoster(roster);
+          }
         } catch (err: any) {
+          if (!isActive) {
+            return;
+          }
+
           const message =
             err?.response?.data?.message ||
             err?.message ||
@@ -43,12 +64,18 @@ const Roster = () => {
             message,
           });
         } finally {
-          setLoading(false);
+          if (isActive) {
+            setLoading(false);
+          }
         }
       };
 
       fetchRoster();
-    }, [teamId]),
+
+      return () => {
+        isActive = false;
+      };
+    }, [filter, teamId]),
   );
 
   const handleSelectPlayer = (item: any) => {
@@ -79,6 +106,14 @@ const Roster = () => {
           padding: 16,
           gap: 16,
         }}
+        ListHeaderComponent={
+          <SegmentBar
+            value={filter}
+            onValueChange={setFilter}
+            options={rosterFilters}
+            style={{ marginBottom: 8 }}
+          />
+        }
         renderItem={({ item }) => (
           <PlayerCard
             firstName={item.firstName}
