@@ -9,6 +9,14 @@ import Text from '@/components/ui/Text';
 import { useTheme } from 'react-native-paper';
 import { getTeamSchedule } from '@/api/schedule';
 import { getSocket } from '@/socket';
+import SegmentBar from '@/components/ui/SegmentBar';
+import type { SegmentOption } from '@/components/ui/SegmentBar';
+import type { SchedulePeriod } from '@/api/schedule';
+
+const schedulePeriods: SegmentOption<SchedulePeriod>[] = [
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'past', label: 'Past' },
+];
 
 const Schedule = () => {
   const { getTeamId } = useTeamStore();
@@ -17,6 +25,7 @@ const Schedule = () => {
 
   const [loading, setLoading] = useState(false);
   const [sections, setSections] = useState<any[]>([]);
+  const [period, setPeriod] = useState<SchedulePeriod>('upcoming');
 
   const teamId = getTeamId();
 
@@ -26,7 +35,7 @@ const Schedule = () => {
     try {
       setLoading(true);
 
-      const response = await getTeamSchedule(teamId);
+      const response = await getTeamSchedule(teamId, period);
 
       setSections(response ?? []);
     } catch {
@@ -37,7 +46,7 @@ const Schedule = () => {
     } finally {
       setLoading(false);
     }
-  }, [teamId]);
+  }, [period, teamId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -98,6 +107,13 @@ const Schedule = () => {
           padding: 16,
           paddingBottom: 32,
         }}
+        ListHeaderComponent={
+          <SegmentBar
+            value={period}
+            onValueChange={setPeriod}
+            options={schedulePeriods}
+          />
+        }
         renderSectionHeader={({ section }) => (
           <View
             style={{

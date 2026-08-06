@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View, Platform, Linking } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View, Platform, Linking } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Button } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -16,6 +16,7 @@ type AttendanceStatus = 'present' | 'late' | 'absent' | null;
 
 type AttendancePlayer = {
   id: string;
+  imageUrl?: string | null;
   initials: string;
   name: string;
   number: string;
@@ -28,6 +29,7 @@ type TeamRosterPlayer = {
   lastName: string;
   role: string;
   jerseyNumber?: string;
+  imageUrl?: string | null;
 };
 
 type ScheduleAttendancePlayer = {
@@ -35,6 +37,7 @@ type ScheduleAttendancePlayer = {
   firstName: string;
   lastName: string;
   jerseyNumber?: string;
+  imageUrl?: string | null;
   status: AttendanceStatus;
 };
 
@@ -79,6 +82,7 @@ const ScheduleDetails = () => {
 
     return {
       id: player.profileId,
+      imageUrl: player.imageUrl,
       initials: `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?',
       name: `${firstName} ${lastName}`.trim(),
       number: player.jerseyNumber || '--',
@@ -121,6 +125,7 @@ const ScheduleDetails = () => {
                 firstName: player.firstName,
                 lastName: player.lastName,
                 jerseyNumber: player.jerseyNumber,
+                imageUrl: player.imageUrl,
                 status: (attendanceStatusMap.get(player.profileId) ?? null) as AttendanceStatus,
               }),
             );
@@ -320,7 +325,16 @@ const ScheduleDetails = () => {
           {attendance.map((player) => (
             <View key={player.id} style={styles.attendanceRow}>
               <View style={styles.avatarCircle}>
-                <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
+                {player.imageUrl ? (
+                  <Image
+                    source={{ uri: player.imageUrl }}
+                    style={styles.avatarImage}
+                    resizeMode="cover"
+                    accessibilityLabel={`${player.name} profile photo`}
+                  />
+                ) : (
+                  <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
+                )}
               </View>
 
               <View style={styles.playerInfo}>
@@ -517,6 +531,11 @@ const createStyles = (colors: any) =>
       borderColor: colors.avatar.border,
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
+    },
+    avatarImage: {
+      width: '100%',
+      height: '100%',
     },
     avatarInitials: {
       color: colors.avatar.icon,

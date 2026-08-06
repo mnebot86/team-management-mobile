@@ -6,8 +6,15 @@ export const createSchedule = async (payload: any) => {
   return response.data.data;
 };
 
-export const getTeamSchedule = async (teamId: string) => {
-  const response = await api.get(`schedules/team/${teamId}`);
+export type SchedulePeriod = 'upcoming' | 'past';
+
+export const getTeamSchedule = async (
+  teamId: string,
+  period: SchedulePeriod = 'upcoming',
+) => {
+  const response = await api.get(`schedules/team/${teamId}`, {
+    params: { period },
+  });
 
   return response.data.data;
 };
