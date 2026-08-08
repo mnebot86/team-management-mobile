@@ -48,6 +48,8 @@ const CreateScheduleModal = () => {
       Sat: 6,
     };
 
+    const normalizedRepeatDays = typeof repeatDays === 'string' ? repeatDays : '';
+
     const payload = {
       teamId,
       title,
@@ -56,8 +58,8 @@ const CreateScheduleModal = () => {
       recurrence: {
         isRecurring: isRecurring === 'true',
         frequency: isRecurring === 'true' ? 'weekly' : null,
-        daysOfWeek: repeatDays
-          ? repeatDays
+        daysOfWeek: normalizedRepeatDays
+          ? normalizedRepeatDays
             .split(',')
             .map((day) => dayMap[day.trim()])
             .filter((day) => day !== undefined)
@@ -68,7 +70,7 @@ const CreateScheduleModal = () => {
       startDate,
       startTime,
       endTime,
-      repeatDays,
+      repeatDays: normalizedRepeatDays,
       locationName,
       streetAddress,
       city,

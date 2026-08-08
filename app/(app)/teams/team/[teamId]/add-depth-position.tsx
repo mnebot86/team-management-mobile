@@ -28,6 +28,18 @@ type RosterPlayer = {
 
 type Step = 'players' | 'order';
 
+const normalizeStringList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === 'string' && item.trim() !== '');
+  }
+
+  if (typeof value === 'string') {
+    return value.split(',').map((item) => item.trim()).filter(Boolean);
+  }
+
+  return [];
+};
+
 const AddDepthPositionModal = () => {
   const theme = useAppTheme();
   const { teamId, deptChartId, name: chartName, positionId } = useLocalSearchParams<{
@@ -113,9 +125,7 @@ const AddDepthPositionModal = () => {
       return player.positionIds?.includes(positionDefinitionId) ?? false;
     }
 
-    const positions = Array.isArray(player.positions)
-      ? player.positions
-      : (player.positions ?? '').split(',');
+    const positions = normalizeStringList(player.positions);
 
     return positions.some((position) => {
       const normalized = position.trim().toLowerCase();
@@ -331,42 +341,42 @@ const AddDepthPositionModal = () => {
                 {visiblePlayers.length === 0 ? (
                   <Text.Body variant="muted" style={styles.centerText}>No matching players found.</Text.Body>
                 ) : visiblePlayers.map((player) => {
-                const selected = selectedPlayerIds.includes(player.profileId);
-                const recommended = isRecommended(player);
-                return (
-                  <Pressable
-                    key={player.profileId}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: selected }}
-                    onPress={() => togglePlayer(player.profileId)}
-                    style={[
-                      styles.playerOption,
-                      {
-                        backgroundColor: theme.colors.card.background,
-                        borderColor: selected ? theme.colors.accent : theme.colors.card.border,
-                      },
-                    ]}
-                  >
-                    <View style={[
-                      styles.checkbox,
-                      {
-                        backgroundColor: selected ? theme.colors.accent : 'transparent',
-                        borderColor: selected ? theme.colors.accent : theme.colors.text.secondary,
-                      },
-                    ]}>
-                      {selected && <Check size={16} color={theme.colors.button.primaryText} />}
-                    </View>
-                    <View style={styles.playerOptionName}>
-                      <Text.Body>{player.firstName} {player.lastName}</Text.Body>
-                      {recommended && (
-                        <Text.Caption style={{ color: theme.colors.text.accent }}>
-                          Recommended
-                        </Text.Caption>
-                      )}
-                    </View>
-                    {player.jerseyNumber !== undefined && <Text.Body variant="muted">#{player.jerseyNumber}</Text.Body>}
-                  </Pressable>
-                );
+                  const selected = selectedPlayerIds.includes(player.profileId);
+                  const recommended = isRecommended(player);
+                  return (
+                    <Pressable
+                      key={player.profileId}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: selected }}
+                      onPress={() => togglePlayer(player.profileId)}
+                      style={[
+                        styles.playerOption,
+                        {
+                          backgroundColor: theme.colors.card.background,
+                          borderColor: selected ? theme.colors.accent : theme.colors.card.border,
+                        },
+                      ]}
+                    >
+                      <View style={[
+                        styles.checkbox,
+                        {
+                          backgroundColor: selected ? theme.colors.accent : 'transparent',
+                          borderColor: selected ? theme.colors.accent : theme.colors.text.secondary,
+                        },
+                      ]}>
+                        {selected && <Check size={16} color={theme.colors.button.primaryText} />}
+                      </View>
+                      <View style={styles.playerOptionName}>
+                        <Text.Body>{player.firstName} {player.lastName}</Text.Body>
+                        {recommended && (
+                          <Text.Caption style={{ color: theme.colors.text.accent }}>
+                            Recommended
+                          </Text.Caption>
+                        )}
+                      </View>
+                      {player.jerseyNumber !== undefined && <Text.Body variant="muted">#{player.jerseyNumber}</Text.Body>}
+                    </Pressable>
+                  );
                 })}
               </ScrollView>
             </View>
@@ -390,27 +400,27 @@ const AddDepthPositionModal = () => {
                 The first player is first string. Reorder or remove backups as needed.
               </Text.Body>
               {selectedPlayers.map((player, index) => (
-              <View key={player.profileId} style={[
-                styles.orderRow,
-                { backgroundColor: theme.colors.screen.background, borderColor: theme.colors.card.border },
-              ]}>
-                <View style={[styles.orderNumber, { backgroundColor: theme.colors.button.primaryBackground }]}>
-                  <Text.Body style={{ color: theme.colors.button.primaryText }}>{index + 1}</Text.Body>
+                <View key={player.profileId} style={[
+                  styles.orderRow,
+                  { backgroundColor: theme.colors.screen.background, borderColor: theme.colors.card.border },
+                ]}>
+                  <View style={[styles.orderNumber, { backgroundColor: theme.colors.button.primaryBackground }]}>
+                    <Text.Body style={{ color: theme.colors.button.primaryText }}>{index + 1}</Text.Body>
+                  </View>
+                  <View style={styles.orderName}>
+                    <Text.Body>{player.firstName} {player.lastName}</Text.Body>
+                    <Text.Body variant="muted">{index === 0 ? 'First string' : `Backup ${index}`}</Text.Body>
+                  </View>
+                  <Pressable disabled={index === 0} onPress={() => movePlayer(index, -1)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background, opacity: index === 0 ? 0.3 : 1 }]}>
+                    <ChevronUp size={24} color={theme.colors.icon.secondary} />
+                  </Pressable>
+                  <Pressable disabled={index === selectedPlayers.length - 1} onPress={() => movePlayer(index, 1)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background, opacity: index === selectedPlayers.length - 1 ? 0.3 : 1 }]}>
+                    <ChevronDown size={24} color={theme.colors.icon.secondary} />
+                  </Pressable>
+                  <Pressable accessibilityLabel={`Remove ${player.firstName}`} onPress={() => togglePlayer(player.profileId)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background }]}>
+                    <X size={20} color={theme.colors.error} />
+                  </Pressable>
                 </View>
-                <View style={styles.orderName}>
-                  <Text.Body>{player.firstName} {player.lastName}</Text.Body>
-                  <Text.Body variant="muted">{index === 0 ? 'First string' : `Backup ${index}`}</Text.Body>
-                </View>
-                <Pressable disabled={index === 0} onPress={() => movePlayer(index, -1)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background, opacity: index === 0 ? 0.3 : 1 }]}>
-                  <ChevronUp size={24} color={theme.colors.icon.secondary} />
-                </Pressable>
-                <Pressable disabled={index === selectedPlayers.length - 1} onPress={() => movePlayer(index, 1)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background, opacity: index === selectedPlayers.length - 1 ? 0.3 : 1 }]}>
-                  <ChevronDown size={24} color={theme.colors.icon.secondary} />
-                </Pressable>
-                <Pressable accessibilityLabel={`Remove ${player.firstName}`} onPress={() => togglePlayer(player.profileId)} style={[styles.orderIconButton, { backgroundColor: theme.colors.avatar.background }]}>
-                  <X size={20} color={theme.colors.error} />
-                </Pressable>
-              </View>
               ))}
               <AppButton variant="text" compact icon="plus" onPress={() => {
                 setBackupSlots((current) => current + 1);
