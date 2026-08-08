@@ -43,11 +43,15 @@ export default function RootLayout() {
       }
 
       try {
-        const { user, profile } = await getMe();
+        const session = await getMe();
+        const user = session?.user ?? session;
+        const profile = session?.profile ?? null;
 
-        setAuth(user, storedToken);
+        if (user && typeof user === 'object') {
+          setAuth(user, storedToken);
+        }
 
-        if (profile) {
+        if (profile && typeof profile === 'object') {
           setProfile(profile);
         }
       } catch (err: any) {

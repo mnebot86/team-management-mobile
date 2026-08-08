@@ -194,13 +194,20 @@ const ScheduleDetails = () => {
 
     try {
       await updateAttendance(scheduleId, {
-        attendance: attendance.map((player) => ({
-          profileId: player.id,
-          firstName: player.name.split(' ')[0] ?? '',
-          lastName: player.name.split(' ').slice(1).join(' ') ?? '',
-          jerseyNumber: player.number === '--' ? '' : player.number,
-          status: player.status,
-        })),
+        attendance: attendance.map((player) => {
+          const fullName = typeof player.name === 'string' ? player.name : '';
+          const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+          const firstName = nameParts[0] ?? '';
+          const lastName = nameParts.slice(1).join(' ');
+
+          return {
+            profileId: player.id,
+            firstName,
+            lastName,
+            jerseyNumber: player.number === '--' ? '' : player.number,
+            status: player.status,
+          };
+        }),
       });
 
       setSuccessMessage('Attendance saved.');
