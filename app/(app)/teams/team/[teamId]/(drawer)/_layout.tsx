@@ -3,6 +3,7 @@ import AppHeader from '@/components/AppHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import AppButton from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import { getDrawerOptions } from '@/constants/navigationTheme';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
@@ -102,6 +103,29 @@ export const TeamDashboardLayout = () => {
                 >
                   New Plan
                 </AppButton>
+              )}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="deptCharts"
+        options={{
+          drawerLabel: 'Dept Charts',
+          header: ({ navigation }) => (
+            <AppHeader
+              title='Dept Charts'
+              onMenuPress={() => navigation.toggleDrawer()}
+              headerContent={(
+                <IconButton
+                  icon="plus"
+                  accessibilityLabel="Create depth chart"
+                  size={24}
+                  onPress={() => {
+                    router.push(`/teams/team/${teamId}/create-dept-chart`);
+                  }}
+                />
               )}
             />
           ),

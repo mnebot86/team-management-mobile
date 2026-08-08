@@ -86,9 +86,34 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             justifyContent: 'space-between',
           }}
         >
-          <Text.Heading style={{ color: theme.colors.text.primary }}>
-            {title}
-          </Text.Heading>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            {!!onMenuPress && (
+              <Pressable
+                onPress={onMenuPress}
+                hitSlop={20}
+                style={{ marginRight: 10, padding: 2 }}
+              >
+                <AppIcon name="menu" size={24} />
+              </Pressable>
+            )}
+
+            <View style={{ flex: 1 }}>
+              <Text.Heading style={{ color: theme.colors.text.primary }}>
+                {title}
+              </Text.Heading>
+
+              {subtitle && (
+                <Text.Body
+                  style={{
+                    color: theme.colors.text.secondary,
+                    marginTop: 2,
+                  }}
+                >
+                  {subtitle}
+                </Text.Body>
+              )}
+            </View>
+          </View>
 
           {!!headerContent && (
             <View style={{ marginLeft: 12 }}>
@@ -96,17 +121,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             </View>
           )}
         </View>
-
-        {subtitle && (
-          <Text.Body
-            style={{
-              color: theme.colors.text.secondary,
-              marginTop: 4,
-            }}
-          >
-            {subtitle}
-          </Text.Body>
-        )}
 
         {textInputProps && (
           <View
@@ -118,19 +132,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           </View>
         )}
 
-        {!!onMenuPress && (
-          <View style={{ marginTop: 12 }}>
-            <Pressable
-              onPress={onMenuPress}
-              hitSlop={30}
-            >
-              <AppIcon
-                name="menu"
-                size={22}
-              />
-            </Pressable>
-          </View>
-        )}
       </View>
     </SafeAreaView>
   );
