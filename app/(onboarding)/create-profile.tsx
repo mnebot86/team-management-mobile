@@ -27,12 +27,16 @@ const CreateProfile = () => {
     try {
       setLoading(true);
 
-      const profile = await userCreateProfile({
+      const createdProfile = await userCreateProfile({
         firstName,
         lastName,
         avatar,
       });
-      setProfile(profile);
+      const profile = createdProfile?.profile ?? createdProfile;
+
+      if (profile && typeof profile === 'object') {
+        setProfile(profile);
+      }
 
       // Rethinking this path
       // router.replace('/(onboarding)/welcome');
