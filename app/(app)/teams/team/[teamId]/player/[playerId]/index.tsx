@@ -29,6 +29,12 @@ const PlayerDetails = () => {
   });
   const [error, setError] = useState('');
 
+  const positionLabels = Array.isArray(player?.positions)
+    ? player.positions.filter(Boolean)
+    : [];
+  const primaryPosition = positionLabels[0] ?? 'Unassigned';
+  const supportingPositions = positionLabels.slice(1);
+
   useFocusEffect(
     useCallback(() => {
       const fetchPlayerDetails = async () => {
@@ -89,19 +95,39 @@ const PlayerDetails = () => {
       <View style={styles.container}>
         <View style={styles.heroCard}>
           <View style={styles.avatarContainer}>
-            {player?.avatar ? (
+            {(player?.avatar || player?.imageUrl) ? (
               <Image
-                source={{ uri: player.avatar }}
+                source={{ uri: player?.avatar || player?.imageUrl }}
                 style={styles.avatarImage}
                 resizeMode="cover"
               />
             ) : (
-              <MaterialCommunityIcons
-                name="account"
-                size={54}
-                color={theme.colors.outline}
-              />
+              <View style={styles.placeholderBadge}>
+                <MaterialCommunityIcons
+                  name="account"
+                  size={56}
+                  color={theme.colors.primary}
+                />
+              </View>
             )}
+          </View>
+
+          <View style={styles.heroContent}>
+            <Text.Subheading style={styles.playerName}>
+              {player?.firstName} {player?.lastName}
+            </Text.Subheading>
+
+            <View style={styles.positionRow}>
+              <View style={[styles.positionBadge, { backgroundColor: theme.colors.primaryContainer }]}>
+                <Text.Caption style={[styles.positionBadgeText, { color: theme.colors.onPrimaryContainer }]}>
+                  {primaryPosition}
+                </Text.Caption>
+              </View>
+
+              {supportingPositions.length > 0 ? (
+                <Text.Caption style={styles.positionHint}>{supportingPositions.join(' • ')}</Text.Caption>
+              ) : null}
+            </View>
           </View>
         </View>
 
@@ -141,7 +167,7 @@ const PlayerDetails = () => {
           )}
         </View>
 
-        <View>
+        <View style={styles.attendanceSection}>
           <Text.Caption style={styles.label}>Attendance Record</Text.Caption>
           <AttendanceCard
             heading="Attendance Rate"
@@ -172,11 +198,12 @@ const createStyles = (colors: any) =>
     },
     heroCard: {
       alignItems: 'center',
+      gap: 12,
     },
     avatarContainer: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: 32,
+      width: 144,
+      height: 144,
+      borderRadius: 36,
       backgroundColor: colors.surfaceVariant,
       alignItems: 'center',
       justifyContent: 'center',
@@ -187,6 +214,41 @@ const createStyles = (colors: any) =>
     avatarImage: {
       width: '100%',
       height: '100%',
+    },
+    placeholderBadge: {
+      width: 92,
+      height: 92,
+      borderRadius: 999,
+      backgroundColor: colors.primaryContainer,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    heroContent: {
+      alignItems: 'center',
+      gap: 6,
+    },
+    playerName: {
+      fontWeight: '700',
+    },
+    positionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: 8,
+      justifyContent: 'center',
+    },
+    positionBadge: {
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 999,
+    },
+    positionBadgeText: {
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+    },
+    positionHint: {
+      color: colors.onSurfaceVariant,
     },
     sectionCard: {
       backgroundColor: colors.surface,
@@ -209,6 +271,9 @@ const createStyles = (colors: any) =>
       color: colors.outline,
       textTransform: 'uppercase',
       letterSpacing: 0.8,
+    },
+    attendanceSection: {
+      gap: 8,
     },
   });
 

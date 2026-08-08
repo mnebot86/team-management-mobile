@@ -120,7 +120,6 @@ const Roster = () => {
             lastName={item.lastName}
             jerseyNumber={item.jerseyNumber}
             positions={item.positions}
-            age={item.age}
             imageUrl={item.imageUrl}
             onPress={() => handleSelectPlayer(item)}
           />

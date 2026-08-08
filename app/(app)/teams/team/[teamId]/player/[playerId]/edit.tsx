@@ -12,7 +12,6 @@ import Text from '@/components/ui/Text';
 import { editTeamMember, getTeamMember } from '@/api/teamMembers';
 import { getTeam } from '@/api/teams';
 import { getSport, type SportPositionDefinition } from '@/api/sports';
-import { Check } from 'lucide-react-native';
 
 const EditPlayerScreen = () => {
   const theme = useTheme();
@@ -209,8 +208,11 @@ const EditPlayerScreen = () => {
                                 },
                               ]}
                             >
-                              {selected && <Check size={14} color={theme.colors.primary} />}
-                              <Text.Label>{position.shortName}</Text.Label>
+                              <Text.Label style={{
+                                color: selected ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant,
+                              }}>
+                                {position.shortName}
+                              </Text.Label>
                             </Pressable>
                           );
                         })}
@@ -271,13 +273,13 @@ const createStyles = (colors: any) =>
       gap: 8,
     },
     positionOption: {
-      minHeight: 38,
+      minHeight: 40,
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 5,
       paddingHorizontal: 12,
+      paddingVertical: 8,
       borderWidth: 1,
-      borderRadius: 19,
+      borderRadius: 999,
     },
   });
 
