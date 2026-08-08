@@ -6,6 +6,7 @@ export interface CreateDeptChartPayload {
 }
 
 export interface DeptChartPositionInput {
+  positionDefinitionId?: string;
   name: string;
   shortName?: string;
   sortOrder?: number;
@@ -38,6 +39,7 @@ export interface DeptChartPlayer {
 
 export interface DeptChartPosition {
   _id?: string;
+  positionDefinitionId?: string | null;
   name: string;
   shortName: string;
   sortOrder: number;

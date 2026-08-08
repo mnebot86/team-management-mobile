@@ -1,9 +1,11 @@
 import api from './axios';
+import type { ITeam } from '@/types/team';
 
-interface CreateTeamParams {
+export interface CreateTeamParams {
   name: string;
   ageGroup: string;
-  sport: string;
+  sportId: string;
+  sportVariantId: string;
 };
 
 export interface CreateInviteCode {
@@ -16,12 +18,8 @@ export interface JoinTeam {
   code: string
 }
 
-export const createTeam = async ({ name, ageGroup, sport }: CreateTeamParams) => {
-  const response = await api.post('/teams', {
-    name,
-    ageGroup,
-    sport,
-  });
+export const createTeam = async (payload: CreateTeamParams) => {
+  const response = await api.post('/teams', payload);
 
   return response.data.data;
 };
@@ -38,7 +36,7 @@ export const getActiveTeamsCount = async () => {
   return response.data.data;
 };
 
-export const getTeam = async (teamId: string) => {
+export const getTeam = async (teamId: string): Promise<ITeam> => {
   const response = await api.get(`/teams/${teamId}`);
 
   return response.data.data;

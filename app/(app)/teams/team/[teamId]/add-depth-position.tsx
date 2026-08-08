@@ -23,6 +23,7 @@ type RosterPlayer = {
   lastName: string;
   jerseyNumber?: number;
   positions?: string[] | string;
+  positionIds?: string[];
 };
 
 type Step = 'players' | 'order';
@@ -39,6 +40,7 @@ const AddDepthPositionModal = () => {
   const [step, setStep] = useState<Step>('players');
   const [positionName, setPositionName] = useState('');
   const [shortName, setShortName] = useState('');
+  const [positionDefinitionId, setPositionDefinitionId] = useState<string>();
   const [search, setSearch] = useState('');
   const [backupSlots, setBackupSlots] = useState(2);
   const [chart, setChart] = useState<DeptChart>();
@@ -85,6 +87,7 @@ const AddDepthPositionModal = () => {
 
           setPositionName(position.name);
           setShortName(position.shortName);
+          setPositionDefinitionId(position.positionDefinitionId ?? undefined);
           setSelectedPlayerIds(orderedPlayers.map((player) => player.profileId));
           setBackupSlots(Math.max(2, orderedPlayers.length - 1));
         }
@@ -106,6 +109,10 @@ const AddDepthPositionModal = () => {
   const normalizedShortName = shortName.trim().toLowerCase();
 
   const isRecommended = useCallback((player: RosterPlayer) => {
+    if (positionDefinitionId) {
+      return player.positionIds?.includes(positionDefinitionId) ?? false;
+    }
+
     const positions = Array.isArray(player.positions)
       ? player.positions
       : (player.positions ?? '').split(',');
@@ -115,7 +122,7 @@ const AddDepthPositionModal = () => {
       return normalized !== ''
         && (normalized === normalizedPosition || normalized === normalizedShortName);
     });
-  }, [normalizedPosition, normalizedShortName]);
+  }, [normalizedPosition, normalizedShortName, positionDefinitionId]);
 
   const visiblePlayers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -185,6 +192,7 @@ const AddDepthPositionModal = () => {
     }
 
     const positionInput: DeptChartPositionInput = {
+      ...(positionDefinitionId ? { positionDefinitionId } : {}),
       name: positionName.trim(),
       shortName: shortName.trim().toUpperCase(),
       sortOrder: chart.positions.length + 1,
@@ -200,6 +208,9 @@ const AddDepthPositionModal = () => {
       }
 
       return {
+        ...(position.positionDefinitionId
+          ? { positionDefinitionId: position.positionDefinitionId }
+          : {}),
         name: position.name,
         shortName: position.shortName,
         sortOrder: position.sortOrder,

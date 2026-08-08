@@ -14,7 +14,7 @@ interface EditTeamMemberParams {
   firstName: string;
   lastName: string;
   jerseyNumber: string;
-  positions: string;
+  positionIds: string[];
   avatar?: {
     uri: string;
     name: string;
@@ -84,7 +84,7 @@ export const editTeamMember = async (
   formData.append('firstName', payload.firstName);
   formData.append('lastName', payload.lastName);
   formData.append('jerseyNumber', payload.jerseyNumber);
-  formData.append('positions', payload.positions);
+  formData.append('positionIds', JSON.stringify(payload.positionIds));
 
   if (payload.avatarPublicId) {
     formData.append('avatarPublicId', payload.avatarPublicId);
