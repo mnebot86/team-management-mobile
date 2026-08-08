@@ -43,23 +43,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           padding: 12,
         }}
       >
-        {onBackPress && (
-          <Pressable
-            onPress={onBackPress}
-            hitSlop={20}
-            style={{
-              alignSelf: 'flex-start',
-              paddingVertical: 6,
-              paddingHorizontal: 4,
-              marginBottom: 8,
-            }}
-          >
-            <Text.Body style={{ color: theme.colors.text.primary }}>
-              ← {backLabel}
-            </Text.Body>
-          </Pressable>
-        )}
-
         {!!onEditPress && (
           <Pressable
             onPress={onEditPress}
@@ -87,6 +70,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            {!!onBackPress && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={backLabel}
+                onPress={onBackPress}
+                hitSlop={20}
+                style={{ marginRight: 10, padding: 2 }}
+              >
+                <AppIcon name="arrow-left" size={24} />
+              </Pressable>
+            )}
+
             {!!onMenuPress && (
               <Pressable
                 onPress={onMenuPress}

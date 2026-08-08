@@ -101,7 +101,6 @@ export default function AuthLayout() {
           header: () => (
             <AppHeader
               title="Home"
-              subtitle="Welcome back, Coach!"
             />
           ),
           tabBarIcon: ({ size }: { size: number }) => (
@@ -136,7 +135,6 @@ export default function AuthLayout() {
           header: () => (
             <AppHeader
               title="Settings"
-              subtitle="Manage your account"
             />
           ),
           tabBarIcon: ({ size }: { size: number }) => (
@@ -156,7 +154,6 @@ export default function AuthLayout() {
           header: () => (
             <AppHeader
               title="Notifications"
-              subtitle="Manage your notifications"
             />
           ),
           tabBarIcon: ({ size }: { size: number }) => (
