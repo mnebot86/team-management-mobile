@@ -30,8 +30,10 @@ const PlayerDetails = () => {
   const [error, setError] = useState('');
 
   const positionLabels = Array.isArray(player?.positions)
-    ? player.positions.filter(Boolean)
-    : [];
+    ? player.positions.filter((value: unknown) => typeof value === 'string' && value.trim() !== '')
+    : typeof player?.positions === 'string'
+      ? player.positions.split(',').map((value: string) => value.trim()).filter(Boolean)
+      : [];
   const primaryPosition = positionLabels[0] ?? 'Unassigned';
   const supportingPositions = positionLabels.slice(1);
 

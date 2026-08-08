@@ -37,15 +37,22 @@ const Login = () => {
     try {
       setLoading(true);
 
-      const { token, user } = await login(payload);
+      const authResponse = await login(payload);
+      const token = authResponse?.token ?? authResponse?.accessToken ?? '';
+      const user = authResponse?.user ?? authResponse;
+
+      if (!token) {
+        throw new Error('Login did not return a valid session token.');
+      }
 
       await saveToken(token);
       setAuth(user, token);
 
       const session = await getMe();
+      const profile = session?.profile ?? null;
 
-      if (session.profile) {
-        setProfile(session.profile);
+      if (profile && typeof profile === 'object') {
+        setProfile(profile);
       }
 
       // router.push('/(app)/dashboard'); hide while in development

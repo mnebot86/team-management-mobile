@@ -53,9 +53,9 @@ const EditPlayerScreen = () => {
           );
           const positions = variant?.positions ?? [];
           const playerPositionLabels = Array.isArray(player?.positions)
-            ? player.positions
+            ? player.positions.filter((value: unknown) => typeof value === 'string' && value.trim() !== '')
             : typeof player?.positions === 'string'
-              ? player.positions.split(',').map((value: string) => value.trim())
+              ? player.positions.split(',').map((value: string) => value.trim()).filter(Boolean)
               : [];
 
           setFirstName(player?.firstName || '');
