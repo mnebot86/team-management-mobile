@@ -116,11 +116,11 @@ const Roster = () => {
         }
         renderItem={({ item }) => (
           <PlayerCard
-            firstName={item.firstName}
-            lastName={item.lastName}
-            jerseyNumber={item.jerseyNumber}
-            positions={item.positions}
-            imageUrl={item.imageUrl}
+            firstName={item.firstName || 'Unknown'}
+            lastName={item.lastName || 'Player'}
+            jerseyNumber={item.jerseyNumber ?? 0}
+            positions={Array.isArray(item.positions) ? item.positions : typeof item.positions === 'string' ? item.positions.split(',').map((value: string) => value.trim()).filter(Boolean) : []}
+            imageUrl={item.imageUrl || ''}
             onPress={() => handleSelectPlayer(item)}
           />
         )}

@@ -30,7 +30,12 @@ const Teams = () => {
 
       const fetchTeams = async () => {
         try {
-          const teams = await getTeams();
+          const teamsResponse = await getTeams();
+          const teams = Array.isArray(teamsResponse)
+            ? teamsResponse
+            : Array.isArray(teamsResponse?.data)
+              ? teamsResponse.data
+              : [];
 
           setTeams(teams);
         } catch (error) {
