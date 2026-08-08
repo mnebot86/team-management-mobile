@@ -3,7 +3,7 @@ import { router, Stack } from 'expo-router';
 
 import { joinTeamByCode } from '@/api/teams';
 import AppHeader from '@/components/AppHeader';
-import AppButton from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import { Snackbar } from 'react-native-paper';
 
 export default function TeamsLayout() {
@@ -58,18 +58,15 @@ export default function TeamsLayout() {
             header: () => (
               <AppHeader
                 title="Teams"
-                subtitle="Manage your teams"
                 headerContent={
-                  <AppButton
+                  <IconButton
                     icon="plus"
-                    variant="header"
-                    fullWidth={false}
+                    accessibilityLabel="Create team"
+                    size={24}
                     onPress={() => {
                       router.push('/(app)/teams/create-team-modal');
                     }}
-                  >
-                    New Team
-                  </AppButton>
+                  />
                 }
                 textInputProps={{
                   placeholder: 'Enter invite code',
@@ -90,7 +87,6 @@ export default function TeamsLayout() {
             header: ({ options, navigation }) => (
               <AppHeader
                 title={(options.title as string) ?? 'Team'}
-                subtitle={(options as any).headerSubtitle ?? ''}
                 onBackPress={() => navigation.goBack()}
               />
             ),

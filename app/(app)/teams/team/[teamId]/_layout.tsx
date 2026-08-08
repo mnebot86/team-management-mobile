@@ -159,6 +159,60 @@ export default function TeamStackLayout() {
           ),
         }}
       />
+
+      <Stack.Screen
+        name="create-dept-chart"
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: [0.4],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+          header: () => (
+            <AppHeader
+              title="Create Depth Chart"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="edit-dept-chart"
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: [0.5],
+          sheetInitialDetentIndex: 0,
+          sheetGrabberVisible: true,
+          header: () => (
+            <AppHeader
+              title="Edit Depth Chart"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="add-depth-position"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Add Depth Position"
+            />
+          ),
+        }}
+      />
+
+      <Stack.Screen
+        name="edit-depth-position"
+        options={{
+          presentation: 'modal',
+          header: () => (
+            <AppHeader
+              title="Edit Depth Position"
+            />
+          ),
+        }}
+      />
     </Stack>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 
@@ -8,7 +8,10 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import SnackBar from '@/components/ui/SnackBar';
 import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
+import Text from '@/components/ui/Text';
 import { editTeamMember, getTeamMember } from '@/api/teamMembers';
+import { getTeam } from '@/api/teams';
+import { getSport, type SportPositionDefinition } from '@/api/sports';
 
 const EditPlayerScreen = () => {
   const theme = useTheme();
@@ -23,7 +26,8 @@ const EditPlayerScreen = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [jerseyNumber, setJerseyNumber] = useState('');
-  const [positions, setPositions] = useState('');
+  const [positionIds, setPositionIds] = useState<string[]>([]);
+  const [availablePositions, setAvailablePositions] = useState<SportPositionDefinition[]>([]);
   const [avatar, setAvatar] = useState<AvatarFile>();
   const [avatarPublicId, setAvatarPublicId] = useState('');
 
@@ -39,12 +43,35 @@ const EditPlayerScreen = () => {
         }
 
         try {
-          const player = await getTeamMember(teamId as string, playerId as string);
+          const [player, team] = await Promise.all([
+            getTeamMember(teamId as string, playerId as string),
+            getTeam(teamId as string),
+          ]);
+          const sport = await getSport(team.sportId || 'football');
+          const variant = sport.variants.find(
+            (item) => item.id === (team.sportVariantId || sport.defaultVariantId),
+          );
+          const positions = variant?.positions ?? [];
+          const playerPositionLabels = Array.isArray(player?.positions)
+            ? player.positions
+            : typeof player?.positions === 'string'
+              ? player.positions.split(',').map((value: string) => value.trim())
+              : [];
 
           setFirstName(player?.firstName || '');
           setLastName(player?.lastName || '');
           setJerseyNumber(player?.jerseyNumber?.toString() || '');
-          setPositions(player?.positions || '');
+          setAvailablePositions(positions);
+          setPositionIds(
+            player?.positionIds?.length
+              ? player.positionIds
+              : positions
+                .filter((position) => playerPositionLabels.some(
+                  (value: string) => value.toLowerCase() === position.name.toLowerCase()
+                    || value.toLowerCase() === position.shortName.toLowerCase(),
+                ))
+                .map((position) => position.id),
+          );
 
           if (player?.avatar) {
             setAvatar(player.avatar);
@@ -84,7 +111,7 @@ const EditPlayerScreen = () => {
         firstName,
         lastName,
         jerseyNumber,
-        positions,
+        positionIds,
         avatar,
         avatarPublicId,
       };
@@ -144,11 +171,56 @@ const EditPlayerScreen = () => {
             keyboardType="numeric"
           />
 
-          <Input.Text
-            label="Position"
-            value={positions}
-            onChangeText={setPositions}
-          />
+          <View style={styles.positionSection}>
+            <View>
+              <Text.Label>Positions</Text.Label>
+            </View>
+            <View style={styles.positionGroups}>
+              {[...new Set(availablePositions.map((position) => position.group))]
+                .map((group) => (
+                  <View key={group} style={styles.positionGroup}>
+                    <Text.Caption>{group}</Text.Caption>
+                    <View style={styles.positionOptions}>
+                      {availablePositions
+                        .filter((position) => position.group === group)
+                        .map((position) => {
+                          const selected = positionIds.includes(position.id);
+
+                          return (
+                            <Pressable
+                              key={position.id}
+                              accessibilityRole="checkbox"
+                              accessibilityState={{ checked: selected }}
+                              onPress={() => setPositionIds((current) =>
+                                selected
+                                  ? current.filter((id) => id !== position.id)
+                                  : [...current, position.id],
+                              )}
+                              style={[
+                                styles.positionOption,
+                                {
+                                  backgroundColor: selected
+                                    ? theme.colors.secondaryContainer
+                                    : theme.colors.surfaceVariant,
+                                  borderColor: selected
+                                    ? theme.colors.primary
+                                    : theme.colors.outlineVariant,
+                                },
+                              ]}
+                            >
+                              <Text.Label style={{
+                                color: selected ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant,
+                              }}>
+                                {position.shortName}
+                              </Text.Label>
+                            </Pressable>
+                          );
+                        })}
+                    </View>
+                  </View>
+                ))}
+            </View>
+          </View>
 
           <Button
             loading={isSaving}
@@ -185,6 +257,29 @@ const createStyles = (colors: any) =>
       gap: 18,
       borderWidth: 1,
       borderColor: colors.outlineVariant,
+    },
+    positionSection: {
+      gap: 10,
+    },
+    positionGroups: {
+      gap: 14,
+    },
+    positionGroup: {
+      gap: 8,
+    },
+    positionOptions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    positionOption: {
+      minHeight: 40,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderRadius: 999,
     },
   });
 

@@ -2,7 +2,7 @@ import React from 'react';
 import AppHeader from '@/components/AppHeader';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import AppButton from '@/components/ui/Button';
+import IconButton from '@/components/ui/IconButton';
 import { getDrawerOptions } from '@/constants/navigationTheme';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
@@ -19,8 +19,6 @@ export const TeamDashboardLayout = () => {
           header: ({ options, navigation }) => (
             <AppHeader
               title={(options.title as string) ?? 'Team'}
-              subtitle={(options as any).headerSubtitle ?? ''}
-              onBackPress={() => navigation.goBack()}
               onMenuPress={() => navigation.toggleDrawer()}
             />
           ),
@@ -34,20 +32,16 @@ export const TeamDashboardLayout = () => {
           header: ({ navigation }) => (
             <AppHeader
               title='Roster'
-              subtitle='Manager your players'
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
-                <AppButton
+                <IconButton
                   icon="plus"
-                  variant='header'
-                  fullWidth={false}
-                  compact
+                  accessibilityLabel="Create player"
+                  size={24}
                   onPress={() => {
                     router.push('/(app)/teams/team/[teamId]/create-player-modal');
                   }}
-                >
-                  New Player
-                </AppButton>
+                />
               )}
             />
           ),
@@ -61,20 +55,16 @@ export const TeamDashboardLayout = () => {
           header: ({ navigation }) => (
             <AppHeader
               title='Schedule'
-              subtitle='Manager your events'
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
-                <AppButton
+                <IconButton
                   icon="plus"
-                  variant='header'
-                  fullWidth={false}
-                  compact
+                  accessibilityLabel="Create schedule event"
+                  size={24}
                   onPress={() => {
                     router.push(`/(app)/teams/team/${teamId}/create-schedule-modal`);
                   }}
-                >
-                  New Event
-                </AppButton>
+                />
               )}
             />
           ),
@@ -88,20 +78,39 @@ export const TeamDashboardLayout = () => {
           header: ({ navigation }) => (
             <AppHeader
               title='Plans'
-              subtitle='Manager your plans'
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
-                <AppButton
+                <IconButton
                   icon="plus"
-                  variant='header'
-                  fullWidth={false}
-                  compact
+                  accessibilityLabel="Create practice plan"
+                  size={24}
                   onPress={() => {
                     router.push(`/teams/team/${teamId}/create-plan-modal`);
                   }}
-                >
-                  New Plan
-                </AppButton>
+                />
+              )}
+            />
+          ),
+        }}
+      />
+
+      <Drawer.Screen
+        name="deptCharts"
+        options={{
+          drawerLabel: 'Dept Charts',
+          header: ({ navigation }) => (
+            <AppHeader
+              title='Dept Charts'
+              onMenuPress={() => navigation.toggleDrawer()}
+              headerContent={(
+                <IconButton
+                  icon="plus"
+                  accessibilityLabel="Create depth chart"
+                  size={24}
+                  onPress={() => {
+                    router.push(`/teams/team/${teamId}/create-dept-chart`);
+                  }}
+                />
               )}
             />
           ),
@@ -115,7 +124,6 @@ export const TeamDashboardLayout = () => {
           header: ({ navigation }) => (
             <AppHeader
               title='Settings'
-              subtitle='Configure your team'
               onMenuPress={() => navigation.toggleDrawer()}
             />
           ),

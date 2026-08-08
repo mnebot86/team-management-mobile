@@ -34,7 +34,7 @@ export const AttendanceCard = ({
 
   return (
     <View style={styles.container}>
-      <Card mode="elevated" style={styles.card}>
+      <Card mode="outlined" style={styles.card}>
         <Card.Content style={styles.content}>
           <View style={styles.summaryRow}>
             <View style={styles.iconContainer}>
@@ -64,12 +64,13 @@ export const AttendanceCard = ({
             </View>
           </View>
 
-          <View style={styles.statsRow}>
+          <View style={styles.statsGrid}>
             <AttendanceStat
               value={present}
               label="Present"
               backgroundColor={theme.colors.secondaryContainer}
-              valueColor={theme.colors.primary}
+              valueColor={theme.colors.onSecondaryContainer}
+              style={styles.statCard}
             />
 
             {late > 0 && (
@@ -77,7 +78,8 @@ export const AttendanceCard = ({
                 value={late}
                 label="Late"
                 backgroundColor={theme.colors.primaryContainer}
-                valueColor={theme.colors.primary}
+                valueColor={theme.colors.onPrimaryContainer}
+                style={styles.statCard}
               />
             )}
 
@@ -85,14 +87,16 @@ export const AttendanceCard = ({
               value={absent}
               label="Absent"
               backgroundColor={theme.colors.errorContainer}
-              valueColor={theme.colors.error}
+              valueColor={theme.colors.onErrorContainer}
+              style={styles.statCard}
             />
 
             <AttendanceStat
               value={attendanceTotal}
               label="Total"
               backgroundColor={theme.colors.surfaceVariant}
-              valueColor={theme.colors.onSurface}
+              valueColor={theme.colors.onSurfaceVariant}
+              style={styles.statCard}
             />
           </View>
         </Card.Content>
@@ -106,6 +110,7 @@ type AttendanceStatProps = {
   label: string;
   backgroundColor: string;
   valueColor: string;
+  style?: any;
 };
 
 const AttendanceStat = ({
@@ -113,48 +118,31 @@ const AttendanceStat = ({
   label,
   backgroundColor,
   valueColor,
+  style,
 }: AttendanceStatProps) => (
-  <View style={[styles.statCard, { backgroundColor }]}>
+  <View style={[style, { backgroundColor }]}>
     <Text variant="headlineSmall" style={{ color: valueColor }}>
       {value}
     </Text>
-    <Text variant="bodyLarge" style={styles.statLabel}>
+    <Text variant="bodyMedium" style={{ opacity: 0.8 }}>
       {label}
     </Text>
   </View>
 );
-
-const styles = StyleSheet.create({
-  statCard: {
-    flex: 1,
-    height: 96,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-    gap: 4,
-  },
-  statLabel: {
-    opacity: 0.7,
-  },
-});
 
 const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) =>
   StyleSheet.create({
     container: {
       gap: 8,
     },
-    title: {
-      color: colors.onSurfaceVariant,
-      letterSpacing: 1.5,
-      fontSize: 14,
-    },
     card: {
-      borderRadius: 20,
+      borderRadius: 22,
       backgroundColor: colors.surface,
+      borderColor: colors.outlineVariant,
     },
     content: {
-      padding: 14,
-      gap: 12,
+      padding: 16,
+      gap: 14,
     },
     summaryRow: {
       flexDirection: 'row',
@@ -162,21 +150,21 @@ const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) =>
       gap: 12,
     },
     iconContainer: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
+      width: 68,
+      height: 68,
+      borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.primaryContainer,
     },
     percentageIcon: {
       color: colors.primary,
-      fontSize: 20,
-      fontWeight: '600',
+      fontSize: 22,
+      fontWeight: '700',
     },
     heading: {
       color: colors.onSurface,
-      fontWeight: '600',
+      fontWeight: '700',
     },
     subheading: {
       color: colors.onSurfaceVariant,
@@ -184,15 +172,28 @@ const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) =>
     },
     progressContainer: {
       flex: 1,
-      gap: 4,
+      gap: 6,
     },
     progressBar: {
-      height: 6,
-      borderRadius: 4,
+      height: 8,
+      borderRadius: 999,
       backgroundColor: colors.surfaceVariant,
     },
-    statsRow: {
+    statsGrid: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: 8,
+    },
+    statCard: {
+      flexBasis: '48%',
+      minHeight: 88,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 18,
+      gap: 4,
+      paddingHorizontal: 8,
+    },
+    statLabel: {
+      opacity: 0.8,
     },
   });
