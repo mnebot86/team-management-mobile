@@ -50,6 +50,14 @@ export default function TeamStackLayout() {
       />
 
       <Stack.Screen
+        name="edit-schedule-modal"
+        options={{
+          presentation: 'modal',
+          header: () => <AppHeader title="Edit Schedule Event" />,
+        }}
+      />
+
+      <Stack.Screen
         name="pick-date-modal"
         options={{
           presentation: 'formSheet',

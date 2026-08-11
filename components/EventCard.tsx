@@ -14,7 +14,7 @@ import {
   Users,
 } from 'lucide-react-native';
 
-export type EventType = 'practice' | 'game' | 'event';
+export type EventType = 'practice' | 'game' | 'event' | 'other';
 
 interface EventLocation {
   name: string;
@@ -26,6 +26,8 @@ interface EventLocation {
 
 interface ScheduleCardData {
   scheduleId: string;
+  recurrenceGroupId?: string | null;
+  recurrenceDate?: string;
   title: string;
   description: string;
   type: EventType;
@@ -36,6 +38,8 @@ interface ScheduleCardData {
   endTime: string;
   occurrenceStartDate: string;
   location: EventLocation;
+  status?: string;
+  cancellationReason?: string;
 }
 
 interface EventCardProps {
@@ -69,6 +73,12 @@ export const EventCard = ({
       icon: Users,
       accent: colors.event.event.accent,
       chipBackground: colors.event.event.background,
+    },
+    other: {
+      label: 'Other',
+      icon: Calendar,
+      accent: colors.outline,
+      chipBackground: colors.surfaceVariant,
     },
   } as const;
 
@@ -112,7 +122,8 @@ export const EventCard = ({
     ? details
     : title;
 
-  const config = EVENT_CONFIG[type];
+  const config = EVENT_CONFIG[type] ?? EVENT_CONFIG.other;
+  const isCancelled = data.status === 'cancelled';
 
   return (
     <Pressable onPress={onPress}>
@@ -120,6 +131,7 @@ export const EventCard = ({
         style={[
           styles.card,
           { backgroundColor: colors.card.background },
+          isCancelled && { opacity: 0.65 },
         ]}
         mode="elevated"
       >
@@ -136,6 +148,7 @@ export const EventCard = ({
               >
                 {config.label}
               </Chip>
+              {isCancelled && <Chip compact textStyle={{ color: colors.error }}>Cancelled</Chip>}
             </View>
 
             <View style={styles.infoRow}>
@@ -171,6 +184,11 @@ export const EventCard = ({
                 {location}
               </Text.Body>
             </Pressable>
+            {isCancelled && data.cancellationReason && (
+              <Text.Caption style={{ color: colors.error }}>
+                Reason: {data.cancellationReason}
+              </Text.Caption>
+            )}
           </View>
 
           <View style={styles.chevronContainer}>

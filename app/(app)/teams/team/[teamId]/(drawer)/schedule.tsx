@@ -12,6 +12,8 @@ import { getSocket } from '@/socket';
 import SegmentBar from '@/components/ui/SegmentBar';
 import type { SegmentOption } from '@/components/ui/SegmentBar';
 import type { SchedulePeriod } from '@/api/schedule';
+import { removeDeletedSchedules, scheduleOccurrenceKey, shouldRefetchForScheduleSocket } from '@/utils/scheduleCancellation';
+import { useScheduleInvalidationStore } from '@/hooks/useScheduleInvalidationStore';
 
 const schedulePeriods: SegmentOption<SchedulePeriod>[] = [
   { value: 'upcoming', label: 'Upcoming' },
@@ -28,6 +30,10 @@ const Schedule = () => {
   const [period, setPeriod] = useState<SchedulePeriod>('upcoming');
 
   const teamId = getTeamId();
+  const invalidationVersion = useScheduleInvalidationStore(
+    (state) => teamId ? state.versions[teamId] ?? 0 : 0,
+  );
+  const invalidateTeamSchedule = useScheduleInvalidationStore((state) => state.invalidateTeamSchedule);
 
   const loadSchedule = useCallback(async () => {
     if (!teamId) return;
@@ -55,27 +61,45 @@ const Schedule = () => {
   );
 
   useEffect(() => {
+    if (invalidationVersion > 0) loadSchedule();
+  }, [invalidationVersion, loadSchedule]);
+
+  useEffect(() => {
     if (!teamId) return;
 
     try {
       const socket = getSocket();
       const handleScheduleChange = (schedule: { teamId?: string }) => {
-        if (!schedule.teamId || schedule.teamId === teamId) {
-          loadSchedule();
+        if (shouldRefetchForScheduleSocket(schedule.teamId, teamId)) {
+          // Socket payloads are parent schedule documents, not generated
+          // occurrences. Refetch so occurrence overrides remain isolated.
+          invalidateTeamSchedule(teamId);
         }
+      };
+      const handleScheduleDeleted = (event: {
+        teamId?: string;
+        scheduleId: string;
+        scope: 'occurrence' | 'series';
+        recurrenceGroupId?: string | null;
+      }) => {
+        if (!shouldRefetchForScheduleSocket(event.teamId, teamId)) return;
+        setSections((current) => removeDeletedSchedules(current, event));
+        invalidateTeamSchedule(teamId);
       };
 
       socket.on('schedule.created', handleScheduleChange);
       socket.on('schedule.updated', handleScheduleChange);
+      socket.on('schedule.deleted', handleScheduleDeleted);
 
       return () => {
         socket.off('schedule.created', handleScheduleChange);
         socket.off('schedule.updated', handleScheduleChange);
+        socket.off('schedule.deleted', handleScheduleDeleted);
       };
     } catch {
       return;
     }
-  }, [loadSchedule, teamId]);
+  }, [invalidateTeamSchedule, teamId]);
 
 
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
@@ -91,6 +115,7 @@ const Schedule = () => {
       params: {
         teamId,
         scheduleId: schedule.scheduleId ?? schedule._id,
+        recurrenceDate: schedule.recurrenceDate,
         schedule: JSON.stringify(schedule),
       },
     });
@@ -100,9 +125,7 @@ const Schedule = () => {
     <ScreenContainer>
       <SectionList
         sections={sections}
-        keyExtractor={(item) =>
-          `${item.scheduleId ?? item._id}-${item.occurrenceStartDate ?? item.startDate}`
-        }
+        keyExtractor={(item) => scheduleOccurrenceKey(item)}
         contentContainerStyle={{
           padding: 16,
           paddingBottom: 32,
