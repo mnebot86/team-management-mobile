@@ -80,6 +80,10 @@ const ScheduleDetails = () => {
   const isCancelled = schedule?.status === 'cancelled';
   const isRecurring = Boolean(schedule?.recurrenceGroupId || schedule?.recurrence?.isRecurring);
   const isMaterialized = Boolean(schedule?.recurrenceGroupId);
+  const eventStart = dayjs(
+    schedule?.startTime ?? schedule?.occurrenceStartDate ?? schedule?.startDate,
+  );
+  const isFuture = eventStart.isValid() && eventStart.isAfter(dayjs());
 
   useEffect(() => setSchedule(parsedSchedule), [parsedSchedule]);
 
@@ -118,7 +122,7 @@ const ScheduleDetails = () => {
   useFocusEffect(
     useCallback(() => {
       const loadAttendance = async () => {
-        if (isCancelled) return;
+        if (isCancelled || isFuture) return;
         if (!teamId || Array.isArray(teamId)) {
           return;
         }
@@ -157,7 +161,7 @@ const ScheduleDetails = () => {
       };
 
       loadAttendance();
-    }, [isCancelled, schedule, teamId]),
+    }, [isCancelled, isFuture, schedule, teamId]),
   );
 
   if (!schedule) {
@@ -406,7 +410,7 @@ const ScheduleDetails = () => {
           </SnackBar>
         )}
 
-        {!isCancelled && <>
+        {!isCancelled && !isFuture && <>
         <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
 
         <View style={styles.summaryRow}>
@@ -497,6 +501,11 @@ const ScheduleDetails = () => {
           >
             Save Attendance
           </Button>
+        </View>
+        </>}
+
+        {!isCancelled && (
+        <View style={styles.actionButtons}>
           <Button mode="outlined" onPress={() => {
             if (isRecurring) {
               setShowEditScopeDialog(true);
@@ -522,7 +531,7 @@ const ScheduleDetails = () => {
             Delete Event
           </Button>
         </View>
-        </>}
+        )}
         {isCancelled && (
           <View style={styles.actionButtons}>
             <Button mode="outlined" onPress={() => {
