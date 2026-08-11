@@ -16,6 +16,7 @@ import {
 } from '@/api/schedule';
 import EventCard from '@/components/EventCard';
 import { AttendanceCard } from '@/components/AttendenceCard';
+import { useScheduleInvalidationStore } from '@/hooks/useScheduleInvalidationStore';
 
 const TeamDetails = () => {
   const navigation = useNavigation();
@@ -32,6 +33,9 @@ const TeamDetails = () => {
   });
   const [rosterCount, setRosterCount] = useState(0);
   const [error, setError] = useState('');
+  const invalidationVersion = useScheduleInvalidationStore((state) =>
+    typeof teamId === 'string' ? state.versions[teamId] ?? 0 : 0,
+  );
 
   const handleOpenSchedule = () => {
     if (!teamId) {
@@ -46,39 +50,47 @@ const TeamDetails = () => {
     });
   };
 
+  const loadTeamDetails = useCallback(() => {
+    if (!teamId) return;
+
+    setLoading(true);
+
+    Promise.all([
+      getTeam(teamId as string),
+      getRosterCount(teamId as string),
+      getNextPractice(teamId as string),
+      getNextGame(teamId as string),
+      getLastPractice(teamId as string),
+    ])
+      .then(([team, roster, practice, game, lastPractice]) => {
+        setTeam(team);
+        setRosterCount(roster.count);
+        setNextPractice(practice);
+        setNextGame(game);
+        setLastPracticeAttendance(lastPractice);
+      })
+      .catch((error: any) => {
+        const message =
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to load team data';
+
+        setError(message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [teamId]);
+
   useFocusEffect(
     useCallback(() => {
-      if (!teamId) return;
-
-      setLoading(true);
-
-      Promise.all([
-        getTeam(teamId as string),
-        getRosterCount(teamId as string),
-        getNextPractice(teamId as string),
-        getNextGame(teamId as string),
-        getLastPractice(teamId as string),
-      ])
-        .then(([team, roster, practice, game, lastPractice]) => {
-          setTeam(team);
-          setRosterCount(roster.count);
-          setNextPractice(practice);
-          setNextGame(game);
-          setLastPracticeAttendance(lastPractice);
-        })
-        .catch((error: any) => {
-          const message =
-            error?.response?.data?.message ||
-            error?.message ||
-            'Failed to load team data';
-
-          setError(message);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, [teamId])
+      loadTeamDetails();
+    }, [loadTeamDetails])
   );
+
+  useEffect(() => {
+    if (invalidationVersion > 0) loadTeamDetails();
+  }, [invalidationVersion, loadTeamDetails]);
 
   useEffect(() => {
     if (!team) return;
