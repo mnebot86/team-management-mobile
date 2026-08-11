@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test utils/*.test.ts hooks/*.test.ts",
     "start": "expo start",
     "dev": "NODE_ENV=development npx expo start --dev-client",
     "staging": "NODE_ENV=staging npx expo start --dev-client",
