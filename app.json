@@ -3,7 +3,7 @@
     "name": "Team Management",
     "slug": "team-app-mobile",
     "scheme": "teamapp",
-    "version": "1.0.0",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
