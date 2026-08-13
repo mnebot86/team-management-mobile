@@ -6,16 +6,18 @@ import { useSessionStore } from '@/hooks/useSessionStore';
 import { connectSocket } from '@/socket/service';
 import { Badge } from 'react-native-paper';
 import { Tabs } from 'expo-router';
-import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useNotificationStore } from '@/hooks/useNotification';
-import { getNotifications, getUnreadNotificationCount } from '@/api/notification';
+import { getNotifications, getUnreadNotificationCount, markAllNotificationsRead } from '@/api/notification';
 import { Notification } from '@/hooks/useNotification';
+import Text from '@/components/ui/Text';
 
 export default function AuthLayout() {
   const theme = useAppTheme();
 
   const { profile, token } = useSessionStore();
+  const [markingAllRead, setMarkingAllRead] = useState(false);
 
   const {
     unreadCount,
@@ -25,6 +27,20 @@ export default function AuthLayout() {
     setNotifications,
     setUnreadCount,
   } = useNotificationStore();
+
+  const handleMarkAllRead = useCallback(async () => {
+    if (!profile?._id || unreadCount === 0 || markingAllRead) return;
+
+    setMarkingAllRead(true);
+    try {
+      await markAllNotificationsRead();
+      markAllAsRead(profile._id);
+    } catch {
+      console.warn('Unable to mark all notifications as read.');
+    } finally {
+      setMarkingAllRead(false);
+    }
+  }, [markAllAsRead, markingAllRead, profile?._id, unreadCount]);
 
   useEffect(() => {
     const socketUrl = process.env.EXPO_PUBLIC_SOCKET_URL;
@@ -154,6 +170,18 @@ export default function AuthLayout() {
           header: () => (
             <AppHeader
               title="Notifications"
+              headerContent={unreadCount > 0 ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Mark all notifications as read"
+                  disabled={markingAllRead}
+                  onPress={handleMarkAllRead}
+                  hitSlop={12}
+                  style={{ opacity: markingAllRead ? 0.5 : 1, padding: 4 }}
+                >
+                  <Text.Body style={{ fontWeight: '700' }}>Read all</Text.Body>
+                </Pressable>
+              ) : null}
             />
           ),
           tabBarIcon: ({ size }: { size: number }) => (

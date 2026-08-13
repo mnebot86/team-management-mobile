@@ -1,14 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Card, Divider, useTheme } from 'react-native-paper';
+import { Card, Divider } from 'react-native-paper';
 
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import AppIcon from '@/components/AppIcon';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const PlanDetailScreen = () => {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
   const { plan } = useLocalSearchParams<{
@@ -53,8 +54,11 @@ const PlanDetailScreen = () => {
         }}
       >
         <Card
+          mode="outlined"
           style={{
             borderRadius: 24,
+            backgroundColor: theme.colors.card.background,
+            borderColor: theme.colors.card.border,
           }}
         >
           <Card.Content
@@ -92,7 +96,7 @@ const PlanDetailScreen = () => {
 
             <Text.Body>{description}</Text.Body>
 
-            <Divider />
+            <Divider style={{ backgroundColor: theme.colors.card.border }} />
 
             <View
               style={{
@@ -124,8 +128,11 @@ const PlanDetailScreen = () => {
             onPress={() => toggleSection(section._id ?? `${index}`)}
           >
             <Card
+              mode="outlined"
               style={{
                 borderRadius: 20,
+                backgroundColor: theme.colors.card.background,
+                borderColor: theme.colors.card.border,
               }}
             >
               <Card.Content
@@ -147,12 +154,14 @@ const PlanDetailScreen = () => {
                       borderRadius: 16,
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: theme.colors.secondaryContainer,
+                      backgroundColor: theme.colors.segment.selectedBackground,
+                      borderWidth: 1,
+                      borderColor: theme.colors.segment.border,
                     }}
                   >
                     <Text.Body
                       style={{
-                        color: theme.colors.onSecondaryContainer,
+                        color: theme.colors.segment.selectedText,
                         fontWeight: '700',
                       }}
                     >
@@ -177,7 +186,7 @@ const PlanDetailScreen = () => {
 
                 {expandedSections.includes(section._id ?? `${index}`) && (
                   <>
-                    <Divider style={{ marginVertical: 16 }} />
+                    <Divider style={{ marginVertical: 16, backgroundColor: theme.colors.card.border }} />
 
                     <View
                       style={{

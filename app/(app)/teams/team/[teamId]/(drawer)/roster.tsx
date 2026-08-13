@@ -12,9 +12,9 @@ import type { SegmentOption } from '@/components/ui/SegmentBar';
 type RosterFilter = 'all' | 'player' | 'coach';
 
 const rosterFilters: SegmentOption<RosterFilter>[] = [
-  { value: 'all', label: 'All' },
   { value: 'player', label: 'Players' },
   { value: 'coach', label: 'Coaches' },
+  { value: 'all', label: 'All' },
 ];
 
 const Roster = () => {
@@ -22,7 +22,7 @@ const Roster = () => {
 
   const [roster, setRoster] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<RosterFilter>('all');
+  const [filter, setFilter] = useState<RosterFilter>('player');
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
     message: '',
@@ -118,7 +118,7 @@ const Roster = () => {
           <PlayerCard
             firstName={item.firstName || 'Unknown'}
             lastName={item.lastName || 'Player'}
-            jerseyNumber={item.jerseyNumber ?? 0}
+            jerseyNumber={item.jerseyNumber}
             positions={Array.isArray(item.positions) ? item.positions : typeof item.positions === 'string' ? item.positions.split(',').map((value: string) => value.trim()).filter(Boolean) : []}
             imageUrl={item.imageUrl || ''}
             onPress={() => handleSelectPlayer(item)}

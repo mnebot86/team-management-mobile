@@ -36,15 +36,8 @@ export const AttendanceCard = ({
     <View style={styles.container}>
       <Card mode="outlined" style={styles.card}>
         <Card.Content style={styles.content}>
-          <View style={styles.summaryRow}>
-            <View style={styles.iconContainer}>
-              <Text style={styles.percentageIcon}>
-                {attendancePercentage}%
-              </Text>
-            </View>
-
-            <View style={styles.progressContainer}>
-              <View>
+          <View style={styles.headerRow}>
+            <View style={styles.titleContainer}>
                 <Text variant="titleLarge" style={styles.heading}>
                   {heading ?? 'Attendance Rate'}
                 </Text>
@@ -54,48 +47,43 @@ export const AttendanceCard = ({
                     {subheading}
                   </Text>
                 ) : null}
-              </View>
-
-              <ProgressBar
-                progress={progress}
-                color={theme.colors.primary}
-                style={styles.progressBar}
-              />
             </View>
+
+            <Text style={styles.percentage}>{attendancePercentage}%</Text>
           </View>
+
+          <ProgressBar
+            progress={progress}
+            color={theme.colors.status.success}
+            style={styles.progressBar}
+          />
 
           <View style={styles.statsGrid}>
             <AttendanceStat
               value={present}
               label="Present"
-              backgroundColor={theme.colors.secondaryContainer}
-              valueColor={theme.colors.onSecondaryContainer}
+              accentColor={theme.colors.status.success}
               style={styles.statCard}
             />
 
-            {late > 0 && (
-              <AttendanceStat
-                value={late}
-                label="Late"
-                backgroundColor={theme.colors.primaryContainer}
-                valueColor={theme.colors.onPrimaryContainer}
-                style={styles.statCard}
-              />
-            )}
+            <AttendanceStat
+              value={late}
+              label="Late"
+              accentColor={theme.colors.status.warning}
+              style={styles.statCard}
+            />
 
             <AttendanceStat
               value={absent}
               label="Absent"
-              backgroundColor={theme.colors.errorContainer}
-              valueColor={theme.colors.onErrorContainer}
+              accentColor={theme.colors.status.error}
               style={styles.statCard}
             />
 
             <AttendanceStat
               value={attendanceTotal}
               label="Total"
-              backgroundColor={theme.colors.surfaceVariant}
-              valueColor={theme.colors.onSurfaceVariant}
+              accentColor={theme.colors.status.neutral}
               style={styles.statCard}
             />
           </View>
@@ -108,27 +96,31 @@ export const AttendanceCard = ({
 type AttendanceStatProps = {
   value: number;
   label: string;
-  backgroundColor: string;
-  valueColor: string;
+  accentColor: string;
   style?: any;
 };
 
 const AttendanceStat = ({
   value,
   label,
-  backgroundColor,
-  valueColor,
+  accentColor,
   style,
-}: AttendanceStatProps) => (
-  <View style={[style, { backgroundColor }]}>
-    <Text variant="headlineSmall" style={{ color: valueColor }}>
-      {value}
-    </Text>
-    <Text variant="bodyMedium" style={{ opacity: 0.8 }}>
-      {label}
-    </Text>
-  </View>
-);
+}: AttendanceStatProps) => {
+  const theme = useAppTheme();
+  const styles = createStyles(theme.colors);
+
+  return (
+    <View style={style}>
+      <View style={[styles.statIndicator, { backgroundColor: accentColor }]} />
+      <Text variant="titleLarge" style={styles.statValue}>
+        {value}
+      </Text>
+      <Text variant="labelSmall" style={styles.statLabel}>
+        {label}
+      </Text>
+    </View>
+  );
+};
 
 const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) =>
   StyleSheet.create({
@@ -136,64 +128,69 @@ const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) =>
       gap: 8,
     },
     card: {
-      borderRadius: 22,
+      borderRadius: 18,
       backgroundColor: colors.surface,
       borderColor: colors.outlineVariant,
     },
     content: {
       padding: 16,
-      gap: 14,
-    },
-    summaryRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
       gap: 12,
     },
-    iconContainer: {
-      width: 68,
-      height: 68,
-      borderRadius: 999,
+    headerRow: {
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.primaryContainer,
+      justifyContent: 'space-between',
+      gap: 16,
     },
-    percentageIcon: {
-      color: colors.primary,
-      fontSize: 22,
-      fontWeight: '700',
+    titleContainer: {
+      flex: 1,
     },
     heading: {
       color: colors.onSurface,
       fontWeight: '700',
+      fontSize: 18,
     },
     subheading: {
       color: colors.onSurfaceVariant,
       marginTop: 2,
     },
-    progressContainer: {
-      flex: 1,
-      gap: 6,
+    percentage: {
+      color: colors.text.primary,
+      fontSize: 24,
+      fontWeight: '800',
     },
     progressBar: {
-      height: 8,
+      height: 6,
       borderRadius: 999,
-      backgroundColor: colors.surfaceVariant,
+      backgroundColor: colors.avatar.background,
     },
     statsGrid: {
       flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 8,
+      gap: 6,
+      paddingTop: 2,
     },
     statCard: {
-      flexBasis: '48%',
-      minHeight: 88,
+      flex: 1,
+      minWidth: 0,
+      minHeight: 72,
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 18,
-      gap: 4,
-      paddingHorizontal: 8,
+      borderRadius: 14,
+      gap: 2,
+      paddingVertical: 8,
+      backgroundColor: colors.avatar.background,
+    },
+    statIndicator: {
+      width: 18,
+      height: 3,
+      borderRadius: 999,
+      marginBottom: 2,
+    },
+    statValue: {
+      color: colors.text.primary,
+      fontWeight: '700',
     },
     statLabel: {
-      opacity: 0.8,
+      color: colors.text.secondary,
     },
   });
