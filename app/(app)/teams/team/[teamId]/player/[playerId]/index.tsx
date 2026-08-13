@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTheme } from 'react-native-paper';
 
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
@@ -10,9 +9,11 @@ import { getTeamMember } from '@/api/teamMembers';
 import { getPlayerAttendanceRecord } from '@/api/schedule';
 import SnackBar from '@/components/ui/SnackBar';
 import { AttendanceCard } from '@/components/AttendenceCard';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const PlayerDetails = () => {
-  const theme = useTheme();
+  const theme = useAppTheme();
+  const colors = theme.colors;
   const navigation = useNavigation();
 
   const styles = useMemo(() => createStyles(theme.colors), [theme.colors]);
@@ -34,8 +35,14 @@ const PlayerDetails = () => {
     : typeof player?.positions === 'string'
       ? player.positions.split(',').map((value: string) => value.trim()).filter(Boolean)
       : [];
-  const primaryPosition = positionLabels[0] ?? 'Unassigned';
-  const supportingPositions = positionLabels.slice(1);
+  const positionInitials = positionLabels.map((position: string) => {
+    if (/^[A-Z0-9]{1,4}$/.test(position)) return position;
+    return position.split(/[\s/-]+/).filter(Boolean).map((word) => word[0]).join('').toUpperCase();
+  });
+  const hasJerseyNumber = player?.jerseyNumber !== null
+    && player?.jerseyNumber !== undefined
+    && String(player.jerseyNumber).trim() !== '';
+  const hasPlayerMeta = hasJerseyNumber || positionInitials.length > 0;
 
   useFocusEffect(
     useCallback(() => {
@@ -95,7 +102,7 @@ const PlayerDetails = () => {
   return (
     <ScreenContainer.Scroll>
       <View style={styles.container}>
-        <View style={styles.heroCard}>
+        <View style={styles.heroSection}>
           <View style={styles.avatarContainer}>
             {(player?.avatar || player?.imageUrl) ? (
               <Image
@@ -107,64 +114,28 @@ const PlayerDetails = () => {
               <View style={styles.placeholderBadge}>
                 <MaterialCommunityIcons
                   name="account"
-                  size={56}
+                  size={96}
                   color={theme.colors.primary}
                 />
               </View>
             )}
           </View>
 
-          <View style={styles.heroContent}>
-            <Text.Subheading style={styles.playerName}>
-              {player?.firstName} {player?.lastName}
-            </Text.Subheading>
-
-            <View style={styles.positionRow}>
-              <View style={[styles.positionBadge, { backgroundColor: theme.colors.primaryContainer }]}>
-                <Text.Caption style={[styles.positionBadgeText, { color: theme.colors.onPrimaryContainer }]}>
-                  {primaryPosition}
-                </Text.Caption>
+          {hasPlayerMeta && (
+            <View style={styles.playerMetaCard}>
+              <View style={styles.positionRow}>
+                {positionInitials.map((position: string, index: number) => (
+                  <View
+                    key={`${position}-${index}`}
+                    style={[styles.positionBadge, { backgroundColor: colors.avatar.background, borderColor: colors.avatar.border }]}
+                  >
+                    <Text.Caption style={[styles.positionBadgeText, { color: colors.onSurface }]}>{position}</Text.Caption>
+                  </View>
+                ))}
               </View>
-
-              {supportingPositions.length > 0 ? (
-                <Text.Caption style={styles.positionHint}>{supportingPositions.join(' • ')}</Text.Caption>
-              ) : null}
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.sectionCard}>
-          <View style={styles.infoRow}>
-            <Text.Caption style={styles.label}>First Name</Text.Caption>
-            <Text.Body>{player?.firstName || '--'}</Text.Body>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text.Caption style={styles.label}>Last Name</Text.Caption>
-            <Text.Body>{player?.lastName || '--'}</Text.Body>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text.Caption style={styles.label}>Jersey Number</Text.Caption>
-            <Text.Body>{player?.jerseyNumber || '--'}</Text.Body>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text.Caption style={styles.label}>Position</Text.Caption>
-            <Text.Body>{player?.positions?.join(', ') || '--'}</Text.Body>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text.Caption style={styles.label}>Status</Text.Caption>
-            <Text.Body>
-              {player?.isClaimed ? 'Claimed Account' : 'Unclaimed Player'}
-            </Text.Body>
-          </View>
-
-          {!!player?.linkCode && (
-            <View style={styles.infoRow}>
-              <Text.Caption style={styles.label}>Link Code</Text.Caption>
-              <Text.Body>{player.linkCode}</Text.Body>
+              {hasJerseyNumber && (
+                <Text.Heading style={styles.jerseyNumber}>#{player.jerseyNumber}</Text.Heading>
+              )}
             </View>
           )}
         </View>
@@ -178,6 +149,34 @@ const PlayerDetails = () => {
             absent={attendance.absent}
             total={attendance.total}
           />
+        </View>
+
+        <View style={styles.sectionCard}>
+          <View style={styles.infoRow}>
+            <View style={[styles.infoIcon, { backgroundColor: colors.avatar.background }]}>
+              <MaterialCommunityIcons
+                name={player?.isClaimed ? 'account-check-outline' : 'account-clock-outline'}
+                size={24}
+                color={colors.primary}
+              />
+            </View>
+            <View style={styles.infoContent}>
+              <Text.Caption style={styles.label}>Account status</Text.Caption>
+              <Text.Body>{player?.isClaimed ? 'Claimed account' : 'Unclaimed player'}</Text.Body>
+            </View>
+          </View>
+
+          {!!player?.linkCode && (
+            <View style={styles.infoRow}>
+              <View style={[styles.infoIcon, { backgroundColor: colors.avatar.background }]}>
+                <MaterialCommunityIcons name="link-variant" size={24} color={colors.primary} />
+              </View>
+              <View style={styles.infoContent}>
+                <Text.Caption style={styles.label}>Link code</Text.Caption>
+                <Text.Body>{player.linkCode}</Text.Body>
+              </View>
+            </View>
+          )}
         </View>
       </View>
 
@@ -196,21 +195,22 @@ const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: 16,
-      gap: 20,
+      paddingBottom: 32,
+      gap: 24,
     },
-    heroCard: {
-      alignItems: 'center',
-      gap: 12,
+    heroSection: {
+      width: '100%',
+      marginTop: 12,
     },
     avatarContainer: {
-      width: 144,
-      height: 144,
-      borderRadius: 36,
-      backgroundColor: colors.surfaceVariant,
+      width: '100%',
+      aspectRatio: 1.05,
+      borderRadius: 28,
+      backgroundColor: colors.avatar.background,
       alignItems: 'center',
       justifyContent: 'center',
       overflow: 'hidden',
-      borderWidth: 1,
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.outlineVariant,
     },
     avatarImage: {
@@ -218,56 +218,73 @@ const createStyles = (colors: any) =>
       height: '100%',
     },
     placeholderBadge: {
-      width: 92,
-      height: 92,
+      width: 160,
+      height: 160,
       borderRadius: 999,
-      backgroundColor: colors.primaryContainer,
+      backgroundColor: colors.avatar.background,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    heroContent: {
+    playerMetaCard: {
+      marginTop: 12,
+      marginHorizontal: 4,
+      flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
-    },
-    playerName: {
-      fontWeight: '700',
+      justifyContent: 'space-between',
     },
     positionRow: {
       flexDirection: 'row',
       alignItems: 'center',
       flexWrap: 'wrap',
       gap: 8,
-      justifyContent: 'center',
+      flex: 1,
     },
     positionBadge: {
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 999,
+      borderWidth: 1,
     },
     positionBadgeText: {
       fontWeight: '700',
       textTransform: 'uppercase',
       letterSpacing: 0.4,
     },
-    positionHint: {
-      color: colors.onSurfaceVariant,
+    jerseyNumber: {
+      fontWeight: '800',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 999,
+      backgroundColor: colors.segment.selectedBackground,
+      color: colors.segment.selectedText,
+      overflow: 'hidden',
     },
     sectionCard: {
       backgroundColor: colors.surface,
       borderRadius: 20,
-      padding: 20,
+      paddingHorizontal: 18,
       borderWidth: 1,
       borderColor: colors.outlineVariant,
-      gap: 18,
-    },
-    sectionTitle: {
-      marginBottom: 4,
+      overflow: 'hidden',
     },
     infoRow: {
-      gap: 4,
-      paddingBottom: 12,
-      borderBottomWidth: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingVertical: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.outlineVariant,
+    },
+    infoIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    infoContent: {
+      flex: 1,
+      gap: 2,
     },
     label: {
       color: colors.outline,

@@ -406,24 +406,28 @@ const ScheduleDetails = () => {
         <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
 
         <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.success }]}>
-            <Text.Body style={styles.summaryLabelPrimary}>Present</Text.Body>
-            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{presentCount}</Text.Heading>
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.success }]} />
+            <Text.Subheading style={styles.summaryValue}>{presentCount}</Text.Subheading>
+            <Text.Caption style={styles.summaryLabel}>Present</Text.Caption>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.warning }]}>
-            <Text.Body style={styles.summaryLabelSecondary}>Late</Text.Body>
-            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{lateCount}</Text.Heading>
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.warning }]} />
+            <Text.Subheading style={styles.summaryValue}>{lateCount}</Text.Subheading>
+            <Text.Caption style={styles.summaryLabel}>Late</Text.Caption>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.error }]}>
-            <Text.Body style={styles.summaryLabelError}>Absent</Text.Body>
-            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{absentCount}</Text.Heading>
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.error }]} />
+            <Text.Subheading style={styles.summaryValue}>{absentCount}</Text.Subheading>
+            <Text.Caption style={styles.summaryLabel}>Absent</Text.Caption>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: theme.colors.status.neutral }]}>
-            <Text.Body style={styles.summaryLabelOutline}>Unmarked</Text.Body>
-            <Text.Heading style={{ color: theme.colors.button.primaryText }}>{unmarkedCount}</Text.Heading>
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.neutral }]} />
+            <Text.Subheading style={styles.summaryValue}>{unmarkedCount}</Text.Subheading>
+            <Text.Caption style={styles.summaryLabel}>Unmarked</Text.Caption>
           </View>
         </View>
 
@@ -725,41 +729,32 @@ const createStyles = (colors: any) =>
     },
     summaryRow: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      gap: 8,
+      gap: 6,
     },
     summaryCard: {
       flex: 1,
-      borderRadius: 20,
-      paddingVertical: 16,
-      paddingHorizontal: 6,
+      minWidth: 0,
+      minHeight: 72,
+      borderRadius: 14,
+      paddingVertical: 8,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 4,
+      gap: 2,
+      backgroundColor: colors.avatar.background,
     },
-    summaryLabelPrimary: {
-      color: colors.primary,
-      fontSize: 12,
-      textAlign: 'center',
-      width: '100%',
+    summaryIndicator: {
+      width: 18,
+      height: 3,
+      borderRadius: 999,
+      marginBottom: 2,
     },
-    summaryLabelSecondary: {
-      color: colors.secondary,
-      fontSize: 12,
-      textAlign: 'center',
-      width: '100%',
+    summaryValue: {
+      color: colors.text.primary,
+      fontWeight: '700',
     },
-    summaryLabelError: {
-      color: colors.error,
-      fontSize: 12,
+    summaryLabel: {
+      color: colors.text.secondary,
       textAlign: 'center',
-      width: '100%',
-    },
-    summaryLabelOutline: {
-      color: colors.outline,
-      fontSize: 12,
-      textAlign: 'center',
-      width: '100%',
     },
     attendanceCard: {
       backgroundColor: colors.surface,

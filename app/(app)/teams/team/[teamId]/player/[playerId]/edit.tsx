@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useTheme } from 'react-native-paper';
 
 import ScreenContainer from '@/components/layout/Screen';
 import Input from '@/components/ui/Input';
@@ -12,9 +11,10 @@ import Text from '@/components/ui/Text';
 import { editTeamMember, getTeamMember } from '@/api/teamMembers';
 import { getTeam } from '@/api/teams';
 import { getSport, type SportPositionDefinition } from '@/api/sports';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const EditPlayerScreen = () => {
-  const theme = useTheme();
+  const theme = useAppTheme();
   const styles = useMemo(() => createStyles(theme.colors), [theme.colors]);
 
   const { teamId, playerId } = useLocalSearchParams();
@@ -200,16 +200,18 @@ const EditPlayerScreen = () => {
                                 styles.positionOption,
                                 {
                                   backgroundColor: selected
-                                    ? theme.colors.secondaryContainer
-                                    : theme.colors.surfaceVariant,
+                                    ? theme.colors.segment.selectedBackground
+                                    : theme.colors.avatar.background,
                                   borderColor: selected
                                     ? theme.colors.primary
-                                    : theme.colors.outlineVariant,
+                                    : theme.colors.avatar.border,
                                 },
                               ]}
                             >
                               <Text.Label style={{
-                                color: selected ? theme.colors.onPrimaryContainer : theme.colors.onSurfaceVariant,
+                                color: selected
+                                  ? theme.colors.segment.selectedText
+                                  : theme.colors.text.secondary,
                               }}>
                                 {position.shortName}
                               </Text.Label>

@@ -7,7 +7,7 @@ import Text from '@/components/ui/Text';
 type PlayerCardProps = {
   firstName: string;
   lastName: string;
-  jerseyNumber: number;
+  jerseyNumber?: number | string | null;
   positions: string[];
   imageUrl: string;
   onPress?: () => void;
@@ -19,8 +19,20 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
   const styles = createStyles(colors);
 
   const displayPositions = (positions ?? []).filter(Boolean);
-  const primaryPosition = displayPositions[0] ?? 'Unassigned';
-  const secondaryPositions = displayPositions.slice(1);
+  const positionInitials = displayPositions.map((position) => {
+    const trimmed = position.trim();
+    if (/^[A-Z0-9]{1,4}$/.test(trimmed)) return trimmed;
+
+    return trimmed
+      .split(/[\s/-]+/)
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase();
+  }).filter(Boolean);
+  const hasJerseyNumber = jerseyNumber !== null
+    && jerseyNumber !== undefined
+    && String(jerseyNumber).trim() !== '';
 
   return (
     <Pressable
@@ -55,20 +67,30 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
         </View>
 
         <View style={styles.textContainer}>
-          <Text.Subheading style={styles.nameText}>{firstName} {lastName}</Text.Subheading>
-          <Text.Caption style={styles.metaText}>#{jerseyNumber}</Text.Caption>
-
-          <View style={styles.positionRow}>
-            <View style={[styles.positionBadge, { backgroundColor: colors.primaryContainer }]}>
-              <Text.Caption style={[styles.positionBadgeText, { color: colors.onPrimaryContainer }]}>
-                {primaryPosition}
-              </Text.Caption>
-            </View>
-
-            {secondaryPositions.length > 0 ? (
-              <Text.Caption style={styles.positionText}>{secondaryPositions.join(' • ')}</Text.Caption>
-            ) : null}
+          <View style={styles.nameRow}>
+            <Text.Subheading style={styles.nameText}>{firstName} {lastName}</Text.Subheading>
+            {hasJerseyNumber && (
+              <Text.Subheading style={[styles.jerseyNumber, { color: colors.text.secondary }]}>#{jerseyNumber}</Text.Subheading>
+            )}
           </View>
+
+          {positionInitials.length > 0 && (
+            <View style={styles.positionRow}>
+              {positionInitials.map((position, index) => (
+                <View
+                  key={`${position}-${index}`}
+                  style={[
+                    styles.positionBadge,
+                    { backgroundColor: colors.avatar.background, borderColor: colors.avatar.border },
+                  ]}
+                >
+                  <Text.Caption style={[styles.positionBadgeText, { color: colors.text.primary }]}>
+                    {position}
+                  </Text.Caption>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </View>
     </Pressable>
@@ -93,9 +115,9 @@ const createStyles = (colors: any) =>
       flex: 1,
     },
     iconContainer: {
-      width: 68,
-      height: 68,
-      borderRadius: 20,
+      width: 88,
+      height: 88,
+      borderRadius: 24,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: 14,
@@ -104,7 +126,7 @@ const createStyles = (colors: any) =>
     avatarImage: {
       width: '100%',
       height: '100%',
-      borderRadius: 20,
+      borderRadius: 24,
     },
     textContainer: {
       flex: 1,
@@ -113,9 +135,16 @@ const createStyles = (colors: any) =>
     },
     nameText: {
       fontWeight: '700',
+      flex: 1,
     },
-    metaText: {
-      color: colors.onSurfaceVariant,
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+    },
+    jerseyNumber: {
+      fontWeight: '700',
     },
     positionRow: {
       flexDirection: 'row',
@@ -128,14 +157,12 @@ const createStyles = (colors: any) =>
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 999,
+      borderWidth: 1,
     },
     positionBadgeText: {
       fontWeight: '700',
       textTransform: 'uppercase',
       letterSpacing: 0.4,
-    },
-    positionText: {
-      color: colors.onSurfaceVariant,
     },
   });
 

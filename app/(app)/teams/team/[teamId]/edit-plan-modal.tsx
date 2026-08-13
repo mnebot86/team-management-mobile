@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
@@ -15,6 +15,22 @@ type PracticeSection = {
   description: string;
   order?: number;
 };
+
+let newSectionSequence = 0;
+
+const createSectionId = () => {
+  newSectionSequence += 1;
+  return `new-section-${Date.now()}-${newSectionSequence}`;
+};
+
+const normalizeSections = (sections: any[] = []): PracticeSection[] =>
+  sections.map((section, index) => ({
+    id: String(section.id ?? section._id ?? `section-${index}`),
+    title: String(section.title ?? section.name ?? ''),
+    durationMinutes: String(section.durationMinutes ?? section.duration ?? ''),
+    description: String(section.description ?? section.notes ?? ''),
+    order: section.order,
+  }));
 
 const EditPlanModal = () => {
   const { planId, plan } = useLocalSearchParams<{
@@ -33,14 +49,19 @@ const EditPlanModal = () => {
     }
   }, [plan]);
 
-  const [title, setTitle] = useState(planData?.title ?? '');
-  const [durationMinutes, setDurationMinutes] = useState(
-    planData?.totalDurationMinutes?.toString() ?? ''
-  );
-  const [notes, setNotes] = useState(planData?.description ?? '');
-  const [sections, setSections] = useState<PracticeSection[]>(
-    planData?.sections ?? []
-  );
+  const [title, setTitle] = useState('');
+  const [durationMinutes, setDurationMinutes] = useState('');
+  const [notes, setNotes] = useState('');
+  const [sections, setSections] = useState<PracticeSection[]>([]);
+
+  useEffect(() => {
+    if (!planData) return;
+
+    setTitle(String(planData.title ?? planData.name ?? ''));
+    setDurationMinutes(String(planData.totalDurationMinutes ?? planData.durationMinutes ?? ''));
+    setNotes(String(planData.description ?? planData.notes ?? ''));
+    setSections(normalizeSections(planData.sections));
+  }, [planData]);
 
   const updateSection = (
     sectionId: string,
@@ -66,7 +87,7 @@ const EditPlanModal = () => {
     setSections((current) => [
       ...current,
       {
-        id: Date.now().toString(),
+        id: createSectionId(),
         title: '',
         durationMinutes: '10',
         description: '',

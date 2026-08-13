@@ -21,10 +21,13 @@ import {
   useNotificationStore,
 } from '@/hooks/useNotification';
 import { useSessionStore } from '@/hooks/useSessionStore';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 dayjs.extend(relativeTime);
 
 const Notifications = () => {
+  const theme = useAppTheme();
+  const styles = createStyles(theme.colors);
   const notifications = useNotificationStore(
     (state) => state.notifications,
   );
@@ -85,10 +88,17 @@ const Notifications = () => {
       return;
     }
 
+    markAsRead(notificationId, profile._id);
+
     try {
       await markNotificationRead(notificationId);
-      markAsRead(notificationId, profile._id);
     } catch (error) {
+      try {
+        const data = await fetchNotifications();
+        setNotifications(data, profile._id);
+      } catch {
+        // The next screen focus will reconcile notification state.
+      }
       setSnackbar({
         visible: true,
         message: error instanceof Error
@@ -98,18 +108,26 @@ const Notifications = () => {
     }
   };
 
+  const isUnread = (notification: Notification) => Boolean(profile?._id && notification.recipients.some(
+    (recipient) => recipient.profileId === profile._id && recipient.readAt === null,
+  ));
+
   const renderItem = ({
     item,
   }: {
     item: Notification;
-  }) => (
-    <Pressable onPress={() => handleNotificationPress(item._id)}>
+  }) => {
+    const unread = isUnread(item);
+
+    return (
+    <Pressable onPress={() => unread && handleNotificationPress(item._id)}>
       <Surface
         elevation={0}
-        style={styles.card}
+        style={[styles.card, unread && styles.unreadCard]}
       >
+        {unread && <View style={styles.unreadMarker} />}
         <View style={styles.content}>
-          <Text.Subheading>
+          <Text.Subheading style={unread ? styles.unreadTitle : undefined}>
             {item.title}
           </Text.Subheading>
 
@@ -123,7 +141,8 @@ const Notifications = () => {
         </View>
       </Surface>
     </Pressable>
-  );
+    );
+  };
 
   return (
     <ScreenContainer>
@@ -150,16 +169,31 @@ const Notifications = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ReturnType<typeof useAppTheme>['colors']) => StyleSheet.create({
   list: {
     paddingVertical: 8,
   },
   card: {
-    backgroundColor: 'transparent',
+    backgroundColor: colors.screen.background,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#D9D9D9',
+    borderBottomColor: colors.card.border,
     paddingHorizontal: 20,
     paddingVertical: 18,
+  },
+  unreadCard: {
+    backgroundColor: colors.card.background,
+  },
+  unreadMarker: {
+    position: 'absolute',
+    left: 7,
+    top: 23,
+    width: 7,
+    height: 7,
+    borderRadius: 999,
+    backgroundColor: colors.accent,
+  },
+  unreadTitle: {
+    fontWeight: '800',
   },
   content: {
     gap: 6,
