@@ -27,7 +27,6 @@ interface EventLocation {
 interface ScheduleCardData {
   scheduleId: string;
   recurrenceGroupId?: string | null;
-  recurrenceDate?: string;
   title: string;
   description: string;
   type: EventType;
@@ -36,7 +35,6 @@ interface ScheduleCardData {
   startDate: string;
   startTime: string;
   endTime: string;
-  occurrenceStartDate: string;
   location: EventLocation;
   status?: string;
   cancellationReason?: string;
@@ -82,7 +80,7 @@ export const EventCard = ({
     },
   } as const;
 
-  const time = data.occurrenceStartDate ?? data.startTime ?? data.startDate;
+  const time = data.startTime ?? data.startDate;
   const endTime = data.endTime;
   const type = data.type;
   const details = data.opponentName;
@@ -149,6 +147,7 @@ export const EventCard = ({
                 {config.label}
               </Chip>
               {isCancelled && <Chip compact textStyle={{ color: colors.error }}>Cancelled</Chip>}
+              {data.recurrenceGroupId && <Chip compact>Series</Chip>}
             </View>
 
             <View style={styles.infoRow}>

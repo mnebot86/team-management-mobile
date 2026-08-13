@@ -30,8 +30,7 @@ export interface CreateScheduleInput {
 
 export type ScheduleMutationScope = 'occurrence' | 'series';
 export type UpdateScheduleInput = Partial<Omit<CreateScheduleInput, 'teamId'>> & {
-  scope?: ScheduleMutationScope;
-  occurrenceDate?: string;
+  scope: ScheduleMutationScope;
 };
 
 export type ScheduleStatus = 'scheduled' | 'cancelled';
@@ -39,7 +38,6 @@ export type ScheduleStatus = 'scheduled' | 'cancelled';
 export interface ScheduleOccurrence {
   scheduleId: string;
   recurrenceGroupId?: string | null;
-  recurrenceDate?: string;
   title: string;
   description?: string;
   type: ScheduleEventType;
@@ -66,8 +64,7 @@ export interface ScheduleOccurrence {
 export type CancellationScope = ScheduleMutationScope;
 
 export interface CancelScheduleInput {
-  scope?: CancellationScope;
-  occurrenceDate?: string;
+  scope: CancellationScope;
   reason?: string;
 }
 
@@ -81,16 +78,16 @@ export const updateSchedule = async (
   scheduleId: string,
   payload: UpdateScheduleInput,
 ) => {
-  const response = await api.patch(`/schedules/${scheduleId}`, payload);
+  const response = await api.patch(`/schedule/${scheduleId}`, payload);
 
   return response.data.data;
 };
 
 export const cancelSchedule = async (
   scheduleId: string,
-  payload: CancelScheduleInput = {},
+  payload: CancelScheduleInput,
 ) => {
-  const response = await api.patch(`/schedules/${scheduleId}/cancel`, payload);
+  const response = await api.patch(`/schedule/${scheduleId}/cancel`, payload);
 
   return response.data.data;
 };
@@ -99,7 +96,7 @@ export const deleteSchedule = async (
   scheduleId: string,
   scope: ScheduleMutationScope,
 ) => {
-  const response = await api.delete(`/schedules/${scheduleId}`, {
+  const response = await api.delete(`/schedule/${scheduleId}`, {
     params: { scope },
   });
 

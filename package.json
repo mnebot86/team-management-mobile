@@ -10,6 +10,7 @@
     "staging": "NODE_ENV=staging npx expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "release:ios": "eas build --platform ios --profile production --auto-submit",
     "web": "expo start --web",
     "ios:sim": "expo start --dev-client --ios",
     "clean": "rm -rf .expo ios",
