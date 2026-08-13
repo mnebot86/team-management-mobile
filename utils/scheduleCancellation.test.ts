@@ -3,46 +3,35 @@ import test from 'node:test';
 import {
   buildCancellationPayload,
   buildUpdatePayload,
+  isScheduleInMutationScope,
   removeDeletedSchedules,
   scheduleOccurrenceKey,
   shouldRefetchForScheduleSocket,
 } from './scheduleCancellation.ts';
-
-const legacyDate = '2026-08-17T00:00:00.000Z';
 
 test('materialized occurrences use their distinct scheduleId as identity', () => {
   assert.equal(scheduleOccurrenceKey({ scheduleId: 'occurrence-1', recurrenceGroupId: 'group-1' }), 'occurrence-1');
   assert.equal(scheduleOccurrenceKey({ scheduleId: 'occurrence-2', recurrenceGroupId: 'group-1' }), 'occurrence-2');
 });
 
-test('legacy generated occurrences retain the composite identity fallback', () => {
-  assert.equal(scheduleOccurrenceKey({ scheduleId: 'legacy-1', recurrenceDate: legacyDate }), `legacy-1:${legacyDate}`);
-});
-
-test('materialized occurrence cancellation omits occurrenceDate', () => {
+test('occurrence cancellation is scoped and does not send occurrenceDate', () => {
   assert.deepEqual(buildCancellationPayload({
-    isRecurring: true, isMaterialized: true, scope: 'occurrence', occurrenceDate: legacyDate, reason: ' Weather ',
+    isRecurring: true, scope: 'occurrence', reason: ' Weather ',
   }), { scope: 'occurrence', reason: 'Weather' });
 });
 
 test('non-recurring mutations use occurrence scope without a series prompt', () => {
   assert.deepEqual(buildCancellationPayload({
-    isRecurring: false, isMaterialized: true, scope: null, reason: '',
+    isRecurring: false, scope: null, reason: '',
   }), { scope: 'occurrence' });
   assert.deepEqual(buildUpdatePayload({
-    changed: { title: 'One event' }, isRecurring: false, isMaterialized: true, scope: null,
+    changed: { title: 'One event' }, isRecurring: false, scope: null,
   }), { title: 'One event', scope: 'occurrence' });
-});
-
-test('legacy occurrence cancellation sends recurrenceDate', () => {
-  assert.deepEqual(buildCancellationPayload({
-    isRecurring: true, isMaterialized: false, scope: 'occurrence', occurrenceDate: legacyDate, reason: '',
-  }), { scope: 'occurrence', occurrenceDate: legacyDate });
 });
 
 test('series cancellation omits occurrenceDate', () => {
   assert.deepEqual(buildCancellationPayload({
-    isRecurring: true, isMaterialized: true, scope: 'series', occurrenceDate: legacyDate, reason: 'Season ended',
+    isRecurring: true, scope: 'series', reason: 'Season ended',
   }), { scope: 'series', reason: 'Season ended' });
 });
 
@@ -53,7 +42,7 @@ test('materialized occurrence edits target only the URL scheduleId and exclude r
       title: 'Moved practice', startDate: movedStartDate,
       recurrence: { isRecurring: true, frequency: 'weekly', daysOfWeek: [1], endDate: null },
     },
-    isRecurring: true, isMaterialized: true, scope: 'occurrence', recurrenceDate: legacyDate,
+    isRecurring: true, scope: 'occurrence',
   }), { scope: 'occurrence', title: 'Moved practice', startDate: movedStartDate });
 });
 
@@ -61,8 +50,26 @@ test('series edits include recurrence changes', () => {
   const recurrence = { isRecurring: true, frequency: 'weekly' as const, daysOfWeek: [1], endDate: null };
   assert.deepEqual(buildUpdatePayload({
     changed: { title: 'Practice Series', recurrence },
-    isRecurring: true, isMaterialized: true, scope: 'series', recurrenceDate: legacyDate,
+    isRecurring: true, scope: 'series',
   }), { title: 'Practice Series', recurrence, scope: 'series' });
+});
+
+test('editing or cancelling one occurrence does not target sibling occurrences', () => {
+  const selected = { scheduleId: 'one', recurrenceGroupId: 'group' };
+  const sibling = { scheduleId: 'two', recurrenceGroupId: 'group' };
+
+  assert.equal(isScheduleInMutationScope(selected, selected, 'occurrence'), true);
+  assert.equal(isScheduleInMutationScope(sibling, selected, 'occurrence'), false);
+});
+
+test('series-scoped edits and cancellations target sibling occurrences', () => {
+  const selected = { scheduleId: 'one', recurrenceGroupId: 'group' };
+  const sibling = { scheduleId: 'two', recurrenceGroupId: 'group' };
+  const unrelated = { scheduleId: 'three', recurrenceGroupId: 'other' };
+
+  assert.equal(isScheduleInMutationScope(selected, selected, 'series'), true);
+  assert.equal(isScheduleInMutationScope(sibling, selected, 'series'), true);
+  assert.equal(isScheduleInMutationScope(unrelated, selected, 'series'), false);
 });
 
 test('occurrence deletion removes only its unique scheduleId', () => {

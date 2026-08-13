@@ -33,22 +33,26 @@ const TeamDetails = () => {
   });
   const [rosterCount, setRosterCount] = useState(0);
   const [error, setError] = useState('');
+
+  // Is this Needed?
   const invalidationVersion = useScheduleInvalidationStore((state) =>
     typeof teamId === 'string' ? state.versions[teamId] ?? 0 : 0,
   );
 
-  const handleOpenSchedule = () => {
-    if (!teamId) {
+  const handleOpenSchedule = useCallback((schedule: any) => {
+    if (!teamId || !schedule?.scheduleId) {
       return;
     }
 
     router.push({
-      pathname: '/(app)/teams/team/[teamId]/(drawer)/schedule',
+      pathname: '/(app)/teams/team/[teamId]/schedule/[scheduleId]',
       params: {
         teamId: teamId as string,
+        scheduleId: schedule.scheduleId,
+        schedule: JSON.stringify(schedule),
       },
     });
-  };
+  }, [teamId, router]);
 
   const loadTeamDetails = useCallback(() => {
     if (!teamId) return;
@@ -117,7 +121,7 @@ const TeamDetails = () => {
             {nextGame && (
               <EventCard
                 data={nextGame}
-                onPress={handleOpenSchedule}
+                onPress={() => handleOpenSchedule(nextGame)}
               />
             )}
           </View>
@@ -132,7 +136,7 @@ const TeamDetails = () => {
             {nextPractice && (
               <EventCard
                 data={nextPractice}
-                onPress={handleOpenSchedule}
+                onPress={() => handleOpenSchedule(nextPractice)}
               />
             )}
           </View>
