@@ -114,8 +114,7 @@ const Schedule = () => {
       pathname: '/(app)/teams/team/[teamId]/schedule/[scheduleId]',
       params: {
         teamId,
-        scheduleId: schedule.scheduleId ?? schedule._id,
-        recurrenceDate: schedule.recurrenceDate,
+        scheduleId: schedule.scheduleId,
         schedule: JSON.stringify(schedule),
       },
     });

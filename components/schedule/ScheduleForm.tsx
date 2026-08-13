@@ -30,12 +30,13 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   const isEdit = Boolean(scheduleId);
   const initialType = initialSchedule?.eventType ?? initialSchedule?.type ?? 'practice';
   const initialRecurrence = initialSchedule?.recurrence;
+  const initialIsRecurring = Boolean(initialSchedule?.recurrenceGroupId || initialRecurrence?.isRecurring);
   const initialLocation = initialSchedule?.location ?? {};
 
   const [title, setTitle] = useState(initialSchedule?.title ?? '');
   const [eventType, setEventType] = useState<ScheduleEventType>(initialType);
   const [description, setDescription] = useState(initialSchedule?.description ?? '');
-  const [isRecurring, setIsRecurring] = useState(String(Boolean(initialRecurrence?.isRecurring)));
+  const [isRecurring, setIsRecurring] = useState(String(initialIsRecurring));
   const [frequency, setFrequency] = useState(String(initialRecurrence?.frequency ?? 'weekly'));
   const [isHomeGame, setIsHomeGame] = useState(initialSchedule?.isHomeGame === false ? 'away' : 'home');
   const [repeatDays, setRepeatDays] = useState(
@@ -57,10 +58,10 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   useEffect(() => {
     if (initialized.current) return;
     initialized.current = true;
-    const occurrenceDate = initialSchedule?.startDate ?? initialSchedule?.occurrenceStartDate;
+    const selectedStartDate = initialSchedule?.startDate;
     const fields = [
-      ['startDate', occurrenceDate],
-      ['startTime', initialSchedule?.startTime ?? occurrenceDate],
+      ['startDate', selectedStartDate],
+      ['startTime', initialSchedule?.startTime ?? selectedStartDate],
       ['endTime', initialSchedule?.endTime],
       ['recurrenceEndDate', initialRecurrence?.endDate],
     ] as const;
@@ -76,8 +77,8 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
     eventType: initialType,
     opponentName: initialSchedule?.opponentName ?? null,
     isHomeGame: initialSchedule?.isHomeGame ?? null,
-    startDate: asDate(initialSchedule?.startDate ?? initialSchedule?.occurrenceStartDate)?.toISOString(),
-    startTime: asDate(initialSchedule?.startTime ?? initialSchedule?.occurrenceStartDate)?.toISOString(),
+    startDate: asDate(initialSchedule?.startDate)?.toISOString(),
+    startTime: asDate(initialSchedule?.startTime ?? initialSchedule?.startDate)?.toISOString(),
     endTime: asDate(initialSchedule?.endTime)?.toISOString(),
     locationName: initialSchedule?.locationName ?? initialLocation.name ?? '',
     streetAddress: initialSchedule?.streetAddress ?? initialLocation.street ?? '',
@@ -85,12 +86,12 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
     state: initialSchedule?.state ?? initialLocation.state ?? '',
     zipCode: initialSchedule?.zipCode ?? initialLocation.zip ?? '',
     recurrence: {
-      isRecurring: Boolean(initialRecurrence?.isRecurring),
+      isRecurring: initialIsRecurring,
       frequency: initialRecurrence?.frequency ?? null,
       daysOfWeek: initialRecurrence?.daysOfWeek ?? [],
       endDate: asDate(initialRecurrence?.endDate)?.toISOString() ?? null,
     },
-  }), [initialLocation, initialRecurrence, initialSchedule, initialType]);
+  }), [initialIsRecurring, initialLocation, initialRecurrence, initialSchedule, initialType]);
 
   const handleSubmit = async () => {
     const daysOfWeek = repeatDays.split(',').map((day) => dayMap[day.trim()]).filter((day) => day !== undefined);
@@ -122,10 +123,8 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
         if (Object.keys(changed).length === 0) return onSuccess(initialSchedule);
         const payload = buildUpdatePayload({
           changed,
-          isRecurring: Boolean(initialRecurrence?.isRecurring),
+          isRecurring: initialIsRecurring,
           scope: editScope ?? null,
-          recurrenceDate: initialSchedule.recurrenceDate ?? '',
-          isMaterialized: Boolean(initialSchedule.recurrenceGroupId),
         });
         result = await updateSchedule(scheduleId, payload);
       } else {
@@ -144,7 +143,7 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   return (
     <>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-        {isEdit && initialRecurrence?.isRecurring && (
+        {isEdit && initialIsRecurring && (
           <View style={{ padding: 12, borderRadius: 8, backgroundColor: '#FFF3CD' }}>
             <Text.Body>
               {editScope === 'occurrence'

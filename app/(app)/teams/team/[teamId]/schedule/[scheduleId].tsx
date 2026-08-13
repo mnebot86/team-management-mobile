@@ -79,17 +79,14 @@ const ScheduleDetails = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const isCancelled = schedule?.status === 'cancelled';
   const isRecurring = Boolean(schedule?.recurrenceGroupId || schedule?.recurrence?.isRecurring);
-  const isMaterialized = Boolean(schedule?.recurrenceGroupId);
   const eventStart = dayjs(
-    schedule?.startTime ?? schedule?.occurrenceStartDate ?? schedule?.startDate,
+    schedule?.startTime ?? schedule?.startDate,
   );
   const isFuture = eventStart.isValid() && eventStart.isAfter(dayjs());
 
   useEffect(() => setSchedule(parsedSchedule), [parsedSchedule]);
 
-  const eventDate = dayjs(
-    schedule?.occurrenceStartDate ?? schedule?.startDate,
-  );
+  const eventDate = dayjs(schedule?.startDate);
 
   const dateLabel = eventDate.isSame(dayjs(), 'day')
     ? 'Today'
@@ -216,9 +213,6 @@ const ScheduleDetails = () => {
 
     try {
       await updateAttendance(scheduleId, {
-        ...(!isMaterialized && schedule.recurrenceDate
-          ? { occurrenceDate: schedule.recurrenceDate }
-          : {}),
         attendance: attendance.map((player) => {
           const fullName = typeof player.name === 'string' ? player.name : '';
           const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
@@ -281,8 +275,6 @@ const ScheduleDetails = () => {
       const payload = buildCancellationPayload({
         isRecurring,
         scope: cancellationScope,
-        occurrenceDate: schedule.recurrenceDate,
-        isMaterialized,
         reason: cancellationReason,
       });
       await cancelSchedule(scheduleId, payload);
@@ -513,7 +505,7 @@ const ScheduleDetails = () => {
             }
             router.push({
               pathname: '/(app)/teams/team/[teamId]/edit-schedule-modal',
-              params: { teamId: String(teamId), scheduleId: String(scheduleId), recurrenceDate: schedule.recurrenceDate, schedule: JSON.stringify(schedule) },
+              params: { teamId: String(teamId), scheduleId: String(scheduleId), schedule: JSON.stringify(schedule) },
             });
           }} style={styles.actionButton}>
             Edit Schedule
@@ -555,16 +547,16 @@ const ScheduleDetails = () => {
               setShowEditScopeDialog(false);
               router.push({
                 pathname: '/(app)/teams/team/[teamId]/edit-schedule-modal',
-                params: { teamId: String(teamId), scheduleId: String(scheduleId), recurrenceDate: schedule.recurrenceDate, schedule: JSON.stringify(schedule), editScope: 'occurrence' },
+                params: { teamId: String(teamId), scheduleId: String(scheduleId), schedule: JSON.stringify(schedule), editScope: 'occurrence' },
               });
-            }}>Edit this event</Button>
+            }}>This occurrence</Button>
             <Button onPress={() => {
               setShowEditScopeDialog(false);
               router.push({
                 pathname: '/(app)/teams/team/[teamId]/edit-schedule-modal',
-                params: { teamId: String(teamId), scheduleId: String(scheduleId), recurrenceDate: schedule.recurrenceDate, schedule: JSON.stringify(schedule), editScope: 'series' },
+                params: { teamId: String(teamId), scheduleId: String(scheduleId), schedule: JSON.stringify(schedule), editScope: 'series' },
               });
-            }}>Edit all events in this series</Button>
+            }}>Entire series</Button>
           </Dialog.Actions>
         </Dialog>
 
@@ -580,7 +572,7 @@ const ScheduleDetails = () => {
                   disabled={isCancelling}
                   style={{ marginTop: 16 }}
                 >
-                  Cancel this event
+                  This occurrence
                 </Button>
                 <Button
                   mode={cancellationScope === 'series' ? 'contained' : 'outlined'}
@@ -588,7 +580,7 @@ const ScheduleDetails = () => {
                   disabled={isCancelling}
                   style={{ marginTop: 8 }}
                 >
-                  Cancel all events in this series
+                  Entire series
                 </Button>
                 {cancellationScope && (
                   <Text.Body style={{ marginTop: 16 }}>
@@ -635,7 +627,7 @@ const ScheduleDetails = () => {
                   disabled={isDeleting}
                   style={{ marginTop: 16 }}
                 >
-                  Delete this event
+                  This occurrence
                 </Button>
                 <Button
                   mode={deleteScope === 'series' ? 'contained' : 'outlined'}
@@ -644,7 +636,7 @@ const ScheduleDetails = () => {
                   textColor={theme.colors.error}
                   style={{ marginTop: 8 }}
                 >
-                  Delete all events in this series
+                  Entire series
                 </Button>
                 {deleteScope && (
                   <Text.Body style={{ marginTop: 16, color: theme.colors.error }}>
