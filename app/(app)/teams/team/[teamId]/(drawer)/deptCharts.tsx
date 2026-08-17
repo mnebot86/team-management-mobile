@@ -1,21 +1,22 @@
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
-import { Pencil, Plus, Trash2 } from 'lucide-react-native';
+import { useFocusEffect } from 'expo-router';
+import { Eye, X } from 'lucide-react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getFootballFormationCoordinates } from '@/utils/footballFormation';
 
 import {
   getDeptChartFilters,
   getDeptCharts,
-  deleteDeptChart,
   type DeptChart,
   type DeptChartPlayer,
   type DeptChartPosition,
@@ -31,7 +32,7 @@ type RosterPlayer = {
   profileId: string;
   firstName: string;
   lastName: string;
-  jerseyNumber?: number;
+  jerseyNumber?: string | number;
   imageUrl?: string | null;
 };
 
@@ -45,6 +46,7 @@ const getInitials = (player: DeptChartPlayer) => {
 
 const DeptCharts = () => {
   const theme = useAppTheme();
+  const safeAreaInsets = useSafeAreaInsets();
   const teamId = useTeamStore((state) => state.getTeamId());
 
   const [filters, setFilters] = useState<string[]>([]);
@@ -53,7 +55,7 @@ const DeptCharts = () => {
   const [roster, setRoster] = useState<RosterPlayer[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [isLoadingCharts, setIsLoadingCharts] = useState(false);
-  const [deletingChartId, setDeletingChartId] = useState<string>();
+  const [viewingChart, setViewingChart] = useState<DeptChart>();
   const [snackbar, setSnackbar] = useState({ visible: false, message: '' });
 
   useFocusEffect(
@@ -151,80 +153,7 @@ const DeptCharts = () => {
     }, [selectedFilter, teamId]),
   );
 
-  const handleEditChart = (chart: DeptChart) => {
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/edit-dept-chart',
-      params: {
-        teamId: teamId ?? '',
-        deptChartId: chart._id,
-        name: chart.name,
-      },
-    });
-  };
-
-  const handleDeleteChart = (chart: DeptChart) => {
-    if (deletingChartId) return;
-
-    Alert.alert(
-      'Delete depth chart?',
-      `This will permanently delete ${chart.name} and every position in it.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setDeletingChartId(chart._id);
-              await deleteDeptChart(chart._id);
-
-              setDeptCharts((current) => current.filter((item) => item._id !== chart._id));
-              const nextFilters = filters.filter((filter) => filter !== chart.name);
-              setFilters(nextFilters);
-              setSelectedFilter(nextFilters[0]);
-            } catch (error) {
-              setSnackbar({
-                visible: true,
-                message: error instanceof Error
-                  ? error.message
-                  : 'Failed to delete depth chart.',
-              });
-            } finally {
-              setDeletingChartId(undefined);
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  const handleAddPosition = (chart: DeptChart) => {
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/add-depth-position',
-      params: {
-        teamId: teamId ?? '',
-        deptChartId: chart._id,
-        name: chart.name,
-      },
-    });
-  };
-
-  const handleEditPosition = (chart: DeptChart, position: DeptChartPosition) => {
-    router.push({
-      pathname: '/(app)/teams/team/[teamId]/edit-depth-position',
-      params: {
-        teamId: teamId ?? '',
-        deptChartId: chart._id,
-        name: chart.name,
-        positionId: position._id ?? '',
-      },
-    });
-  };
-
-  const renderPosition = (
-    item: DeptChartPosition,
-    chart: DeptChart,
-  ) => (
+  const renderPosition = (item: DeptChartPosition) => (
     <View
       style={[
         styles.card,
@@ -242,21 +171,6 @@ const DeptCharts = () => {
           <Text.Subheading style={styles.positionName}>{item.name}</Text.Subheading>
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Edit ${item.name}`}
-          onPress={() => handleEditPosition(chart, item)}
-          style={({ pressed }) => [
-            styles.editButton,
-            {
-              backgroundColor: theme.colors.avatar.background,
-              opacity: pressed ? 0.7 : 1,
-            },
-          ]}
-        >
-          <Pencil size={16} color={theme.colors.icon.secondary} />
-          <Text.Body style={[styles.editText, { color: theme.colors.text.secondary }]}>Edit</Text.Body>
-        </Pressable>
       </View>
 
       <View style={styles.players}>
@@ -289,7 +203,7 @@ const DeptCharts = () => {
                       },
                     ]}
                   />
-                  <Text.Body style={[styles.depthText, { color: theme.colors.text.secondary }]}> 
+                  <Text.Body style={[styles.depthText, { color: theme.colors.text.secondary }]}>
                     {isStarter ? 'Starter' : `Backup ${player.depth - 1}`}
                   </Text.Body>
                 </View>
@@ -356,103 +270,46 @@ const DeptCharts = () => {
         >
           <Text.Subheading>{item.name}</Text.Subheading>
           <Text.Body variant="muted" style={styles.emptyMessage}>
-            This depth chart has no positions yet. Add a position to start building the lineup.
+            This formation does not have any positions.
           </Text.Body>
-          <View style={styles.emptyChartActions}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Delete ${item.name}`}
-              disabled={deletingChartId === item._id}
-              onPress={() => handleDeleteChart(item)}
-              style={({ pressed }) => [
-                styles.deleteChartButton,
-                {
-                  backgroundColor: theme.colors.avatar.background,
-                  opacity: pressed || deletingChartId === item._id ? 0.55 : 1,
-                },
-              ]}
-            >
-              <Trash2 size={17} color={theme.colors.error} />
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Add a position to ${item.name}`}
-              onPress={() => handleAddPosition(item)}
-              style={({ pressed }) => [
-                styles.addPositionButton,
-                {
-                  backgroundColor: theme.colors.avatar.background,
-                  opacity: pressed ? 0.75 : 1,
-                },
-              ]}
-            >
-              <Plus size={19} color={theme.colors.icon.primary} />
-            </Pressable>
-          </View>
         </View>
       );
     }
 
     return (
       <View style={styles.chartPositions}>
-        <View style={styles.chartActions}>
+        {/* <View style={styles.chartActions}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Delete ${item.name}`}
-            disabled={deletingChartId === item._id}
-            onPress={() => handleDeleteChart(item)}
+            accessibilityLabel={`View ${item.name} formation`}
+            onPress={() => setViewingChart(item)}
             style={({ pressed }) => [
-              styles.deleteChartButton,
+              styles.viewChartButton,
               {
                 backgroundColor: theme.colors.avatar.background,
-                opacity: pressed || deletingChartId === item._id ? 0.55 : 1,
+                opacity: pressed ? 0.7 : 1,
               },
             ]}
           >
-            <Trash2 size={17} color={theme.colors.error} />
+            <Eye size={19} color={theme.colors.icon.primary} />
+            <Text.Body style={styles.viewChartText}>View formation</Text.Body>
           </Pressable>
+        </View> */}
 
-          <View style={styles.chartPrimaryActions}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Manage ${item.name}`}
-              onPress={() => handleEditChart(item)}
-              style={({ pressed }) => [
-                styles.manageChartButton,
-                {
-                  backgroundColor: theme.colors.avatar.background,
-                  opacity: pressed ? 0.7 : 1,
-                },
-              ]}
-            >
-              <Pencil size={16} color={theme.colors.icon.secondary} />
-            </Pressable>
-
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Add a position to ${item.name}`}
-              onPress={() => handleAddPosition(item)}
-              style={({ pressed }) => [
-                styles.addPositionButton,
-                {
-                  backgroundColor: theme.colors.avatar.background,
-                  opacity: pressed ? 0.75 : 1,
-                },
-              ]}
-            >
-              <Plus size={19} color={theme.colors.icon.primary} />
-            </Pressable>
-          </View>
-        </View>
         {positions.map((position, index) => (
           <View key={position._id ?? `${item._id}-${position.name}-${index}`}>
-            {renderPosition(position, item)}
+            {renderPosition(position)}
           </View>
         ))}
       </View>
     );
   };
+
+  const closeFormation = () => setViewingChart(undefined);
+  const viewingPositions = viewingChart?.positions
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder) ?? [];
+  const formationCoordinates = getFootballFormationCoordinates(viewingPositions);
 
   return (
     <ScreenContainer>
@@ -528,6 +385,95 @@ const DeptCharts = () => {
       >
         {snackbar.message}
       </AppSnackbar>
+
+      <Modal
+        visible={Boolean(viewingChart)}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={closeFormation}
+      >
+        <SafeAreaView
+          edges={['top', 'bottom', 'left', 'right']}
+          style={[styles.viewer, { backgroundColor: theme.colors.screen.background }]}
+        >
+          <View style={[styles.viewerHeader, { top: safeAreaInsets.top + 10 }]}>
+            <View style={styles.viewerTitleContainer}>
+              <Text.Subheading numberOfLines={1} style={styles.viewerTitle}>
+                {viewingChart?.name ?? 'Formation'}
+              </Text.Subheading>
+            </View>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close formation view"
+              hitSlop={12}
+              onPress={closeFormation}
+              style={({ pressed }) => [
+                styles.closeViewerButton,
+                {
+                  backgroundColor: theme.colors.avatar.background,
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}
+            >
+              <X size={24} color={theme.colors.icon.primary} />
+            </Pressable>
+          </View>
+
+          <View style={styles.fieldContainer}>
+            <View style={styles.footballField}>
+              {Array.from({ length: 9 }, (_, index) => (
+                <View
+                  key={index}
+                  style={[styles.yardLine, { top: `${10 + index * 10}%` }]}
+                />
+              ))}
+              <View style={styles.lineOfScrimmage} />
+
+              {viewingPositions.map((position, positionIndex) => {
+                const coordinate = formationCoordinates.get(position) ?? { x: 50, y: 50 };
+                const player = position.players.slice().sort((a, b) => a.depth - b.depth)[0];
+                const rosterPlayer = roster.find((item) => item.profileId === player?.profileId);
+
+                const displayPlayer: DeptChartPlayer | undefined = player ? {
+                  ...player,
+                  firstName: player.firstName ?? rosterPlayer?.firstName,
+                  lastName: player.lastName ?? rosterPlayer?.lastName,
+                  jerseyNumber: player.jerseyNumber ?? rosterPlayer?.jerseyNumber,
+                } : undefined;
+
+                return (
+                  <View
+                    key={position._id ?? `${position.name}-${positionIndex}`}
+                    style={[
+                      styles.fieldPlayer,
+                      { left: `${coordinate.x}%`, top: `${coordinate.y}%` },
+                    ]}
+                  >
+                    <View style={[styles.fieldAvatarRing, { borderColor: theme.colors.accent }]}>
+                      <View style={[styles.fieldAvatar, { backgroundColor: theme.colors.card.background }]}>
+                        {rosterPlayer?.imageUrl ? (
+                          <Image source={{ uri: rosterPlayer.imageUrl }} style={styles.avatarImage} />
+                        ) : (
+                          <Text.Body style={styles.fieldInitials}>
+                            {displayPlayer?.jerseyNumber !== undefined
+                              ? `#${displayPlayer.jerseyNumber}`
+                              : displayPlayer ? getInitials(displayPlayer) : position.shortName}
+                          </Text.Body>
+                        )}
+                      </View>
+                    </View>
+
+                    <View style={styles.fieldPlayerLabel}>
+                      <Text.Caption style={styles.fieldPositionText}>{position.shortName}</Text.Caption>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </ScreenContainer>
   );
 };
@@ -567,7 +513,19 @@ const styles = StyleSheet.create({
   chartActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+  },
+  viewChartButton: {
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    borderRadius: 22,
+  },
+  viewChartText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   chartPrimaryActions: {
     flexDirection: 'row',
@@ -711,6 +669,101 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     textAlign: 'center',
+  },
+  viewer: {
+    flex: 1,
+  },
+  viewerHeader: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    zIndex: 10,
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  viewerTitleContainer: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 22,
+    backgroundColor: 'rgba(18,25,32,0.88)',
+  },
+  viewerTitle: {
+    color: '#FFFFFF',
+  },
+  closeViewerButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 'auto',
+    borderRadius: 22,
+  },
+  fieldContainer: {
+    flex: 1,
+  },
+  footballField: {
+    flex: 1,
+    width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+    backgroundColor: '#202932',
+  },
+  yardLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: '#3B4651',
+  },
+  lineOfScrimmage: {
+    position: 'absolute',
+    top: '56%',
+    left: '8%',
+    right: '8%',
+    height: 3,
+    backgroundColor: '#92A0AC',
+  },
+  fieldPlayer: {
+    width: 52,
+    position: 'absolute',
+    alignItems: 'center',
+    transform: [{ translateX: -26 }, { translateY: -23 }],
+  },
+  fieldAvatarRing: {
+    width: 42,
+    height: 42,
+    padding: 2,
+    borderRadius: 21,
+    borderWidth: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  fieldAvatar: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+  fieldInitials: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  fieldPlayerLabel: {
+    minWidth: 34,
+    alignItems: 'center',
+    marginTop: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 10,
+    backgroundColor: 'rgba(12,17,22,0.92)',
+  },
+  fieldPositionText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
   },
 });
 

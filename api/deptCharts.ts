@@ -34,12 +34,16 @@ export interface DeptChartPlayer {
   depth: number;
   firstName?: string;
   lastName?: string;
-  jerseyNumber?: number;
+  jerseyNumber?: string | number;
 }
 
 export interface DeptChartPosition {
   _id?: string;
   positionDefinitionId?: string | null;
+  coordinates?: {
+    x: number;
+    y: number;
+  };
   name: string;
   shortName: string;
   sortOrder: number;

@@ -102,16 +102,6 @@ export const TeamDashboardLayout = () => {
             <AppHeader
               title='Dept Charts'
               onMenuPress={() => navigation.toggleDrawer()}
-              headerContent={(
-                <IconButton
-                  icon="plus"
-                  accessibilityLabel="Create depth chart"
-                  size={24}
-                  onPress={() => {
-                    router.push(`/teams/team/${teamId}/create-dept-chart`);
-                  }}
-                />
-              )}
             />
           ),
         }}
