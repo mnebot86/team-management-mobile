@@ -1,58 +1,82 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ScreenContainer from '@/components/layout/Screen';
-import { SectionList, View } from 'react-native';
+import { ScrollView, SectionList, View } from 'react-native';
+import { ActivityIndicator, Chip } from 'react-native-paper';
 import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import EventCard from '@/components/EventCard';
 import Text from '@/components/ui/Text';
-import { useTheme } from 'react-native-paper';
 import { getTeamSchedule } from '@/api/schedule';
 import { getSocket } from '@/socket';
 import SegmentBar from '@/components/ui/SegmentBar';
 import type { SegmentOption } from '@/components/ui/SegmentBar';
-import type { SchedulePeriod } from '@/api/schedule';
+import type { SchedulePeriod, ScheduleTypeFilter } from '@/api/schedule';
 import { removeDeletedSchedules, scheduleOccurrenceKey, shouldRefetchForScheduleSocket } from '@/utils/scheduleCancellation';
 import { useScheduleInvalidationStore } from '@/hooks/useScheduleInvalidationStore';
+import { getScheduleEmptyMessage, scheduleQueryKey } from '@/utils/scheduleFilters';
+import { useAppTheme } from '@/hooks/useAppTheme';
 
 const schedulePeriods: SegmentOption<SchedulePeriod>[] = [
-  { value: 'upcoming', label: 'Upcoming' },
-  { value: 'past', label: 'Past' },
+  { value: 'upcoming', label: 'Upcoming', accessibilityLabel: 'Show upcoming schedule' },
+  { value: 'past', label: 'Past', accessibilityLabel: 'Show past schedule' },
+];
+
+const scheduleTypes: { value: ScheduleTypeFilter; label: string; accessibilityLabel: string }[] = [
+  { value: 'all', label: 'All', accessibilityLabel: 'Show all schedule types' },
+  { value: 'game', label: 'Games', accessibilityLabel: 'Show games' },
+  { value: 'practice', label: 'Practices', accessibilityLabel: 'Show practices' },
+  { value: 'event', label: 'Events', accessibilityLabel: 'Show events' },
+  { value: 'other', label: 'Other', accessibilityLabel: 'Show other schedule items' },
 ];
 
 const Schedule = () => {
   const { getTeamId } = useTeamStore();
 
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [sections, setSections] = useState<any[]>([]);
   const [period, setPeriod] = useState<SchedulePeriod>('upcoming');
+  const [type, setType] = useState<ScheduleTypeFilter>('all');
+  const activeRequestKey = useRef('');
 
   const teamId = getTeamId();
   const invalidationVersion = useScheduleInvalidationStore(
     (state) => teamId ? state.versions[teamId] ?? 0 : 0,
   );
   const invalidateTeamSchedule = useScheduleInvalidationStore((state) => state.invalidateTeamSchedule);
+  const queryKey = useMemo(
+    () => teamId ? scheduleQueryKey(teamId, period, type).join(':') : '',
+    [period, teamId, type],
+  );
 
   const loadSchedule = useCallback(async () => {
     if (!teamId) return;
 
+    const isNewQuery = activeRequestKey.current !== queryKey;
+    activeRequestKey.current = queryKey;
     try {
       setLoading(true);
+      setHasError(false);
+      if (isNewQuery) setSections([]);
 
-      const response = await getTeamSchedule(teamId, period);
+      const response = await getTeamSchedule(teamId, period, type);
 
-      setSections(response ?? []);
+      if (activeRequestKey.current === queryKey) setSections(response ?? []);
     } catch {
+      if (activeRequestKey.current !== queryKey) return;
+      setSections([]);
+      setHasError(true);
       setSnackbar({
         visible: true,
         message: 'Failed to load schedule',
       });
     } finally {
-      setLoading(false);
+      if (activeRequestKey.current === queryKey) setLoading(false);
     }
-  }, [period, teamId]);
+  }, [period, queryKey, teamId, type]);
 
   useFocusEffect(
     useCallback(() => {
@@ -130,11 +154,67 @@ const Schedule = () => {
           paddingBottom: 32,
         }}
         ListHeaderComponent={
-          <SegmentBar
-            value={period}
-            onValueChange={setPeriod}
-            options={schedulePeriods}
-          />
+          <View style={{ gap: 12, marginBottom: 8 }}>
+            <SegmentBar
+              value={period}
+              onValueChange={setPeriod}
+              options={schedulePeriods}
+            />
+            <Text.Caption style={{ color: theme.colors.onSurfaceVariant }}>
+              Type
+            </Text.Caption>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+            >
+              {scheduleTypes.map((option) => {
+                const selected = type === option.value;
+
+                return (
+                  <Chip
+                    key={option.value}
+                    mode={selected ? 'flat' : 'outlined'}
+                    selected={selected}
+                    showSelectedCheck={false}
+                    accessibilityLabel={option.accessibilityLabel}
+                    accessibilityState={{ selected }}
+                    onPress={() => setType(option.value)}
+                    style={{
+                      height: 44,
+                      justifyContent: 'center',
+                      backgroundColor: selected
+                        ? theme.colors.segment.selectedBackground
+                        : theme.colors.segment.background,
+                      borderColor: theme.colors.segment.border,
+                    }}
+                    textStyle={{
+                      color: selected
+                        ? theme.colors.segment.selectedText
+                        : theme.colors.segment.text,
+                    }}
+                  >
+                    {option.label}
+                  </Chip>
+                );
+              })}
+            </ScrollView>
+          </View>
+        }
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', paddingHorizontal: 24, paddingVertical: 64 }}>
+            {loading ? (
+              <ActivityIndicator size="large" />
+            ) : (
+              <Text.Body
+                style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
+              >
+                {hasError
+                  ? 'Unable to load the schedule.'
+                  : getScheduleEmptyMessage(period, type)}
+              </Text.Body>
+            )}
+          </View>
         }
         renderSectionHeader={({ section }) => (
           <View

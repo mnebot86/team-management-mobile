@@ -33,6 +33,7 @@ interface ScheduleCardData {
   opponentName: string;
   isHomeGame: boolean;
   startDate: string;
+  occurrenceStartDate?: string | null;
   startTime: string;
   endTime: string;
   location: EventLocation;
@@ -44,7 +45,6 @@ interface EventCardProps {
   data: ScheduleCardData;
   onPress?: () => void;
 }
-
 
 export const EventCard = ({
   data,
@@ -80,7 +80,8 @@ export const EventCard = ({
     },
   } as const;
 
-  const time = data.startTime ?? data.startDate;
+  const occurrence = data.occurrenceStartDate ?? null;
+  const time = occurrence ?? data.startTime ?? data.startDate;
   const endTime = data.endTime;
   const type = data.type;
   const details = data.opponentName;
@@ -146,12 +147,15 @@ export const EventCard = ({
               >
                 {config.label}
               </Chip>
+
               {isCancelled && <Chip compact textStyle={{ color: colors.error }}>Cancelled</Chip>}
+
               {data.recurrenceGroupId && <Chip compact>Series</Chip>}
             </View>
 
             <View style={styles.infoRow}>
               <Calendar size={18} color={colors.text.secondary} />
+
               <Text.Body style={[styles.infoText, { color: colors.text.secondary }]}>
                 {formattedDate}
               </Text.Body>
