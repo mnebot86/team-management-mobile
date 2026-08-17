@@ -6,7 +6,6 @@ import { getTeam } from '@/api/teams';
 import { ITeam } from '@/types/team';
 import SnackBar from '@/components/ui/SnackBar';
 import { getRosterCount } from '@/api/teamMembers';
-import { Card, Divider } from 'react-native-paper';
 import LoadingScreen from '@/components/LoadingScreen';
 import { View } from 'react-native';
 import {

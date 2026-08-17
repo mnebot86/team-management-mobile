@@ -1,4 +1,8 @@
 import api from './axios';
+import { buildScheduleQueryParams } from '@/utils/scheduleFilters';
+import type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters';
+
+export type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters';
 
 export type ScheduleEventType = 'event' | 'game' | 'practice' | 'other';
 export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly' | null;
@@ -103,14 +107,13 @@ export const deleteSchedule = async (
   return response.data.data;
 };
 
-export type SchedulePeriod = 'upcoming' | 'past';
-
 export const getTeamSchedule = async (
   teamId: string,
   period: SchedulePeriod = 'upcoming',
+  type: ScheduleTypeFilter = 'all',
 ) => {
   const response = await api.get(`schedules/team/${teamId}`, {
-    params: { period },
+    params: buildScheduleQueryParams(period, type),
   });
 
   return response.data.data;
