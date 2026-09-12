@@ -78,6 +78,7 @@ const ScheduleDetails = () => {
   const [cancellationScope, setCancellationScope] = useState<CancellationScope | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const isCancelled = schedule?.status === 'cancelled';
+  const scheduleType = schedule?.type ?? schedule?.eventType;
   const isRecurring = Boolean(schedule?.recurrenceGroupId || schedule?.recurrence?.isRecurring);
   const eventStart = dayjs(
     schedule?.startTime ?? schedule?.startDate,
@@ -315,6 +316,8 @@ const ScheduleDetails = () => {
     }
   };
 
+  console.log({ schedule });
+
   return (
     <ScreenContainer.Scroll>
       <View style={styles.container}>
@@ -330,7 +333,7 @@ const ScheduleDetails = () => {
               </Text.Caption>
             </View>
 
-            {schedule.type === 'game' && (
+            {scheduleType === 'game' && (
               <View style={[styles.chip, styles.awayChip]}>
                 <Text.Caption style={styles.chipText}>
                   {schedule.isHomeGame ? 'Home' : 'Away'}
@@ -380,12 +383,67 @@ const ScheduleDetails = () => {
             </Text.Body>
           </View>
 
-          {schedule.type === 'game' && (
+          {scheduleType === 'game' && (
             <View style={styles.infoRow}>
               <MaterialCommunityIcons name="account-group" size={20} color={theme.colors.outline} />
               <Text.Body style={styles.infoText}>
                 {schedule.opponentName || 'No opponent'}
               </Text.Body>
+            </View>
+          )}
+
+          {schedule.type === 'game' && (
+            <View style={styles.resultCard}>
+              <View style={styles.resultHeader}>
+                <Text.Caption style={styles.resultLabel}>Game Result</Text.Caption>
+                {(() => {
+                  const teamScore = schedule.isHomeGame ? schedule.homeScore : schedule.awayScore;
+                  const opponentScore = schedule.isHomeGame ? schedule.awayScore : schedule.homeScore;
+                  const calculatedOutcome = teamScore != null && opponentScore != null
+                    ? teamScore > opponentScore ? 'win' : teamScore < opponentScore ? 'loss' : 'draw'
+                    : null;
+                  const outcome = schedule.gameOutcome && schedule.gameOutcome !== 'pending'
+                    ? schedule.gameOutcome
+                    : calculatedOutcome;
+
+                  return (
+                    <View style={[
+                      styles.outcomeBadge,
+                      {
+                        backgroundColor: outcome === 'win'
+                          ? `${theme.colors.status.success}20`
+                          : outcome === 'loss'
+                            ? `${theme.colors.status.error}20`
+                            : `${theme.colors.text.primary}15`,
+                      },
+                    ]}>
+                      <Text.Caption style={[
+                        styles.resultOutcome,
+                        {
+                          color: outcome === 'win'
+                            ? theme.colors.status.success
+                            : outcome === 'loss'
+                              ? theme.colors.status.error
+                              : theme.colors.text.primary,
+                        },
+                      ]}>
+                        {outcome?.toUpperCase() ?? 'RESULT PENDING'}
+                      </Text.Caption>
+                    </View>
+                  );
+                })()}
+              </View>
+              <View style={styles.resultValues}>
+                <View style={styles.scoreColumn}>
+                  <Text.Caption style={styles.scoreTeam}>HOME</Text.Caption>
+                  <Text.Heading style={styles.resultScore}>{schedule.homeScore ?? '-'}</Text.Heading>
+                </View>
+                <Text.Subheading style={styles.scoreDivider}>-</Text.Subheading>
+                <View style={styles.scoreColumn}>
+                  <Text.Caption style={styles.scoreTeam}>AWAY</Text.Caption>
+                  <Text.Heading style={styles.resultScore}>{schedule.awayScore ?? '-'}</Text.Heading>
+                </View>
+              </View>
             </View>
           )}
         </View>
@@ -403,130 +461,130 @@ const ScheduleDetails = () => {
         )}
 
         {!isCancelled && !isFuture && <>
-        <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
+          <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
 
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryCard}>
-            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.success }]} />
-            <Text.Subheading style={styles.summaryValue}>{presentCount}</Text.Subheading>
-            <Text.Caption style={styles.summaryLabel}>Present</Text.Caption>
-          </View>
-
-          <View style={styles.summaryCard}>
-            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.warning }]} />
-            <Text.Subheading style={styles.summaryValue}>{lateCount}</Text.Subheading>
-            <Text.Caption style={styles.summaryLabel}>Late</Text.Caption>
-          </View>
-
-          <View style={styles.summaryCard}>
-            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.error }]} />
-            <Text.Subheading style={styles.summaryValue}>{absentCount}</Text.Subheading>
-            <Text.Caption style={styles.summaryLabel}>Absent</Text.Caption>
-          </View>
-
-          <View style={styles.summaryCard}>
-            <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.neutral }]} />
-            <Text.Subheading style={styles.summaryValue}>{unmarkedCount}</Text.Subheading>
-            <Text.Caption style={styles.summaryLabel}>Unmarked</Text.Caption>
-          </View>
-        </View>
-
-        <View style={styles.attendanceCard}>
-          {attendance.map((player) => (
-            <View key={player.id} style={styles.attendanceRow}>
-              <View style={styles.avatarCircle}>
-                {player.imageUrl ? (
-                  <Image
-                    source={{ uri: player.imageUrl }}
-                    style={styles.avatarImage}
-                    resizeMode="cover"
-                    accessibilityLabel={`${player.name} profile photo`}
-                  />
-                ) : (
-                  <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
-                )}
-              </View>
-
-              <View style={styles.playerInfo}>
-                <Text.Body style={styles.playerName}>{player.name}</Text.Body>
-                <Text.Caption style={styles.playerNumber}>#{player.number}</Text.Caption>
-              </View>
-
-              <View style={styles.statusButtons}>
-                <Button
-                  mode={player.status === 'present' ? 'contained' : 'outlined'}
-                  onPress={() => updateStatus(player.id, 'present')}
-                  compact
-                  style={styles.statusButton}
-                  labelStyle={styles.statusButtonLabel}
-                >
-                  P
-                </Button>
-
-                <Button
-                  mode={player.status === 'late' ? 'contained' : 'outlined'}
-                  onPress={() => updateStatus(player.id, 'late')}
-                  compact
-                  style={styles.statusButton}
-                  labelStyle={styles.statusButtonLabel}
-                >
-                  L
-                </Button>
-
-                <Button
-                  mode={player.status === 'absent' ? 'contained' : 'outlined'}
-                  onPress={() => updateStatus(player.id, 'absent')}
-                  compact
-                  style={styles.statusButton}
-                  labelStyle={styles.statusButtonLabel}
-                >
-                  A
-                </Button>
-              </View>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryCard}>
+              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.success }]} />
+              <Text.Subheading style={styles.summaryValue}>{presentCount}</Text.Subheading>
+              <Text.Caption style={styles.summaryLabel}>Present</Text.Caption>
             </View>
-          ))}
-        </View>
 
-        <View style={styles.actionButtons}>
-          <Button
-            mode="contained"
-            onPress={handleSaveAttendance}
-            loading={isSaving}
-            disabled={isSaving}
-            style={styles.actionButton}
-          >
-            Save Attendance
-          </Button>
-        </View>
+            <View style={styles.summaryCard}>
+              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.warning }]} />
+              <Text.Subheading style={styles.summaryValue}>{lateCount}</Text.Subheading>
+              <Text.Caption style={styles.summaryLabel}>Late</Text.Caption>
+            </View>
+
+            <View style={styles.summaryCard}>
+              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.error }]} />
+              <Text.Subheading style={styles.summaryValue}>{absentCount}</Text.Subheading>
+              <Text.Caption style={styles.summaryLabel}>Absent</Text.Caption>
+            </View>
+
+            <View style={styles.summaryCard}>
+              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.neutral }]} />
+              <Text.Subheading style={styles.summaryValue}>{unmarkedCount}</Text.Subheading>
+              <Text.Caption style={styles.summaryLabel}>Unmarked</Text.Caption>
+            </View>
+          </View>
+
+          <View style={styles.attendanceCard}>
+            {attendance.map((player) => (
+              <View key={player.id} style={styles.attendanceRow}>
+                <View style={styles.avatarCircle}>
+                  {player.imageUrl ? (
+                    <Image
+                      source={{ uri: player.imageUrl }}
+                      style={styles.avatarImage}
+                      resizeMode="cover"
+                      accessibilityLabel={`${player.name} profile photo`}
+                    />
+                  ) : (
+                    <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
+                  )}
+                </View>
+
+                <View style={styles.playerInfo}>
+                  <Text.Body style={styles.playerName}>{player.name}</Text.Body>
+                  <Text.Caption style={styles.playerNumber}>#{player.number}</Text.Caption>
+                </View>
+
+                <View style={styles.statusButtons}>
+                  <Button
+                    mode={player.status === 'present' ? 'contained' : 'outlined'}
+                    onPress={() => updateStatus(player.id, 'present')}
+                    compact
+                    style={styles.statusButton}
+                    labelStyle={styles.statusButtonLabel}
+                  >
+                    P
+                  </Button>
+
+                  <Button
+                    mode={player.status === 'late' ? 'contained' : 'outlined'}
+                    onPress={() => updateStatus(player.id, 'late')}
+                    compact
+                    style={styles.statusButton}
+                    labelStyle={styles.statusButtonLabel}
+                  >
+                    L
+                  </Button>
+
+                  <Button
+                    mode={player.status === 'absent' ? 'contained' : 'outlined'}
+                    onPress={() => updateStatus(player.id, 'absent')}
+                    compact
+                    style={styles.statusButton}
+                    labelStyle={styles.statusButtonLabel}
+                  >
+                    A
+                  </Button>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.actionButtons}>
+            <Button
+              mode="contained"
+              onPress={handleSaveAttendance}
+              loading={isSaving}
+              disabled={isSaving}
+              style={styles.actionButton}
+            >
+              Save Attendance
+            </Button>
+          </View>
         </>}
 
         {!isCancelled && (
-        <View style={styles.actionButtons}>
-          <Button mode="outlined" onPress={() => {
-            if (isRecurring) {
-              setShowEditScopeDialog(true);
-              return;
-            }
-            router.push({
-              pathname: '/(app)/teams/team/[teamId]/edit-schedule-modal',
-              params: { teamId: String(teamId), scheduleId: String(scheduleId), schedule: JSON.stringify(schedule) },
-            });
-          }} style={styles.actionButton}>
-            Edit Schedule
-          </Button>
-          <Button mode="outlined" onPress={() => {
-            setCancellationScope(null);
-            setShowCancelDialog(true);
-          }} style={styles.actionButton} textColor={theme.colors.error}>
-            Cancel Event
-          </Button>
-          <Button mode="outlined" onPress={() => {
-            setDeleteScope(null);
-            setShowDeleteDialog(true);
-          }} style={styles.actionButton} textColor={theme.colors.error}>
-            Delete Event
-          </Button>
-        </View>
+          <View style={styles.actionButtons}>
+            <Button mode="outlined" onPress={() => {
+              if (isRecurring) {
+                setShowEditScopeDialog(true);
+                return;
+              }
+              router.push({
+                pathname: '/(app)/teams/team/[teamId]/edit-schedule-modal',
+                params: { teamId: String(teamId), scheduleId: String(scheduleId), schedule: JSON.stringify(schedule) },
+              });
+            }} style={styles.actionButton}>
+              Edit Schedule
+            </Button>
+            <Button mode="outlined" onPress={() => {
+              setCancellationScope(null);
+              setShowCancelDialog(true);
+            }} style={styles.actionButton} textColor={theme.colors.error}>
+              Cancel Event
+            </Button>
+            <Button mode="outlined" onPress={() => {
+              setDeleteScope(null);
+              setShowDeleteDialog(true);
+            }} style={styles.actionButton} textColor={theme.colors.error}>
+              Delete Event
+            </Button>
+          </View>
         )}
         {isCancelled && (
           <View style={styles.actionButtons}>
@@ -721,6 +779,54 @@ const createStyles = (colors: any) =>
     },
     infoText: {
       color: colors.outline,
+    },
+    resultCard: {
+      width: '100%',
+      marginTop: 4,
+      padding: 12,
+      borderRadius: 12,
+      backgroundColor: colors.event.game.background,
+    },
+    resultLabel: {
+      color: colors.text.secondary,
+      textTransform: 'uppercase',
+    },
+    resultHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    outcomeBadge: {
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    resultValues: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 20,
+      marginTop: 8,
+    },
+    scoreColumn: {
+      alignItems: 'center',
+      minWidth: 56,
+      gap: 2,
+    },
+    resultOutcome: {
+      fontWeight: '700',
+    },
+    resultScore: {
+      color: colors.text.primary,
+      fontWeight: '700',
+    },
+    scoreTeam: {
+      color: colors.text.secondary,
+      fontWeight: '700',
+    },
+    scoreDivider: {
+      color: colors.text.secondary,
+      marginTop: 12,
     },
     sectionTitle: {
       fontWeight: '700',

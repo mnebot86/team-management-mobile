@@ -30,8 +30,12 @@ interface ScheduleCardData {
   title: string;
   description: string;
   type: EventType;
+  eventType?: EventType;
   opponentName: string;
   isHomeGame: boolean;
+  gameOutcome?: 'pending' | 'win' | 'loss' | 'draw' | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
   startDate: string;
   occurrenceStartDate?: string | null;
   startTime: string;
@@ -83,7 +87,7 @@ export const EventCard = ({
   const occurrence = data.occurrenceStartDate ?? null;
   const time = occurrence ?? data.startTime ?? data.startDate;
   const endTime = data.endTime;
-  const type = data.type;
+  const type = data.type ?? data.eventType ?? 'other';
   const details = data.opponentName;
   const title = data.title;
   const location = data.location?.name ?? '';
@@ -123,6 +127,20 @@ export const EventCard = ({
 
   const config = EVENT_CONFIG[type] ?? EVENT_CONFIG.other;
   const isCancelled = data.status === 'cancelled';
+  const teamScore = data.isHomeGame ? data.homeScore : data.awayScore;
+  const opponentScore = data.isHomeGame ? data.awayScore : data.homeScore;
+  const calculatedOutcome = teamScore != null && opponentScore != null
+    ? teamScore > opponentScore ? 'win' : teamScore < opponentScore ? 'loss' : 'draw'
+    : null;
+  const outcome = data.gameOutcome && data.gameOutcome !== 'pending'
+    ? data.gameOutcome
+    : calculatedOutcome;
+  const outcomeLabel = outcome?.toUpperCase() ?? 'RESULT PENDING';
+  const outcomeColor = outcome === 'win'
+    ? colors.status.success
+    : outcome === 'loss'
+      ? colors.status.error
+      : colors.text.primary;
 
   return (
     <Pressable onPress={onPress}>
@@ -187,6 +205,22 @@ export const EventCard = ({
                 {location}
               </Text.Body>
             </Pressable>
+            {type === 'game' && (
+              <View style={styles.resultRow}>
+                <View style={[styles.outcomeBadge, { backgroundColor: `${outcomeColor}20` }]}>
+                  <Text.Caption style={[styles.resultText, { color: outcomeColor }]}>
+                    {outcomeLabel}
+                  </Text.Caption>
+                </View>
+                <View style={styles.scoreSummary}>
+                  <Text.Caption style={[styles.scoreLabel, { color: colors.text.secondary }]}>Home</Text.Caption>
+                  <Text.Body style={[styles.resultScore, { color: colors.text.primary }]}>{data.homeScore ?? '-'}</Text.Body>
+                  <Text.Caption style={[styles.scoreDivider, { color: colors.text.secondary }]}>-</Text.Caption>
+                  <Text.Caption style={[styles.scoreLabel, { color: colors.text.secondary }]}>Away</Text.Caption>
+                  <Text.Body style={[styles.resultScore, { color: colors.text.primary }]}>{data.awayScore ?? '-'}</Text.Body>
+                </View>
+              </View>
+            )}
             {isCancelled && data.cancellationReason && (
               <Text.Caption style={{ color: colors.error }}>
                 Reason: {data.cancellationReason}
@@ -267,6 +301,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: undefined,
+  },
+  resultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  outcomeBadge: {
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  resultText: {
+    fontWeight: '700',
+  },
+  scoreSummary: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 5,
+  },
+  scoreLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  scoreDivider: {
+    marginHorizontal: 1,
+  },
+  resultScore: {
+    fontWeight: '700',
   },
 });
 

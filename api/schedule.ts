@@ -5,6 +5,7 @@ import type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters
 export type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters';
 
 export type ScheduleEventType = 'event' | 'game' | 'practice' | 'other';
+export type GameOutcome = 'pending' | 'win' | 'loss' | 'draw';
 export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly' | null;
 
 export interface ScheduleRecurrenceInput {
@@ -21,6 +22,9 @@ export interface CreateScheduleInput {
   eventType: ScheduleEventType;
   opponentName?: string | null;
   isHomeGame?: boolean | null;
+  gameOutcome?: GameOutcome | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
   startDate?: string | Date;
   startTime?: string | Date;
   endTime?: string | Date;
@@ -49,6 +53,9 @@ export interface ScheduleOccurrence {
   startTime?: string | null;
   endTime?: string | null;
   status: ScheduleStatus;
+  gameOutcome?: GameOutcome | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
   cancellationReason?: string | null;
   location: {
     name?: string;
@@ -82,7 +89,7 @@ export const updateSchedule = async (
   scheduleId: string,
   payload: UpdateScheduleInput,
 ) => {
-  const response = await api.patch(`/schedule/${scheduleId}`, payload);
+  const response = await api.patch(`/schedules/${scheduleId}`, payload);
 
   return response.data.data;
 };
