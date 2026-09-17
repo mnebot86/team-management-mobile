@@ -65,6 +65,7 @@ export const createDeptChart = async (
   payload: CreateDeptChartPayload,
 ) => {
   const response = await api.post(`/dept-charts/${teamId}`, payload);
+
   return response.data.data;
 };
 

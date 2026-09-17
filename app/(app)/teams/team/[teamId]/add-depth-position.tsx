@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Check, ChevronDown, ChevronUp, Minus, Plus, X } from 'lucide-react-native';
-
 import {
   getDeptCharts,
   updateDeptChart,
@@ -21,7 +20,7 @@ type RosterPlayer = {
   profileId: string;
   firstName: string;
   lastName: string;
-  jerseyNumber?: number;
+  jerseyNumber?: string | number;
   positions?: string[] | string;
   positionIds?: string[];
 };
@@ -34,7 +33,7 @@ const normalizeStringList = (value: unknown): string[] => {
   }
 
   if (typeof value === 'string') {
-    return value.split(',').map((item) => item.trim()).filter(Boolean);
+    return value.split(',').map(item => item.trim()).filter(Boolean);
   }
 
   return [];
@@ -73,6 +72,7 @@ const AddDepthPositionModal = () => {
     if (!teamId || !deptChartId || !chartName) {
       setIsLoading(false);
       showError(undefined, 'Depth chart information is missing.');
+
       return;
     }
 
@@ -81,15 +81,16 @@ const AddDepthPositionModal = () => {
     Promise.all([getDeptCharts(teamId, chartName), getTeamRoster(teamId, 'player')])
       .then(([charts, players]) => {
         if (!isActive) return;
-        const selectedChart = charts.find((item) => item._id === deptChartId);
+        const selectedChart = charts.find(item => item._id === deptChartId);
         setChart(selectedChart);
         setRoster(players);
 
         if (positionId) {
-          const position = selectedChart?.positions.find((item) => item._id === positionId);
+          const position = selectedChart?.positions.find(item => item._id === positionId);
 
           if (!position) {
             showError(undefined, 'The selected position could not be found.');
+
             return;
           }
 
@@ -100,11 +101,11 @@ const AddDepthPositionModal = () => {
           setPositionName(position.name);
           setShortName(position.shortName);
           setPositionDefinitionId(position.positionDefinitionId ?? undefined);
-          setSelectedPlayerIds(orderedPlayers.map((player) => player.profileId));
+          setSelectedPlayerIds(orderedPlayers.map(player => player.profileId));
           setBackupSlots(Math.max(2, orderedPlayers.length - 1));
         }
       })
-      .catch((error) => {
+      .catch(error => {
         if (isActive) showError(error, 'Failed to load depth chart players.');
       })
       .finally(() => {
@@ -127,8 +128,9 @@ const AddDepthPositionModal = () => {
 
     const positions = normalizeStringList(player.positions);
 
-    return positions.some((position) => {
+    return positions.some(position => {
       const normalized = position.trim().toLowerCase();
+
       return normalized !== ''
         && (normalized === normalizedPosition || normalized === normalizedShortName);
     });
@@ -138,8 +140,9 @@ const AddDepthPositionModal = () => {
     const query = search.trim().toLowerCase();
 
     return roster
-      .filter((player) => {
+      .filter(player => {
         if (!query) return true;
+
         return `${player.firstName} ${player.lastName} ${player.jerseyNumber ?? ''}`
           .toLowerCase()
           .includes(query);
@@ -149,36 +152,40 @@ const AddDepthPositionModal = () => {
 
   const selectedPlayers = useMemo(
     () => selectedPlayerIds
-      .map((profileId) => roster.find((player) => player.profileId === profileId))
+      .map(profileId => roster.find(player => player.profileId === profileId))
       .filter((player): player is RosterPlayer => Boolean(player)),
     [roster, selectedPlayerIds],
   );
 
   const togglePlayer = (profileId: string) => {
-    setSelectedPlayerIds((current) => {
-      if (current.includes(profileId)) return current.filter((id) => id !== profileId);
+    setSelectedPlayerIds(current => {
+      if (current.includes(profileId)) return current.filter(id => id !== profileId);
       if (current.length >= maxPlayers) {
         showError(undefined, 'Add another backup spot before selecting another player.');
+
         return current;
       }
+
       return [...current, profileId];
     });
   };
 
   const changeBackupSlots = (change: -1 | 1) => {
-    setBackupSlots((current) => {
+    setBackupSlots(current => {
       const next = Math.max(0, current + change);
-      setSelectedPlayerIds((players) => players.slice(0, next + 1));
+      setSelectedPlayerIds(players => players.slice(0, next + 1));
+
       return next;
     });
   };
 
   const movePlayer = (index: number, direction: -1 | 1) => {
-    setSelectedPlayerIds((current) => {
+    setSelectedPlayerIds(current => {
       const nextIndex = index + direction;
       if (nextIndex < 0 || nextIndex >= current.length) return current;
       const next = [...current];
       [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+
       return next;
     });
   };
@@ -186,10 +193,12 @@ const AddDepthPositionModal = () => {
   const continueToOrder = () => {
     if (!positionName.trim() || !shortName.trim()) {
       showError(undefined, 'Enter the position name and abbreviation.');
+
       return;
     }
     if (selectedPlayerIds.length === 0) {
       showError(undefined, 'Select at least one player for this position.');
+
       return;
     }
     setStep('order');
@@ -198,6 +207,7 @@ const AddDepthPositionModal = () => {
   const handleSave = async () => {
     if (!chart || !deptChartId) {
       showError(undefined, 'Depth chart could not be found.');
+
       return;
     }
 
@@ -209,7 +219,7 @@ const AddDepthPositionModal = () => {
       players: selectedPlayerIds.map((profileId, index) => ({ profileId, depth: index + 1 })),
     };
 
-    const positions: DeptChartPositionInput[] = chart.positions.map((position) => {
+    const positions: DeptChartPositionInput[] = chart.positions.map(position => {
       if (positionId && position._id === positionId) {
         return {
           ...positionInput,
@@ -300,16 +310,14 @@ const AddDepthPositionModal = () => {
                     accessibilityLabel="Remove a backup spot"
                     disabled={backupSlots === 0}
                     onPress={() => changeBackupSlots(-1)}
-                    style={[styles.stepperButton, { opacity: backupSlots === 0 ? 0.3 : 1 }]}
-                  >
+                    style={[styles.stepperButton, { opacity: backupSlots === 0 ? 0.3 : 1 }]}>
                     <Minus size={18} color={theme.colors.icon.secondary} />
                   </Pressable>
                   <Text.Body style={styles.stepperValue}>{backupSlots}</Text.Body>
                   <Pressable
                     accessibilityLabel="Add a backup spot"
                     onPress={() => changeBackupSlots(1)}
-                    style={styles.stepperButton}
-                  >
+                    style={styles.stepperButton}>
                     <Plus size={18} color={theme.colors.icon.secondary} />
                   </Pressable>
                 </View>
@@ -336,13 +344,13 @@ const AddDepthPositionModal = () => {
                 nestedScrollEnabled
                 style={styles.playerList}
                 contentContainerStyle={styles.playerListContent}
-                keyboardShouldPersistTaps="handled"
-              >
+                keyboardShouldPersistTaps="handled">
                 {visiblePlayers.length === 0 ? (
                   <Text.Body variant="muted" style={styles.centerText}>No matching players found.</Text.Body>
-                ) : visiblePlayers.map((player) => {
+                ) : visiblePlayers.map(player => {
                   const selected = selectedPlayerIds.includes(player.profileId);
                   const recommended = isRecommended(player);
+
                   return (
                     <Pressable
                       key={player.profileId}
@@ -355,8 +363,7 @@ const AddDepthPositionModal = () => {
                           backgroundColor: theme.colors.card.background,
                           borderColor: selected ? theme.colors.accent : theme.colors.card.border,
                         },
-                      ]}
-                    >
+                      ]}>
                       <View style={[
                         styles.checkbox,
                         {
@@ -423,7 +430,7 @@ const AddDepthPositionModal = () => {
                 </View>
               ))}
               <AppButton variant="text" compact icon="plus" onPress={() => {
-                setBackupSlots((current) => current + 1);
+                setBackupSlots(current => current + 1);
                 setStep('players');
               }}>
                 Add another backup

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
-
 import { useSessionStore } from '@/hooks/useSessionStore';
 
 declare module 'axios' {
@@ -27,23 +26,23 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  async (config) => {
+  async config => {
     const token = useSessionStore.getState().token
       || await SecureStore.getItemAsync('token');
 
     if (token) {
       config.headers = config.headers ?? {};
-      (config.headers as any).Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  error => Promise.reject(error)
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const config = error.config;
 
     if (

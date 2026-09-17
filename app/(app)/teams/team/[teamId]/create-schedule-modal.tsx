@@ -5,5 +5,6 @@ import ScheduleForm from '@/components/schedule/ScheduleForm';
 
 export default function CreateScheduleModal() {
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
+
   return <ScreenContainer.Scroll><ScheduleForm teamId={teamId} onSuccess={() => router.back()} /></ScreenContainer.Scroll>;
 }

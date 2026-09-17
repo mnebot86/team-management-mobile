@@ -50,17 +50,19 @@ export const buildUpdatePayload = ({
 }): UpdateScheduleInput => {
   if (!isRecurring) return { ...changed, scope: 'occurrence' };
   if (!scope) throw new Error('An edit scope is required for recurring events.');
-  const { recurrence: _recurrence, ...occurrenceFields } = changed;
+  const { recurrence: _, ...occurrenceFields } = changed;
 
   return scope === 'occurrence'
     ? { ...occurrenceFields, scope }
     : { ...changed, scope };
 };
 
-export const removeDeletedSchedules = (
-  sections: any[],
-  event: { scheduleId: string; scope: 'occurrence' | 'series'; recurrenceGroupId?: string | null },
-) => sections.map((section) => ({
-  ...section,
-  data: section.data.filter((item: any) => !isScheduleInMutationScope(item, event, event.scope)),
-}));
+export const removeDeletedSchedules = <T extends {
+  data: Array<{ scheduleId: string; recurrenceGroupId?: string | null }>;
+}>(
+    sections: T[],
+    event: { scheduleId: string; scope: 'occurrence' | 'series'; recurrenceGroupId?: string | null },
+  ): T[] => sections.map(section => ({
+    ...section,
+    data: section.data.filter(item => !isScheduleInMutationScope(item, event, event.scope)),
+  } as T));

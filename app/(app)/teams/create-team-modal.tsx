@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-
 import { createTeam, type CreateTeamParams } from '@/api/teams';
 import { getSports, type SportDefinition } from '@/api/sports';
 import ScreenContainer from '@/components/layout/Screen';
@@ -23,7 +22,7 @@ const CreateTeamModal = () => {
   const [error, setError] = useState('');
 
   const selectedSport = useMemo(
-    () => sports.find((sport) => sport.id === sportId),
+    () => sports.find(sport => sport.id === sportId),
     [sportId, sports],
   );
 
@@ -31,7 +30,7 @@ const CreateTeamModal = () => {
     let isActive = true;
 
     getSports()
-      .then((nextSports) => {
+      .then(nextSports => {
         if (!isActive) return;
 
         setSports(nextSports);
@@ -42,7 +41,7 @@ const CreateTeamModal = () => {
           setSportVariantId(defaultSport.defaultVariantId);
         }
       })
-      .catch((requestError) => {
+      .catch(requestError => {
         if (!isActive) return;
         setError(requestError instanceof Error
           ? requestError.message
@@ -58,7 +57,7 @@ const CreateTeamModal = () => {
   }, []);
 
   const handleSportChange = (nextSportId: string) => {
-    const sport = sports.find((item) => item.id === nextSportId);
+    const sport = sports.find(item => item.id === nextSportId);
     setSportId(nextSportId);
     setSportVariantId(sport?.defaultVariantId ?? '');
   };
@@ -130,14 +129,14 @@ const CreateTeamModal = () => {
             label="Sport"
             value={sportId}
             placeholder="Select a sport"
-            options={sports.map((sport) => ({ label: sport.name, value: sport.id }))}
+            options={sports.map(sport => ({ label: sport.name, value: sport.id }))}
             onValueChange={handleSportChange}
           />
           <Input.Select
             label="Format"
             value={sportVariantId}
             placeholder="Select a format"
-            options={(selectedSport?.variants ?? []).map((variant) => ({
+            options={(selectedSport?.variants ?? []).map(variant => ({
               label: variant.name,
               value: variant.id,
             }))}
@@ -152,8 +151,7 @@ const CreateTeamModal = () => {
             compact
             style={styles.actionButton}
             disabled={isCreating}
-            onPress={() => router.back()}
-          >
+            onPress={() => router.back()}>
             Cancel
           </AppButton>
           <AppButton
@@ -162,8 +160,7 @@ const CreateTeamModal = () => {
             style={styles.actionButton}
             disabled={isDisabled}
             loading={isCreating}
-            onPress={handleCreateTeam}
-          >
+            onPress={handleCreateTeam}>
             Create Team
           </AppButton>
         </View>

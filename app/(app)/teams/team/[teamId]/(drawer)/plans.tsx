@@ -6,11 +6,12 @@ import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import PracticePlan from '@/components/PracticePlan';
 import { deletePracticePlan, getPracticePlans } from '@/api/practices';
+import type { PracticePlan as PracticePlanData } from '@/api/practices';
 
 const Plans = () => {
   const { getTeamId } = useTeamStore();
 
-  const [plans, setPlans] = useState([]);
+  const [plans, setPlans] = useState<PracticePlanData[]>([]);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
@@ -32,11 +33,10 @@ const Plans = () => {
           const plans = await getPracticePlans(teamId);
 
           setPlans(plans);
-        } catch (err: any) {
-          const message =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Failed to load plans';
+        } catch (err: unknown) {
+          const message = err instanceof Error
+            ? err.message
+            : 'Failed to load plans';
 
           setSnackbar({
             visible: true,
@@ -51,7 +51,7 @@ const Plans = () => {
     }, [teamId]),
   );
 
-  const handleSelectPlan = useCallback((item: any) => {
+  const handleSelectPlan = useCallback((item: PracticePlanData) => {
     if (!teamId) {
       setSnackbar({
         visible: true,
@@ -69,9 +69,9 @@ const Plans = () => {
         plan: JSON.stringify(item),
       },
     });
-  }, [router, teamId]);
+  }, [teamId]);
 
-  const handleEdit = useCallback((item: any) => {
+  const handleEdit = useCallback((item: PracticePlanData) => {
     if (!teamId) {
       setSnackbar({
         visible: true,
@@ -89,20 +89,19 @@ const Plans = () => {
         plan: JSON.stringify(item),
       },
     });
-  }, [router, teamId]);
+  }, [teamId]);
 
-  const handleDelete = useCallback(async (item: any) => {
+  const handleDelete = useCallback(async (item: PracticePlanData) => {
     try {
       await deletePracticePlan(item._id);
 
-      setPlans((current) =>
-        current.filter((plan: any) => plan._id !== item._id)
+      setPlans(current =>
+        current.filter(plan => plan._id !== item._id)
       );
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to delete practice plan';
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Failed to delete practice plan';
 
       setSnackbar({
         visible: true,
@@ -115,7 +114,7 @@ const Plans = () => {
     <ScreenContainer>
       <FlatList
         data={plans}
-        keyExtractor={(item: any) => item._id}
+        keyExtractor={(item: PracticePlanData) => item._id}
         contentContainerStyle={{
           padding: 16,
           gap: 16,
@@ -133,8 +132,7 @@ const Plans = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

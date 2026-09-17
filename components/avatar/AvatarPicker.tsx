@@ -60,6 +60,7 @@ const AvatarPicker = ({
 
     if (!permission.granted) {
       Alert.alert('Permission Required', 'Camera permission is required.');
+
       return;
     }
 
@@ -88,6 +89,7 @@ const AvatarPicker = ({
 
     if (!permission.granted) {
       Alert.alert('Permission Required', 'Photo library permission is required.');
+
       return;
     }
 

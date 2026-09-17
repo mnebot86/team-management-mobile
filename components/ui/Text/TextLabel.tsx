@@ -1,6 +1,5 @@
 import { Text as PaperText } from 'react-native-paper';
 import { StyleProp, TextStyle } from 'react-native';
-
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type TextLabelProps = {
@@ -20,8 +19,7 @@ const TextLabel = ({ children, style }: TextLabelProps) => {
           fontWeight: '600',
         },
         style,
-      ]}
-    >
+      ]}>
       {children}
     </PaperText>
   );

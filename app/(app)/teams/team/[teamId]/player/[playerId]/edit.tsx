@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-
 import ScreenContainer from '@/components/layout/Screen';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -12,6 +11,7 @@ import { editTeamMember, getTeamMember } from '@/api/teamMembers';
 import { getTeam } from '@/api/teams';
 import { getSport, type SportPositionDefinition } from '@/api/sports';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import type { AppTheme } from '@/themes/theme';
 
 const EditPlayerScreen = () => {
   const theme = useAppTheme();
@@ -39,6 +39,7 @@ const EditPlayerScreen = () => {
         if (!teamId || !playerId) {
           setError('Missing player information');
           setIsLoading(false);
+
           return;
         }
 
@@ -49,14 +50,16 @@ const EditPlayerScreen = () => {
           ]);
           const sport = await getSport(team.sportId || 'football');
           const variant = sport.variants.find(
-            (item) => item.id === (team.sportVariantId || sport.defaultVariantId),
+            item => item.id === (team.sportVariantId || sport.defaultVariantId),
           );
           const positions = variant?.positions ?? [];
-          const playerPositionLabels = Array.isArray(player?.positions)
-            ? player.positions.filter((value: unknown) => typeof value === 'string' && value.trim() !== '')
-            : typeof player?.positions === 'string'
-              ? player.positions.split(',').map((value: string) => value.trim()).filter(Boolean)
-              : [];
+          let playerPositionLabels: string[] = [];
+
+          if (Array.isArray(player?.positions)) {
+            playerPositionLabels = player.positions.filter((value: string) => value.trim() !== '');
+          } else if (typeof player?.positions === 'string') {
+            playerPositionLabels = player.positions.split(',').map((value: string) => value.trim()).filter(Boolean);
+          }
 
           setFirstName(player?.firstName || '');
           setLastName(player?.lastName || '');
@@ -66,22 +69,21 @@ const EditPlayerScreen = () => {
             player?.positionIds?.length
               ? player.positionIds
               : positions
-                .filter((position) => playerPositionLabels.some(
+                .filter(position => playerPositionLabels.some(
                   (value: string) => value.toLowerCase() === position.name.toLowerCase()
                     || value.toLowerCase() === position.shortName.toLowerCase(),
                 ))
-                .map((position) => position.id),
+                .map(position => position.id),
           );
 
           if (player?.avatar) {
             setAvatar(player.avatar);
             setAvatarPublicId(player.avatar.publicId || '');
           }
-        } catch (err: any) {
-          const message =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Failed to load player';
+        } catch (err: unknown) {
+          const message = err instanceof Error
+            ? err.message
+            : 'Failed to load player';
 
           setError(message);
         } finally {
@@ -96,11 +98,13 @@ const EditPlayerScreen = () => {
   const handleSave = async () => {
     if (!firstName.trim()) {
       setError('First name is required');
+
       return;
     }
 
     if (!lastName.trim()) {
       setError('Last name is required');
+
       return;
     }
 
@@ -119,11 +123,10 @@ const EditPlayerScreen = () => {
       await editTeamMember(payload, teamId as string, playerId as string);
 
       router.back();
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to update player';
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Failed to update player';
 
       setError(message);
     } finally {
@@ -176,14 +179,14 @@ const EditPlayerScreen = () => {
               <Text.Label>Positions</Text.Label>
             </View>
             <View style={styles.positionGroups}>
-              {[...new Set(availablePositions.map((position) => position.group))]
-                .map((group) => (
+              {[...new Set(availablePositions.map(position => position.group))]
+                .map(group => (
                   <View key={group} style={styles.positionGroup}>
                     <Text.Caption>{group}</Text.Caption>
                     <View style={styles.positionOptions}>
                       {availablePositions
-                        .filter((position) => position.group === group)
-                        .map((position) => {
+                        .filter(position => position.group === group)
+                        .map(position => {
                           const selected = positionIds.includes(position.id);
 
                           return (
@@ -191,9 +194,9 @@ const EditPlayerScreen = () => {
                               key={position.id}
                               accessibilityRole="checkbox"
                               accessibilityState={{ checked: selected }}
-                              onPress={() => setPositionIds((current) =>
+                              onPress={() => setPositionIds(current =>
                                 selected
-                                  ? current.filter((id) => id !== position.id)
+                                  ? current.filter(id => id !== position.id)
                                   : [...current, position.id],
                               )}
                               style={[
@@ -206,8 +209,7 @@ const EditPlayerScreen = () => {
                                     ? theme.colors.primary
                                     : theme.colors.avatar.border,
                                 },
-                              ]}
-                            >
+                              ]}>
                               <Text.Label style={{
                                 color: selected
                                   ? theme.colors.segment.selectedText
@@ -243,7 +245,7 @@ const EditPlayerScreen = () => {
   );
 };
 
-const createStyles = (colors: any) =>
+const createStyles = (colors: AppTheme['colors']) =>
   StyleSheet.create({
     container: {
       padding: 16,

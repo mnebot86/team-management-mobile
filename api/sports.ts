@@ -30,10 +30,12 @@ export interface SportDefinition {
 
 export const getSports = async (): Promise<SportDefinition[]> => {
   const response = await api.get('/sports');
+
   return response.data.data;
 };
 
 export const getSport = async (sportId: string): Promise<SportDefinition> => {
   const response = await api.get(`/sports/${sportId}`);
+
   return response.data.data;
 };

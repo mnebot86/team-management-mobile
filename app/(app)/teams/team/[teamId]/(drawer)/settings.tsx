@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-
 import ScreenContainer from '@/components/layout/Screen';
 import AppIcon from '@/components/AppIcon';
 import Text from '@/components/ui/Text';
@@ -33,8 +32,7 @@ const Settings = () => {
               borderColor: theme.colors.card.border,
               opacity: pressed ? 0.7 : 1,
             },
-          ]}
-        >
+          ]}>
           <View style={[styles.iconContainer, { backgroundColor: theme.colors.avatar.background }]}>
             <AppIcon name="account-multiple-plus-outline" size={22} />
           </View>

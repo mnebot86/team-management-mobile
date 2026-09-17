@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
 import { TextInput, TextInputProps } from 'react-native-paper';
-
 import Text from '@/components/ui/Text';
 import { useAppTheme } from '@/hooks/useAppTheme';
 

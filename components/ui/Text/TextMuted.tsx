@@ -18,8 +18,7 @@ const TextMuted = ({ children, style }: TextMutedProps) => {
           color: theme.colors.text.secondary,
         },
         style,
-      ]}
-    >
+      ]}>
       {children}
     </PaperText>
   );

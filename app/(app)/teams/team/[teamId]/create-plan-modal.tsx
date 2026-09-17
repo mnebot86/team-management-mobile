@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-
 import ScreenContainer from '@/components/layout/Screen';
 import AppButton from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -22,11 +21,12 @@ const CreatePlanModal = () => {
   const handleClose = useCallback(() => {
     if (router.canGoBack()) {
       router.back();
+
       return;
     }
 
     router.dismiss();
-  }, [router]);
+  }, []);
 
   const handleCreate = useCallback(async () => {
     try {
@@ -50,11 +50,11 @@ const CreatePlanModal = () => {
       });
     }
   }, [
-    router,
+    handleClose,
     teamId,
     title,
     description,
-    durationMinutes
+    durationMinutes,
   ]);
 
   return (
@@ -99,8 +99,7 @@ const CreatePlanModal = () => {
             visible: false,
             message: '',
           })
-        }
-      >
+        }>
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer.Scroll>

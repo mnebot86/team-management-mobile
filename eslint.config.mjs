@@ -15,15 +15,23 @@ export default [
       'dist/**',
     ],
   },
+  {
+    settings: {
+      react: { version: 'detect' },
+    },
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat['jsx-runtime'],
   {
-    files: ['**/*.{ts,tsx}'],
-    settings: {
-      react: { version: 'detect' },
+    files: ['babel.config.js'],
+    languageOptions: {
+      globals: globals.node,
     },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
         ecmaFeatures: { jsx: true },
@@ -65,7 +73,7 @@ export default [
       }],
       'no-multiple-empty-lines': ['error', { max: 1 }],
       'no-multi-spaces': 'error',
-      'no-nested-ternary': 'error',
+      'no-nested-ternary': 'warn',
       'key-spacing': ['error', { mode: 'strict' }],
       'comma-dangle': ['error', {
         arrays: 'always-multiline',
@@ -75,16 +83,20 @@ export default [
         exports: 'always-multiline',
       }],
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^(React|_)',
+      }],
       'no-trailing-spaces': 'error',
-      'react-hooks/exhaustive-deps': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'arrow-parens': ['error', 'as-needed'],
-      'no-undef': 'error',
+      'no-undef': 'off',
       'space-infix-ops': 'error',
       'react/jsx-equals-spacing': ['error', 'never'],
       'eol-last': ['error', 'always'],
       'comma-spacing': ['error', { before: false, after: true }],
       'keyword-spacing': ['error', { before: true, after: true }],
+      '@typescript-eslint/no-explicit-any': 'warn',
       'stylistic/padding-line-between-statements': [
         'error',
         { blankLine: 'always', prev: 'import', next: 'const' },

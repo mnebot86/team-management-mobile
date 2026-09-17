@@ -23,6 +23,7 @@ const CreateAccount = () => {
 
   const isDisabled = useMemo(() => {
     const missingInputs = !email || !password || !confirmPassword;
+
     return missingInputs || error || loading;
   }, [email, password, confirmPassword, error, loading]);
 
@@ -41,6 +42,7 @@ const CreateAccount = () => {
     if (password !== confirmPassword) {
       setError(true);
       setSnack({ visible: true, message: 'Passwords do not match' });
+
       return;
     }
 
@@ -53,14 +55,16 @@ const CreateAccount = () => {
       setAuth(user, token);
 
       router.push('/(onboarding)/create-profile');
-    } catch (err: any) {
-      const message = err?.message || 'Something went wrong. Please try again.';
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Something went wrong. Please try again.';
 
       setSnack({ visible: true, message });
     } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword]);
+  }, [confirmPassword, email, password, saveToken, setAuth]);
 
   return (
     <ScreenContainer>
@@ -99,7 +103,7 @@ const CreateAccount = () => {
         />
 
         <Button
-          variant='secondary'
+          variant="secondary"
           disabled={isDisabled}
           onPress={handleSubmit}>
           Continue
@@ -110,8 +114,7 @@ const CreateAccount = () => {
             flexDirection: 'row',
             justifyContent: 'center',
             marginTop: 24,
-          }}
-        >
+          }}>
           <Text.Body variant="muted">
             Already have an account?{' '}
           </Text.Body>
@@ -126,8 +129,7 @@ const CreateAccount = () => {
         visible={snack.visible}
         onDismiss={() => setSnack({ ...snack, visible: false })}
         variant="error"
-        duration={3000}
-      >
+        duration={3000}>
         {snack.message}
       </SnackBar>
     </ScreenContainer>

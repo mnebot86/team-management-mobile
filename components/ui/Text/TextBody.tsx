@@ -29,8 +29,7 @@ const TextBody = ({ children, style, variant = 'default', onPress }: TextBodyPro
           color: getColor(),
         },
         style,
-      ]}
-    >
+      ]}>
       {children}
     </PaperText>
   );

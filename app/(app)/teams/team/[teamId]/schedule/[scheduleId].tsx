@@ -5,12 +5,12 @@ import { Button, Dialog, Portal, TextInput } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
-
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import SnackBar from '@/components/ui/SnackBar';
 import { getTeamRoster } from '@/api/teamMembers';
-import { cancelSchedule, CancellationScope, deleteSchedule, updateAttendance } from '@/api/schedule';
+import { cancelSchedule, CancellationScope, deleteSchedule, ScheduleOccurrence, updateAttendance } from '@/api/schedule';
+import type { AppTheme } from '@/themes/theme';
 import { buildCancellationPayload } from '@/utils/scheduleCancellation';
 import { useScheduleInvalidationStore } from '@/hooks/useScheduleInvalidationStore';
 
@@ -30,7 +30,7 @@ type TeamRosterPlayer = {
   firstName: string;
   lastName: string;
   role: string;
-  jerseyNumber?: string;
+  jerseyNumber?: string | number;
   imageUrl?: string | null;
 };
 
@@ -38,7 +38,7 @@ type ScheduleAttendancePlayer = {
   profileId: string;
   firstName: string;
   lastName: string;
-  jerseyNumber?: string;
+  jerseyNumber?: string | number;
   imageUrl?: string | null;
   status: AttendanceStatus;
 };
@@ -55,7 +55,7 @@ const ScheduleDetails = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const invalidateTeamSchedule = useScheduleInvalidationStore((state) => state.invalidateTeamSchedule);
+  const invalidateTeamSchedule = useScheduleInvalidationStore(state => state.invalidateTeamSchedule);
 
   const parsedSchedule = useMemo(() => {
     if (!scheduleParam || Array.isArray(scheduleParam)) {
@@ -63,12 +63,12 @@ const ScheduleDetails = () => {
     }
 
     try {
-      return JSON.parse(scheduleParam);
+      return JSON.parse(scheduleParam) as ScheduleOccurrence;
     } catch {
       return null;
     }
   }, [scheduleParam]);
-  const [schedule, setSchedule] = useState<any>(parsedSchedule);
+  const [schedule, setSchedule] = useState<ScheduleOccurrence | null>(parsedSchedule);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showEditScopeDialog, setShowEditScopeDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -104,7 +104,7 @@ const ScheduleDetails = () => {
       imageUrl: player.imageUrl,
       initials: `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || '?',
       name: `${firstName} ${lastName}`.trim(),
-      number: player.jerseyNumber || '--',
+      number: player.jerseyNumber ? String(player.jerseyNumber) : '--',
       status: player.status,
     };
   };
@@ -131,7 +131,7 @@ const ScheduleDetails = () => {
           const players = await getTeamRoster(teamId);
 
           const attendanceStatusMap = new Map<string, AttendanceStatus>(
-            (schedule?.attendance ?? []).map((record: any) => [
+            (schedule?.attendance ?? []).map(record => [
               record.profileId,
               record.status as AttendanceStatus,
             ]),
@@ -181,17 +181,17 @@ const ScheduleDetails = () => {
     );
   }
 
-  const presentCount = attendance.filter((p) => p.status === 'present').length;
-  const lateCount = attendance.filter((p) => p.status === 'late').length;
-  const absentCount = attendance.filter((p) => p.status === 'absent').length;
+  const presentCount = attendance.filter(p => p.status === 'present').length;
+  const lateCount = attendance.filter(p => p.status === 'late').length;
+  const absentCount = attendance.filter(p => p.status === 'absent').length;
   const unmarkedCount = attendance.length - presentCount - lateCount - absentCount;
 
   const updateStatus = (
     playerId: string,
     status: Exclude<AttendanceStatus, null>,
   ) => {
-    setAttendance((current) =>
-      current.map((player) =>
+    setAttendance(current =>
+      current.map(player =>
         player.id === playerId
           ? {
             ...player,
@@ -205,6 +205,7 @@ const ScheduleDetails = () => {
   const handleSaveAttendance = async () => {
     if (!teamId || Array.isArray(teamId) || !scheduleId || Array.isArray(scheduleId)) {
       setError('Unable to save attendance. Missing schedule details.');
+
       return;
     }
 
@@ -214,7 +215,7 @@ const ScheduleDetails = () => {
 
     try {
       await updateAttendance(scheduleId, {
-        attendance: attendance.map((player) => {
+        attendance: attendance.map(player => {
           const fullName = typeof player.name === 'string' ? player.name : '';
           const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
           const firstName = nameParts[0] ?? '';
@@ -231,7 +232,7 @@ const ScheduleDetails = () => {
       });
 
       setSuccessMessage('Attendance saved.');
-    } catch (error) {
+    } catch {
       setError('Unable to save attendance. Please try again.');
     } finally {
       setIsSaving(false);
@@ -243,11 +244,13 @@ const ScheduleDetails = () => {
     const scope = isRecurring ? deleteScope : 'occurrence';
     if (!scope) {
       setError('Choose whether to delete this event or the entire series.');
+
       return;
     }
 
     setIsDeleting(true);
     setError('');
+
     try {
       await deleteSchedule(scheduleId, scope);
       setShowDeleteDialog(false);
@@ -268,10 +271,12 @@ const ScheduleDetails = () => {
     if (!scheduleId || Array.isArray(scheduleId) || isCancelling) return;
     if (isRecurring && !cancellationScope) {
       setError('Choose whether to cancel this event or the entire series.');
+
       return;
     }
     setIsCancelling(true);
     setError('');
+
     try {
       const payload = buildCancellationPayload({
         isRecurring,
@@ -304,10 +309,12 @@ const ScheduleDetails = () => {
       ? `maps://?q=${encodedAddress}`
       : `geo:0,0?q=${encodedAddress}`;
     const webUrl = `https://maps.google.com/?q=${encodedAddress}`;
+
     try {
       const canOpenNative = await Linking.canOpenURL(nativeUrl);
       if (canOpenNative) {
         await Linking.openURL(nativeUrl);
+
         return;
       }
       await Linking.openURL(webUrl);
@@ -377,8 +384,7 @@ const ScheduleDetails = () => {
                   textDecorationLine: 'underline',
                 },
               ]}
-              onPress={schedule.location ? openMapLocation : undefined}
-            >
+              onPress={schedule.location ? openMapLocation : undefined}>
               {schedule.location?.name ?? 'No location'}
             </Text.Body>
           </View>
@@ -399,32 +405,43 @@ const ScheduleDetails = () => {
                 {(() => {
                   const teamScore = schedule.isHomeGame ? schedule.homeScore : schedule.awayScore;
                   const opponentScore = schedule.isHomeGame ? schedule.awayScore : schedule.homeScore;
-                  const calculatedOutcome = teamScore != null && opponentScore != null
-                    ? teamScore > opponentScore ? 'win' : teamScore < opponentScore ? 'loss' : 'draw'
-                    : null;
+                  let calculatedOutcome: 'win' | 'loss' | 'draw' | null = null;
+
+                  if (teamScore != null && opponentScore != null) {
+                    if (teamScore > opponentScore) {
+                      calculatedOutcome = 'win';
+                    } else if (teamScore < opponentScore) {
+                      calculatedOutcome = 'loss';
+                    } else {
+                      calculatedOutcome = 'draw';
+                    }
+                  }
+
                   const outcome = schedule.gameOutcome && schedule.gameOutcome !== 'pending'
                     ? schedule.gameOutcome
                     : calculatedOutcome;
+                  let outcomeBackground = `${theme.colors.text.primary}15`;
+                  let outcomeTextColor = theme.colors.text.primary;
+
+                  if (outcome === 'win') {
+                    outcomeBackground = `${theme.colors.status.success}20`;
+                    outcomeTextColor = theme.colors.status.success;
+                  } else if (outcome === 'loss') {
+                    outcomeBackground = `${theme.colors.status.error}20`;
+                    outcomeTextColor = theme.colors.status.error;
+                  }
 
                   return (
                     <View style={[
                       styles.outcomeBadge,
                       {
-                        backgroundColor: outcome === 'win'
-                          ? `${theme.colors.status.success}20`
-                          : outcome === 'loss'
-                            ? `${theme.colors.status.error}20`
-                            : `${theme.colors.text.primary}15`,
+                        backgroundColor: outcomeBackground,
                       },
                     ]}>
                       <Text.Caption style={[
                         styles.resultOutcome,
                         {
-                          color: outcome === 'win'
-                            ? theme.colors.status.success
-                            : outcome === 'loss'
-                              ? theme.colors.status.error
-                              : theme.colors.text.primary,
+                          color: outcomeTextColor,
                         },
                       ]}>
                         {outcome?.toUpperCase() ?? 'RESULT PENDING'}
@@ -460,109 +477,108 @@ const ScheduleDetails = () => {
           </SnackBar>
         )}
 
-        {!isCancelled && !isFuture && <>
-          <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
+        {!isCancelled && !isFuture && (
+          <>
+            <Text.Subheading style={styles.sectionTitle}>Attendance</Text.Subheading>
 
-          <View style={styles.summaryRow}>
-            <View style={styles.summaryCard}>
-              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.success }]} />
-              <Text.Subheading style={styles.summaryValue}>{presentCount}</Text.Subheading>
-              <Text.Caption style={styles.summaryLabel}>Present</Text.Caption>
-            </View>
-
-            <View style={styles.summaryCard}>
-              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.warning }]} />
-              <Text.Subheading style={styles.summaryValue}>{lateCount}</Text.Subheading>
-              <Text.Caption style={styles.summaryLabel}>Late</Text.Caption>
-            </View>
-
-            <View style={styles.summaryCard}>
-              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.error }]} />
-              <Text.Subheading style={styles.summaryValue}>{absentCount}</Text.Subheading>
-              <Text.Caption style={styles.summaryLabel}>Absent</Text.Caption>
-            </View>
-
-            <View style={styles.summaryCard}>
-              <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.neutral }]} />
-              <Text.Subheading style={styles.summaryValue}>{unmarkedCount}</Text.Subheading>
-              <Text.Caption style={styles.summaryLabel}>Unmarked</Text.Caption>
-            </View>
-          </View>
-
-          <View style={styles.attendanceCard}>
-            {attendance.map((player) => (
-              <View key={player.id} style={styles.attendanceRow}>
-                <View style={styles.avatarCircle}>
-                  {player.imageUrl ? (
-                    <Image
-                      source={{ uri: player.imageUrl }}
-                      style={styles.avatarImage}
-                      resizeMode="cover"
-                      accessibilityLabel={`${player.name} profile photo`}
-                    />
-                  ) : (
-                    <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
-                  )}
-                </View>
-
-                <View style={styles.playerInfo}>
-                  <Text.Body style={styles.playerName}>{player.name}</Text.Body>
-                  <Text.Caption style={styles.playerNumber}>#{player.number}</Text.Caption>
-                </View>
-
-                <View style={styles.statusButtons}>
-                  <Button
-                    mode={player.status === 'present' ? 'contained' : 'outlined'}
-                    onPress={() => updateStatus(player.id, 'present')}
-                    compact
-                    style={styles.statusButton}
-                    labelStyle={styles.statusButtonLabel}
-                  >
-                    P
-                  </Button>
-
-                  <Button
-                    mode={player.status === 'late' ? 'contained' : 'outlined'}
-                    onPress={() => updateStatus(player.id, 'late')}
-                    compact
-                    style={styles.statusButton}
-                    labelStyle={styles.statusButtonLabel}
-                  >
-                    L
-                  </Button>
-
-                  <Button
-                    mode={player.status === 'absent' ? 'contained' : 'outlined'}
-                    onPress={() => updateStatus(player.id, 'absent')}
-                    compact
-                    style={styles.statusButton}
-                    labelStyle={styles.statusButtonLabel}
-                  >
-                    A
-                  </Button>
-                </View>
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryCard}>
+                <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.success }]} />
+                <Text.Subheading style={styles.summaryValue}>{presentCount}</Text.Subheading>
+                <Text.Caption style={styles.summaryLabel}>Present</Text.Caption>
               </View>
-            ))}
-          </View>
 
-          <View style={styles.actionButtons}>
-            <Button
-              mode="contained"
-              onPress={handleSaveAttendance}
-              loading={isSaving}
-              disabled={isSaving}
-              style={styles.actionButton}
-            >
-              Save Attendance
-            </Button>
-          </View>
-        </>}
+              <View style={styles.summaryCard}>
+                <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.warning }]} />
+                <Text.Subheading style={styles.summaryValue}>{lateCount}</Text.Subheading>
+                <Text.Caption style={styles.summaryLabel}>Late</Text.Caption>
+              </View>
+
+              <View style={styles.summaryCard}>
+                <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.error }]} />
+                <Text.Subheading style={styles.summaryValue}>{absentCount}</Text.Subheading>
+                <Text.Caption style={styles.summaryLabel}>Absent</Text.Caption>
+              </View>
+
+              <View style={styles.summaryCard}>
+                <View style={[styles.summaryIndicator, { backgroundColor: theme.colors.status.neutral }]} />
+                <Text.Subheading style={styles.summaryValue}>{unmarkedCount}</Text.Subheading>
+                <Text.Caption style={styles.summaryLabel}>Unmarked</Text.Caption>
+              </View>
+            </View>
+
+            <View style={styles.attendanceCard}>
+              {attendance.map(player => (
+                <View key={player.id} style={styles.attendanceRow}>
+                  <View style={styles.avatarCircle}>
+                    {player.imageUrl ? (
+                      <Image
+                        source={{ uri: player.imageUrl }}
+                        style={styles.avatarImage}
+                        resizeMode="cover"
+                        accessibilityLabel={`${player.name} profile photo`}
+                      />
+                    ) : (
+                      <Text.Body style={styles.avatarInitials}>{player.initials}</Text.Body>
+                    )}
+                  </View>
+
+                  <View style={styles.playerInfo}>
+                    <Text.Body style={styles.playerName}>{player.name}</Text.Body>
+                    <Text.Caption style={styles.playerNumber}>#{player.number}</Text.Caption>
+                  </View>
+
+                  <View style={styles.statusButtons}>
+                    <Button
+                      mode={player.status === 'present' ? 'contained' : 'outlined'}
+                      onPress={() => updateStatus(player.id, 'present')}
+                      compact
+                      style={styles.statusButton}
+                      labelStyle={styles.statusButtonLabel}>
+                      P
+                    </Button>
+
+                    <Button
+                      mode={player.status === 'late' ? 'contained' : 'outlined'}
+                      onPress={() => updateStatus(player.id, 'late')}
+                      compact
+                      style={styles.statusButton}
+                      labelStyle={styles.statusButtonLabel}>
+                      L
+                    </Button>
+
+                    <Button
+                      mode={player.status === 'absent' ? 'contained' : 'outlined'}
+                      onPress={() => updateStatus(player.id, 'absent')}
+                      compact
+                      style={styles.statusButton}
+                      labelStyle={styles.statusButtonLabel}>
+                      A
+                    </Button>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.actionButtons}>
+              <Button
+                mode="contained"
+                onPress={handleSaveAttendance}
+                loading={isSaving}
+                disabled={isSaving}
+                style={styles.actionButton}>
+                Save Attendance
+              </Button>
+            </View>
+          </>
+        )}
 
         {!isCancelled && (
           <View style={styles.actionButtons}>
             <Button mode="outlined" onPress={() => {
               if (isRecurring) {
                 setShowEditScopeDialog(true);
+
                 return;
               }
               router.push({
@@ -632,16 +648,14 @@ const ScheduleDetails = () => {
                   mode={cancellationScope === 'occurrence' ? 'contained' : 'outlined'}
                   onPress={() => setCancellationScope('occurrence')}
                   disabled={isCancelling}
-                  style={{ marginTop: 16 }}
-                >
+                  style={{ marginTop: 16 }}>
                   This occurrence
                 </Button>
                 <Button
                   mode={cancellationScope === 'series' ? 'contained' : 'outlined'}
                   onPress={() => setCancellationScope('series')}
                   disabled={isCancelling}
-                  style={{ marginTop: 8 }}
-                >
+                  style={{ marginTop: 8 }}>
                   Entire series
                 </Button>
                 {cancellationScope && (
@@ -670,8 +684,7 @@ const ScheduleDetails = () => {
               onPress={handleCancel}
               loading={isCancelling}
               disabled={isCancelling || (isRecurring && !cancellationScope)}
-              textColor={theme.colors.error}
-            >
+              textColor={theme.colors.error}>
               {cancellationScope === 'series' ? 'Cancel Entire Series' : 'Confirm Cancellation'}
             </Button>
           </Dialog.Actions>
@@ -687,8 +700,7 @@ const ScheduleDetails = () => {
                   mode={deleteScope === 'occurrence' ? 'contained' : 'outlined'}
                   onPress={() => setDeleteScope('occurrence')}
                   disabled={isDeleting}
-                  style={{ marginTop: 16 }}
-                >
+                  style={{ marginTop: 16 }}>
                   This occurrence
                 </Button>
                 <Button
@@ -696,8 +708,7 @@ const ScheduleDetails = () => {
                   onPress={() => setDeleteScope('series')}
                   disabled={isDeleting}
                   textColor={theme.colors.error}
-                  style={{ marginTop: 8 }}
-                >
+                  style={{ marginTop: 8 }}>
                   Entire series
                 </Button>
                 {deleteScope && (
@@ -718,8 +729,7 @@ const ScheduleDetails = () => {
               onPress={handleDelete}
               loading={isDeleting}
               disabled={isDeleting || (isRecurring && !deleteScope)}
-              textColor={theme.colors.error}
-            >
+              textColor={theme.colors.error}>
               {deleteScope === 'series' ? 'Delete Entire Series' : 'Confirm Delete'}
             </Button>
           </Dialog.Actions>
@@ -729,7 +739,7 @@ const ScheduleDetails = () => {
   );
 };
 
-const createStyles = (colors: any) =>
+const createStyles = (colors: AppTheme['colors']) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: 16,

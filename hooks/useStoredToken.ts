@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useStoredToken = () => {
   const [token, setToken] = useState<string | null>(null);
@@ -16,15 +16,15 @@ export const useStoredToken = () => {
     load();
   }, []);
 
-  const saveToken = async (newToken: string) => {
+  const saveToken = useCallback(async (newToken: string) => {
     await SecureStore.setItemAsync('token', newToken);
     setToken(newToken);
-  };
+  }, []);
 
-  const removeToken = async () => {
+  const removeToken = useCallback(async () => {
     await SecureStore.deleteItemAsync('token');
     setToken(null);
-  };
+  }, []);
 
   return {
     token,

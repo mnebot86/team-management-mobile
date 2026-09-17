@@ -19,21 +19,18 @@ const BaseScreen = ({ children, style }: BaseScreenProps) => {
       style={[
         styles.safeArea,
         { backgroundColor: theme.colors.screen.background },
-      ]}
-    >
+      ]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
-      >
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
         <Surface
           elevation={0}
           style={[
             styles.surface,
             { backgroundColor: theme.colors.screen.background },
             style,
-          ]}
-        >
+          ]}>
           {children}
         </Surface>
       </KeyboardAvoidingView>

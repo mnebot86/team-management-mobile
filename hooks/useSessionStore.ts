@@ -41,7 +41,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       isAuthenticated: true,
     }),
 
-  setProfile: (profile) =>
+  setProfile: profile =>
     set({
       profile,
     }),

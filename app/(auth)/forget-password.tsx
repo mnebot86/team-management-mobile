@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { TextInput } from 'react-native-paper';
-
 import AppButton from '@/components/ui/Button';
 import InputText from '@/components/ui/Input/InputText';
 import Text from '@/components/ui/Text';
@@ -44,8 +43,7 @@ const ForgetPasswordScreen = () => {
     <ScreenContainer>
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
           {isSubmitted ? (
             <View style={styles.confirmationCard}>
@@ -65,7 +63,7 @@ const ForgetPasswordScreen = () => {
                 label="Email Address"
                 placeholder="you@example.com"
                 value={email}
-                onChangeText={(value) => setEmail(value.toLowerCase())}
+                onChangeText={value => setEmail(value.toLowerCase())}
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
@@ -82,11 +80,10 @@ const ForgetPasswordScreen = () => {
                 onPress={() => {
                   void handleSubmit();
                 }}
-                variant='secondary'
+                variant="secondary"
                 disabled={!canSubmit}
                 style={styles.submitButton}
-                rounded
-              >
+                rounded>
                 Send Reset Link
               </AppButton>
 

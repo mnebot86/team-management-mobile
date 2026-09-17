@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import DashboardStatCard from '@/components/dashboard/DashboardStatCard';
@@ -40,11 +39,11 @@ const Dashboard = () => {
       <Text.Heading>Welcome Back 👋</Text.Heading>
 
       <Text.Body style={styles.subtitle}>
-        Here's a quick look at your teams.
+        Here&apos;s a quick look at your teams.
       </Text.Body>
 
       <View style={styles.grid}>
-        {stats.map((stat) => (
+        {stats.map(stat => (
           <View key={stat.id} style={styles.cardContainer}>
             <DashboardStatCard {...stat} />
           </View>

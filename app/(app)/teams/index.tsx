@@ -4,7 +4,7 @@ import ScreenContainer from '@/components/layout/Screen';
 import TeamCard from './components/teamCard';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { getTeams } from '@/api/teams';
+import { getTeams, TeamMembership } from '@/api/teams';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { ITeam } from '@/types/team';
 import { useTeamStore } from '@/hooks/useTeamStore';
@@ -23,7 +23,6 @@ const Teams = () => {
     message: '',
   });
 
-
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -31,13 +30,7 @@ const Teams = () => {
       const fetchTeams = async () => {
         try {
           const teamsResponse = await getTeams();
-          const teams = Array.isArray(teamsResponse)
-            ? teamsResponse
-            : Array.isArray(teamsResponse?.data)
-              ? teamsResponse.data
-              : [];
-
-          setTeams(teams);
+          setTeams(teamsResponse);
         } catch (error) {
           const message = error instanceof Error
             ? error.message
@@ -61,7 +54,7 @@ const Teams = () => {
       const socket = getSocket();
 
       const handleTeamCreated = (team: ITeam) => {
-        setTeams((current) => [
+        setTeams(current => [
           { team },
           ...current.filter(({ team: existing }) => existing._id !== team._id),
         ]);
@@ -96,19 +89,18 @@ const Teams = () => {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-          }}
-        >
+          }}>
           <ActivityIndicator size="large" />
         </View>
       ) : (
         <FlatList
           data={teams}
-          keyExtractor={(item: any) => item.team._id}
+          keyExtractor={(item: TeamMembership) => item.team._id}
           contentContainerStyle={{
             padding: 16,
             gap: 16,
           }}
-          ListEmptyComponent={
+          ListEmptyComponent={(
             <View style={styles.emptyContainer}>
               <AppIcon
                 name="account-group-outline"
@@ -126,7 +118,7 @@ const Teams = () => {
                 Create your first team or join an existing team using an invite code.
               </Text.Body>
             </View>
-          }
+          )}
           renderItem={({ item }) => (
             <TeamCard
               team={item.team}
@@ -139,8 +131,7 @@ const Teams = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

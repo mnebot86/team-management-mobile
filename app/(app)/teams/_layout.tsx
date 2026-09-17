@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { router, Stack } from 'expo-router';
-
 import { joinTeamByCode } from '@/api/teams';
 import AppHeader from '@/components/AppHeader';
 import IconButton from '@/components/ui/IconButton';
@@ -58,7 +57,7 @@ export default function TeamsLayout() {
             header: () => (
               <AppHeader
                 title="Teams"
-                headerContent={
+                headerContent={(
                   <IconButton
                     icon="plus"
                     accessibilityLabel="Create team"
@@ -67,7 +66,7 @@ export default function TeamsLayout() {
                       router.push('/(app)/teams/create-team-modal');
                     }}
                   />
-                }
+                )}
                 textInputProps={{
                   placeholder: 'Enter invite code',
                   value: inviteCode,
@@ -111,8 +110,7 @@ export default function TeamsLayout() {
             visible: false,
             message: '',
           })
-        }
-      >
+        }>
         {snackbar.message}
       </Snackbar>
     </>

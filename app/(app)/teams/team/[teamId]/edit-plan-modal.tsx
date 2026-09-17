@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-
 import ScreenContainer from '@/components/layout/Screen';
 import AppButton from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -20,10 +19,18 @@ let newSectionSequence = 0;
 
 const createSectionId = () => {
   newSectionSequence += 1;
+
   return `new-section-${Date.now()}-${newSectionSequence}`;
 };
 
-const normalizeSections = (sections: any[] = []): PracticeSection[] =>
+type PracticeSectionInput = Partial<PracticeSection> & {
+  _id?: string;
+  name?: string;
+  duration?: number | string;
+  notes?: string;
+};
+
+const normalizeSections = (sections: PracticeSectionInput[] = []): PracticeSection[] =>
   sections.map((section, index) => ({
     id: String(section.id ?? section._id ?? `section-${index}`),
     title: String(section.title ?? section.name ?? ''),
@@ -42,6 +49,7 @@ const EditPlanModal = () => {
     if (!plan) {
       return null;
     }
+
     try {
       return JSON.parse(plan);
     } catch {
@@ -68,8 +76,8 @@ const EditPlanModal = () => {
     field: 'title' | 'durationMinutes' | 'description',
     value: string
   ) => {
-    setSections((current) =>
-      current.map((section) =>
+    setSections(current =>
+      current.map(section =>
         section.id === sectionId
           ? { ...section, [field]: value }
           : section
@@ -78,13 +86,13 @@ const EditPlanModal = () => {
   };
 
   const handleDeleteSection = useCallback((sectionId: string) => {
-    setSections((current) =>
-      current.filter((section) => section.id !== sectionId)
+    setSections(current =>
+      current.filter(section => section.id !== sectionId)
     );
   }, []);
 
   const handleAddSection = useCallback(() => {
-    setSections((current) => [
+    setSections(current => [
       ...current,
       {
         id: createSectionId(),
@@ -98,11 +106,12 @@ const EditPlanModal = () => {
   const handleClose = useCallback(() => {
     if (router.canGoBack()) {
       router.back();
+
       return;
     }
 
     router.dismiss();
-  }, [router]);
+  }, []);
 
   const handleSave = useCallback(async () => {
     const payload = {
@@ -161,15 +170,13 @@ const EditPlanModal = () => {
               borderRadius: 20,
               padding: 16,
               gap: 12,
-            }}
-          >
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text.Body>
                 Section {index + 1}
               </Text.Body>
@@ -177,8 +184,7 @@ const EditPlanModal = () => {
               <AppButton
                 variant="text"
                 fullWidth={false}
-                onPress={() => handleDeleteSection(section.id)}
-              >
+                onPress={() => handleDeleteSection(section.id)}>
                 Remove
               </AppButton>
             </View>
@@ -187,13 +193,12 @@ const EditPlanModal = () => {
               style={{
                 flexDirection: 'row',
                 gap: 12,
-              }}
-            >
+              }}>
               <View style={{ flex: 1 }}>
                 <Input.Text
                   label="Section Name"
                   value={section.title}
-                  onChangeText={(value) =>
+                  onChangeText={value =>
                     updateSection(section.id, 'title', value)
                   }
                 />
@@ -204,7 +209,7 @@ const EditPlanModal = () => {
                   label="Minutes"
                   value={section.durationMinutes}
                   keyboardType="numeric"
-                  onChangeText={(value) =>
+                  onChangeText={value =>
                     updateSection(section.id, 'durationMinutes', value)
                   }
                 />
@@ -216,7 +221,7 @@ const EditPlanModal = () => {
               value={section.description}
               multiline
               numberOfLines={2}
-              onChangeText={(value) =>
+              onChangeText={value =>
                 updateSection(section.id, 'description', value)
               }
             />
@@ -225,8 +230,7 @@ const EditPlanModal = () => {
 
         <AppButton
           variant="outline"
-          onPress={handleAddSection}
-        >
+          onPress={handleAddSection}>
           Add Section
         </AppButton>
 
@@ -236,8 +240,7 @@ const EditPlanModal = () => {
 
         <AppButton
           variant="text"
-          onPress={() => router.back()}
-        >
+          onPress={() => router.back()}>
           Cancel
         </AppButton>
       </ScrollView>

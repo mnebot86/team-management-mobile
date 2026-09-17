@@ -18,13 +18,17 @@ export interface JoinTeam {
   code: string
 }
 
+export interface TeamMembership {
+  team: ITeam;
+}
+
 export const createTeam = async (payload: CreateTeamParams) => {
   const response = await api.post('/teams', payload);
 
   return response.data.data;
 };
 
-export const getTeams = async () => {
+export const getTeams = async (): Promise<TeamMembership[]> => {
   const response = await api.get('/teams');
 
   return response.data.data;
@@ -55,7 +59,7 @@ export const getTeamInviteCodes = async (teamId: string) => {
 };
 
 export const joinTeamByCode = async (payload: JoinTeam) => {
-  const response = await api.post(`/teams/join`, payload, {
+  const response = await api.post('/teams/join', payload, {
     retryUnauthorizedOnce: true,
     skipSessionLogoutOnUnauthorized: true,
   });

@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { useSessionStore } from '@/hooks/useSessionStore';
 import { useStoredToken } from '@/hooks/useStoredToken';
 import {
-  router
+  router,
 
 } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
@@ -29,8 +29,10 @@ const Settings = () => {
       logout();
 
       router.replace('/(auth)/login');
-    } catch (err: any) {
-      const message = err?.message || 'Unable to logout. Please try again.';
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Unable to logout. Please try again.';
 
       setSnackbar({
         visible: true,
@@ -48,9 +50,8 @@ const Settings = () => {
             marginBottom: 6,
             fontSize: 15,
             letterSpacing: 0.5,
-            fontWeight: 'bold'
-          }}
-        >
+            fontWeight: 'bold',
+          }}>
           Actions
         </Text.Caption>
 
@@ -58,8 +59,7 @@ const Settings = () => {
           <Button
             variant="danger"
             icon="logout"
-            onPress={handleLogout}
-          >
+            onPress={handleLogout}>
             Logout
           </Button>
         </View>
@@ -67,8 +67,7 @@ const Settings = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

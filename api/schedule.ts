@@ -62,25 +62,29 @@ export interface ScheduleOccurrence {
   scheduleId: string;
   recurrenceGroupId?: string | null;
   title: string;
-  description?: string;
+  description: string;
   type: ScheduleEventType;
+  eventType?: ScheduleEventType;
   startDate: string;
-  startTime?: string | null;
-  endTime?: string | null;
+  startTime: string;
+  endTime: string;
   status: ScheduleStatus;
   attendance?: {
+    profileId: string;
     status?: 'present' | 'late' | 'absent' | null;
   }[];
   gameOutcome?: GameOutcome | null;
+  opponentName: string;
+  isHomeGame: boolean;
   homeScore?: number | null;
   awayScore?: number | null;
-  cancellationReason?: string | null;
+  cancellationReason?: string;
   location: {
-    name?: string;
-    street?: string;
-    city?: string;
-    state?: string;
-    zip?: string;
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
   };
   recurrence: {
     isRecurring: boolean;
@@ -88,6 +92,11 @@ export interface ScheduleOccurrence {
     daysOfWeek: number[];
     endDate?: string | null;
   };
+}
+
+export interface ScheduleSection {
+  title?: string;
+  data: ScheduleOccurrence[];
 }
 
 export type CancellationScope = ScheduleMutationScope;
@@ -144,13 +153,13 @@ export const getTeamSchedule = async (
   return response.data.data;
 };
 
-export const getNextPractice = async (teamId: string) => {
+export const getNextPractice = async (teamId: string): Promise<ScheduleOccurrence | null> => {
   const response = await api.get(`schedules/team/${teamId}/next-practice`);
 
   return response.data.data;
 };
 
-export const getLastPractice = async (teamId: string) => {
+export const getLastPractice = async (teamId: string): Promise<AttendanceSummary> => {
   const response = await api.get(`schedules/team/${teamId}/last-practice`);
 
   return response.data.data;
@@ -176,7 +185,7 @@ export const getNextGame = async (teamId: string) => {
   return response.data.data;
 };
 
-export const updateAttendance = async (scheduleId: string, payload: any) => {
+export const updateAttendance = async (scheduleId: string, payload: unknown) => {
   const response = await api.patch(`/schedules/${scheduleId}/attendance`, payload);
 
   return response.data.data;

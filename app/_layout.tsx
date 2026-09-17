@@ -10,6 +10,7 @@ import { getMe } from '@/api/auth';
 import AppSnackbar from '@/components/ui/SnackBar';
 import * as SecureToken from 'expo-secure-store';
 import { connectSocket, disconnectSocket } from '@/socket/service';
+import axios from 'axios';
 
 export default function RootLayout() {
   const scheme = useColorScheme();
@@ -39,6 +40,7 @@ export default function RootLayout() {
 
       if (!storedToken) {
         setHydrated();
+
         return;
       }
 
@@ -54,9 +56,9 @@ export default function RootLayout() {
         if (profile && typeof profile === 'object') {
           setProfile(profile);
         }
-      } catch (err: any) {
-        const status = err?.response?.status;
-        const message = err?.message ?? '';
+      } catch (err: unknown) {
+        const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+        const message = err instanceof Error ? err.message : '';
 
         if (
           status === 401 ||
@@ -64,6 +66,7 @@ export default function RootLayout() {
           message.toLowerCase().includes('jwt')
         ) {
           await removeToken();
+
           return;
         }
 
@@ -77,11 +80,12 @@ export default function RootLayout() {
     };
 
     init();
-  }, []);
+  }, [removeToken, setAuth, setHydrated, setProfile]);
 
   useEffect(() => {
     if (!token) {
       disconnectSocket();
+
       return;
     }
 
@@ -92,6 +96,7 @@ export default function RootLayout() {
         visible: true,
         message: 'Socket URL is not configured',
       });
+
       return;
     }
 
@@ -127,8 +132,7 @@ export default function RootLayout() {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </PaperProvider>

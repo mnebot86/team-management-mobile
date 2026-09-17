@@ -25,7 +25,7 @@ export const userCreateProfile = async ({
       uri: avatar.uri,
       name: avatar.name,
       type: avatar.type,
-    } as any);
+    } as unknown as Blob);
   }
 
   const response = await api.post('/profiles', formData, {

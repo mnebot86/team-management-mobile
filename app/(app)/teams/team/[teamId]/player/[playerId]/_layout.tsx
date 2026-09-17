@@ -19,14 +19,21 @@ export default function TeamStackLayout() {
       <Stack.Screen
         name="index"
         options={{
-          header: ({ options, navigation }) => (
-            <AppHeader
-              title={(options.title as string) ?? 'Player Details'}
-              subtitle={(options as any).headerSubtitle ?? ''}
-              onBackPress={() => navigation.goBack()}
-              onEditPress={(options as any).onEditPress}
-            />
-          ),
+          header: ({ options, navigation }) => {
+            const headerOptions = options as typeof options & {
+              headerSubtitle?: string;
+              onEditPress?: () => void;
+            };
+
+            return (
+              <AppHeader
+                title={(headerOptions.title as string) ?? 'Player Details'}
+                subtitle={headerOptions.headerSubtitle ?? ''}
+                onBackPress={() => navigation.goBack()}
+                onEditPress={headerOptions.onEditPress}
+              />
+            );
+          },
         }}
       />
     </Stack>

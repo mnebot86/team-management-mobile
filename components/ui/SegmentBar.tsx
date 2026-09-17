@@ -4,7 +4,6 @@ import {
   SegmentedButtons,
   SegmentedButtonsProps,
 } from 'react-native-paper';
-
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type SegmentOption<T extends string> = SegmentedButtonsProps<T>['buttons'][number];
@@ -26,7 +25,7 @@ const SegmentBar = <T extends string>({
 }: SegmentBarProps<T>) => {
   const theme = useAppTheme();
 
-  const buttons = options.map((option) => ({
+  const buttons = options.map(option => ({
     ...option,
     checkedColor: option.checkedColor ?? theme.colors.segment.selectedText,
     uncheckedColor: option.uncheckedColor ?? theme.colors.segment.text,

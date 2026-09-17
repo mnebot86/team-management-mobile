@@ -37,7 +37,7 @@ export const createAndInsertPlayerToTeam = async (
       uri: payload.avatar.uri,
       name: payload.avatar.name,
       type: payload.avatar.type,
-    } as any);
+    } as unknown as Blob);
   }
 
   const response = await api.post(`/team-members/${teamId}`, formData, {
@@ -51,10 +51,20 @@ export const createAndInsertPlayerToTeam = async (
 
 export type TeamRosterRole = 'player' | 'coach';
 
+export interface TeamRosterMember {
+  profileId: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  jerseyNumber?: number | string;
+  positions?: string[] | string;
+  imageUrl?: string;
+}
+
 export const getTeamRoster = async (
   teamId: string,
   role?: TeamRosterRole,
-) => {
+): Promise<TeamRosterMember[]> => {
   const response = await api.get(`/team-members/${teamId}`, {
     params: role ? { role } : undefined,
   });
@@ -95,7 +105,7 @@ export const editTeamMember = async (
       uri: payload.avatar.uri,
       name: payload.avatar.name,
       type: payload.avatar.type,
-    } as any);
+    } as unknown as Blob);
   }
 
   const response = await api.patch(`/team-members/${teamId}/member/${profileId}`, formData, {

@@ -68,8 +68,7 @@ const CreateVisitCodeModal = () => {
             fullWidth={false}
             style={styles.segmentButton}
             variant={role === 'player' ? 'primary' : 'secondary'}
-            onPress={() => setRole('player')}
-          >
+            onPress={() => setRole('player')}>
             Player
           </AppButton>
 
@@ -77,8 +76,7 @@ const CreateVisitCodeModal = () => {
             fullWidth={false}
             style={styles.segmentButton}
             variant={role === 'coach' ? 'primary' : 'secondary'}
-            onPress={() => setRole('coach')}
-          >
+            onPress={() => setRole('coach')}>
             Coach
           </AppButton>
 
@@ -86,8 +84,7 @@ const CreateVisitCodeModal = () => {
             fullWidth={false}
             style={styles.segmentButton}
             variant={role === 'parent' ? 'primary' : 'secondary'}
-            onPress={() => setRole('parent')}
-          >
+            onPress={() => setRole('parent')}>
             Parent
           </AppButton>
         </View>
@@ -104,8 +101,7 @@ const CreateVisitCodeModal = () => {
             onPress={() => {
               setUnlimitedUses(true);
               setMaxUses('');
-            }}
-          >
+            }}>
             Unlimited
           </AppButton>
 
@@ -113,8 +109,7 @@ const CreateVisitCodeModal = () => {
             fullWidth={false}
             style={styles.segmentButton}
             variant={!unlimitedUses ? 'primary' : 'secondary'}
-            onPress={() => setUnlimitedUses(false)}
-          >
+            onPress={() => setUnlimitedUses(false)}>
             Limited
           </AppButton>
         </View>
@@ -141,8 +136,7 @@ const CreateVisitCodeModal = () => {
             variant={neverExpires ? 'primary' : 'secondary'}
             onPress={() => {
               setNeverExpires(true);
-            }}
-          >
+            }}>
             Never
           </AppButton>
 
@@ -150,8 +144,7 @@ const CreateVisitCodeModal = () => {
             fullWidth={false}
             style={styles.segmentButton}
             variant={!neverExpires ? 'primary' : 'secondary'}
-            onPress={() => setNeverExpires(false)}
-          >
+            onPress={() => setNeverExpires(false)}>
             Set Date
           </AppButton>
         </View>
@@ -174,8 +167,7 @@ const CreateVisitCodeModal = () => {
 
         <AppButton
           variant="text"
-          onPress={() => router.back()}
-        >
+          onPress={() => router.back()}>
           Cancel
         </AppButton>
       </View>
@@ -188,8 +180,7 @@ const CreateVisitCodeModal = () => {
             visible: false,
             message: '',
           })
-        }
-      >
+        }>
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

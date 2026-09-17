@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { TextInput } from 'react-native-paper';
-
 import AppButton from '@/components/ui/Button';
 import InputText from '@/components/ui/Input/InputText';
 import Text from '@/components/ui/Text';
@@ -61,8 +60,7 @@ const ResetPasswordScreen = () => {
     <ScreenContainer>
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
           {isSubmitted ? (
             <View style={styles.confirmationCard}>
@@ -112,11 +110,10 @@ const ResetPasswordScreen = () => {
                 onPress={() => {
                   void handleSubmit();
                 }}
-                variant='secondary'
+                variant="secondary"
                 disabled={!canSubmit}
                 style={styles.submitButton}
-                rounded
-              >
+                rounded>
                 Reset Password
               </AppButton>
             </>

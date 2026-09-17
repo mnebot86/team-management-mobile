@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-
 import {
   createDeptChart,
   type CreateDeptChartPayload,
@@ -26,6 +25,7 @@ const CreateDeptChartModal = () => {
         visible: true,
         message: 'A team is required to create a dept chart.',
       });
+
       return;
     }
 
@@ -34,6 +34,7 @@ const CreateDeptChartModal = () => {
         visible: true,
         message: 'Please enter a dept chart name.',
       });
+
       return;
     }
 
@@ -78,8 +79,7 @@ const CreateDeptChartModal = () => {
             compact
             style={styles.actionButton}
             disabled={isCreating}
-            onPress={() => router.back()}
-          >
+            onPress={() => router.back()}>
             Cancel
           </AppButton>
 
@@ -89,8 +89,7 @@ const CreateDeptChartModal = () => {
             style={styles.actionButton}
             loading={isCreating}
             disabled={isCreating || !name.trim()}
-            onPress={handleCreate}
-          >
+            onPress={handleCreate}>
             Create Chart
           </AppButton>
         </View>
@@ -99,8 +98,7 @@ const CreateDeptChartModal = () => {
       <AppSnackbar
         visible={snackbar.visible}
         variant="error"
-        onDismiss={() => setSnackbar({ visible: false, message: '' })}
-      >
+        onDismiss={() => setSnackbar({ visible: false, message: '' })}>
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

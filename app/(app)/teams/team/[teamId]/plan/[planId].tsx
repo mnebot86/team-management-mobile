@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Card, Divider } from 'react-native-paper';
-
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import AppIcon from '@/components/AppIcon';
@@ -38,9 +37,9 @@ const PlanDetailScreen = () => {
   );
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections((current) =>
+    setExpandedSections(current =>
       current.includes(sectionId)
-        ? current.filter((id) => id !== sectionId)
+        ? current.filter(id => id !== sectionId)
         : [...current, sectionId]
     );
   };
@@ -51,30 +50,26 @@ const PlanDetailScreen = () => {
         contentContainerStyle={{
           padding: 16,
           gap: 20,
-        }}
-      >
+        }}>
         <Card
           mode="outlined"
           style={{
             borderRadius: 24,
             backgroundColor: theme.colors.card.background,
             borderColor: theme.colors.card.border,
-          }}
-        >
+          }}>
           <Card.Content
             style={{
               paddingVertical: 22,
               gap: 16,
-            }}
-          >
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
                 gap: 12,
-              }}
-            >
+              }}>
               <View style={{ flex: 1 }}>
                 <Text.Heading>{title}</Text.Heading>
               </View>
@@ -84,8 +79,7 @@ const PlanDetailScreen = () => {
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 6,
-                }}
-              >
+                }}>
                 <AppIcon
                   name="clock-outline"
                   size={22}
@@ -103,8 +97,7 @@ const PlanDetailScreen = () => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10,
-              }}
-            >
+              }}>
               <Text.Muted>{sections.length} sections</Text.Muted>
               <Text.Muted>•</Text.Muted>
               <Text.Muted>{totalDurationMinutes} min total</Text.Muted>
@@ -117,36 +110,31 @@ const PlanDetailScreen = () => {
             textTransform: 'uppercase',
             letterSpacing: 1.5,
             color: theme.colors.outline,
-          }}
-        >
+          }}>
           Sections
         </Text.Caption>
 
         {sections.map((section, index) => (
           <Pressable
             key={section._id ?? `${section.title}-${index}`}
-            onPress={() => toggleSection(section._id ?? `${index}`)}
-          >
+            onPress={() => toggleSection(section._id ?? `${index}`)}>
             <Card
               mode="outlined"
               style={{
                 borderRadius: 20,
                 backgroundColor: theme.colors.card.background,
                 borderColor: theme.colors.card.border,
-              }}
-            >
+              }}>
               <Card.Content
                 style={{
                   paddingVertical: 18,
-                }}
-              >
+                }}>
                 <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 14,
-                  }}
-                >
+                  }}>
                   <View
                     style={{
                       width: 48,
@@ -157,14 +145,12 @@ const PlanDetailScreen = () => {
                       backgroundColor: theme.colors.segment.selectedBackground,
                       borderWidth: 1,
                       borderColor: theme.colors.segment.border,
-                    }}
-                  >
+                    }}>
                     <Text.Body
                       style={{
                         color: theme.colors.segment.selectedText,
                         fontWeight: '700',
-                      }}
-                    >
+                      }}>
                       {index + 1}
                     </Text.Body>
                   </View>
@@ -192,8 +178,7 @@ const PlanDetailScreen = () => {
                       style={{
                         paddingLeft: 62,
                         gap: 12,
-                      }}
-                    >
+                      }}>
                       <Text.Body>{section.description}</Text.Body>
 
                       <View
@@ -201,8 +186,7 @@ const PlanDetailScreen = () => {
                           flexDirection: 'row',
                           alignItems: 'center',
                           gap: 6,
-                        }}
-                      >
+                        }}>
                         <AppIcon
                           name="clock-outline"
                           size={18}

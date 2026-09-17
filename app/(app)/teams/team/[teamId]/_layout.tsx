@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { joinTeam, leaveTeam } from '@/socket';
 import AppHeader from '@/components/AppHeader';
 import { Stack } from 'expo-router';
 import AppButton from '@/components/ui/Button';
@@ -14,10 +13,7 @@ export default function TeamStackLayout() {
       return;
     }
 
-    // joinTeam(teamId);
-
     return () => {
-      // leaveTeam(teamId);
     };
   }, [teamId]);
 
@@ -141,13 +137,12 @@ export default function TeamStackLayout() {
               headerContent={(
                 <AppButton
                   icon="plus"
-                  variant='header'
+                  variant="header"
                   fullWidth={false}
                   compact
                   onPress={() => {
                     router.push(`/teams/team/${teamId}/create-visit-code-modal`);
-                  }}
-                >
+                  }}>
                   New Code
                 </AppButton>
               )}

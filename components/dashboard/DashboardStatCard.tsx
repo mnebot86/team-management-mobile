@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Surface } from 'react-native-paper';
-
 import AppIcon from '@/components/AppIcon';
 import Text from '@/components/ui/Text';
 import { useAppTheme } from '@/hooks/useAppTheme';
@@ -29,8 +28,7 @@ export default function DashboardStatCard({
           backgroundColor: theme.colors.surface,
         },
       ]}
-      elevation={1}
-    >
+      elevation={1}>
       <View
         style={[
           styles.iconContainer,
@@ -39,8 +37,7 @@ export default function DashboardStatCard({
               ? theme.colors.primaryContainer
               : theme.colors.surfaceVariant,
           },
-        ]}
-      >
+        ]}>
         <AppIcon
           name={icon}
           variant={highlighted ? 'accent' : 'default'}
@@ -56,8 +53,7 @@ export default function DashboardStatCard({
         style={[
           styles.label,
           { color: theme.colors.onSurfaceVariant },
-        ]}
-      >
+        ]}>
         {label}
       </Text.Subheading>
     </Surface>
@@ -76,13 +72,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-start',
-    marginBottom: 12
+    marginBottom: 12,
   },
   value: {
     fontSize: 24,
-    marginBottom: 4
+    marginBottom: 4,
   },
   label: {
-    fontSize: 14
+    fontSize: 14,
   },
 });

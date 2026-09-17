@@ -33,6 +33,7 @@ const PracticePlan = ({
     totalDurationMinutes,
     sections = [],
   } = data;
+
   return (
     <Pressable onPress={onPress}>
       <Card
@@ -40,27 +41,23 @@ const PracticePlan = ({
           borderRadius: 24,
           marginBottom: 16,
           backgroundColor: theme.colors.card.background,
-        }}
-      >
+        }}>
         <Card.Content
           style={{
             paddingVertical: 20,
             gap: 16,
-          }}
-        >
+          }}>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-            }}
-          >
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 flex: 1,
-              }}
-            >
+              }}>
               <View style={{ flex: 1 }}>
                 <Text.Heading>{title}</Text.Heading>
 
@@ -70,8 +67,7 @@ const PracticePlan = ({
                     alignItems: 'center',
                     marginTop: 6,
                     gap: 6,
-                  }}
-                >
+                  }}>
                   <AppIcon
                     name="clock-outline"
                     size={18}
@@ -85,8 +81,7 @@ const PracticePlan = ({
               style={{
                 flexDirection: 'row',
                 gap: 12,
-              }}
-            >
+              }}>
               <Pressable onPress={onEdit}>
                 <AppIcon
                   name="pencil-outline"
@@ -114,8 +109,7 @@ const PracticePlan = ({
               flexDirection: 'row',
               flexWrap: 'wrap',
               gap: 8,
-            }}
-          >
+            }}>
             {sections.map((section, index) => (
               <Chip
                 key={`${section.title}-${index}`}
@@ -127,8 +121,7 @@ const PracticePlan = ({
                 }}
                 textStyle={{
                   color: theme.colors.text.primary,
-                }}
-              >
+                }}>
                 {section.title}
               </Chip>
             ))}
@@ -141,8 +134,7 @@ const PracticePlan = ({
               flexDirection: 'row',
               alignItems: 'center',
               gap: 12,
-            }}
-          >
+            }}>
             <Text.Muted>
               {sections.length} sections
             </Text.Muted>

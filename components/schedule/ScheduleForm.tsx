@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-
 import { createSchedule, GameOutcome, ScheduleEventType, ScheduleMutationScope, updateSchedule } from '@/api/schedule';
 import { buildUpdatePayload } from '@/utils/scheduleCancellation';
 import { useDateTimeStore } from '@/hooks/useDateTimeStore';
@@ -19,9 +18,43 @@ const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 type Props = {
   teamId: string;
   scheduleId?: string;
-  initialSchedule?: any;
+  initialSchedule?: ScheduleFormSchedule;
   editScope?: ScheduleMutationScope;
-  onSuccess: (schedule: any) => void;
+  onSuccess: (schedule: unknown) => void;
+};
+
+type ScheduleFormSchedule = {
+  title?: string;
+  description?: string;
+  eventType?: ScheduleEventType;
+  type?: ScheduleEventType;
+  recurrenceGroupId?: string | null;
+  recurrence?: {
+    isRecurring?: boolean;
+    frequency?: string | null;
+    daysOfWeek?: number[];
+    endDate?: string | Date | null;
+  };
+  isHomeGame?: boolean | null;
+  gameOutcome?: GameOutcome | null;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  startDate?: string | Date;
+  startTime?: string | Date | null;
+  endTime?: string | Date | null;
+  location?: {
+    name?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  locationName?: string;
+  streetAddress?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  opponentName?: string | null;
 };
 
 const asDate = (value?: string | Date | null) => value ? new Date(value) : undefined;
@@ -31,6 +64,7 @@ const scoreValue = (value: string) => {
   if (!trimmedValue) return null;
 
   const score = Number(trimmedValue);
+
   return Number.isFinite(score) && score >= 0 ? score : null;
 };
 const normalizedGameOutcome = (value?: GameOutcome | null): Exclude<GameOutcome, 'pending'> | '' => (
@@ -42,7 +76,10 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   const initialType = initialSchedule?.eventType ?? initialSchedule?.type ?? 'practice';
   const initialRecurrence = initialSchedule?.recurrence;
   const initialIsRecurring = Boolean(initialSchedule?.recurrenceGroupId || initialRecurrence?.isRecurring);
-  const initialLocation = initialSchedule?.location ?? {};
+  const initialLocation = useMemo(
+    () => initialSchedule?.location ?? {},
+    [initialSchedule],
+  );
 
   const [title, setTitle] = useState(initialSchedule?.title ?? '');
   const [eventType, setEventType] = useState<ScheduleEventType>(initialType);
@@ -64,7 +101,7 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   const [opponentName, setOpponentName] = useState(initialSchedule?.opponentName ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const invalidateTeamSchedule = useScheduleInvalidationStore((state) => state.invalidateTeamSchedule);
+  const invalidateTeamSchedule = useScheduleInvalidationStore(state => state.invalidateTeamSchedule);
 
   const { startDate, startTime, endTime, recurrenceEndDate, setField, reset } = useDateTimeStore();
   const initialized = useRef(false);
@@ -87,7 +124,7 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
       const date = asDate(value);
 
       if (date && !Number.isNaN(date.getTime())) {
-        setField(field, date)
+        setField(field, date);
       };
     });
   }, [initialRecurrence?.endDate, initialSchedule, setField]);
@@ -118,7 +155,7 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
   }), [initialIsRecurring, initialLocation, initialRecurrence, initialSchedule, initialType]);
 
   const handleSubmit = async () => {
-    const daysOfWeek = repeatDays.split(',').map((day) => dayMap[day.trim()]).filter((day) => day !== undefined);
+    const daysOfWeek = repeatDays.split(',').map(day => dayMap[day.trim()]).filter(day => day !== undefined);
     const recurring = isRecurring === 'true';
     const values = {
       title,
@@ -189,11 +226,12 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
         <Input.Select
           label="Event Type"
           value={eventType}
-          onValueChange={(v) => setEventType(v as ScheduleEventType)}
+          onValueChange={v => setEventType(v as ScheduleEventType)}
           options={[
             { label: 'Practice', value: 'practice' }, { label: 'Game', value: 'game' },
             { label: 'Team Event', value: 'event' }, { label: 'Other', value: 'other' },
-          ]} />
+          ]}
+        />
         {eventType === 'game' ? (
           <Input.Text label="Opponent" value={opponentName} onChangeText={setOpponentName} />
         ) : (
@@ -215,27 +253,31 @@ export default function ScheduleForm({ teamId, scheduleId, initialSchedule, edit
           />
         )}
 
-        {editScope !== 'occurrence' && isRecurring === 'true' && <>
-          <Input.Select label="Frequency" value={frequency} onValueChange={setFrequency} options={[{ label: 'Daily', value: 'daily' }, { label: 'Weekly', value: 'weekly' }, { label: 'Monthly', value: 'monthly' }]} />
-          {frequency === 'weekly' && <Input.Text label="Repeat Days" value={repeatDays} onChangeText={setRepeatDays} placeholder="Mon, Wed, Fri" />}
-          <Input.DateTime label="Repeat Until" mode="date" field="recurrenceEndDate" value={recurrenceEndDate} />
-        </>}
+        {editScope !== 'occurrence' && isRecurring === 'true' && (
+          <>
+            <Input.Select label="Frequency" value={frequency} onValueChange={setFrequency} options={[{ label: 'Daily', value: 'daily' }, { label: 'Weekly', value: 'weekly' }, { label: 'Monthly', value: 'monthly' }]} />
+            {frequency === 'weekly' && <Input.Text label="Repeat Days" value={repeatDays} onChangeText={setRepeatDays} placeholder="Mon, Wed, Fri" />}
+            <Input.DateTime label="Repeat Until" mode="date" field="recurrenceEndDate" value={recurrenceEndDate} />
+          </>
+        )}
         <Input.Text label="Location Name" value={locationName} onChangeText={setLocationName} />
         <Input.Text label="Street Address" value={streetAddress} onChangeText={setStreetAddress} />
         <Input.Text label="City" value={city} onChangeText={setCity} />
         <Input.Text label="State" value={state} onChangeText={setState} />
         <Input.Text label="Zip Code" value={zipCode} onChangeText={setZipCode} />
         {eventType === 'game' && <Input.Select label="Game Location" value={isHomeGame} onValueChange={setIsHomeGame} options={[{ label: 'Home', value: 'home' }, { label: 'Away', value: 'away' }]} />}
-        {eventType === 'game' && <>
-          <Input.Select
-            label="Game Outcome"
-            value={gameOutcome}
-            onValueChange={(value) => setGameOutcome(value as GameOutcome | '')}
-            options={[{ label: 'Not set', value: '' }, { label: 'Win', value: 'win' }, { label: 'Loss', value: 'loss' }, { label: 'Draw', value: 'draw' }]}
-          />
-          <Input.Text label="Home Score" value={homeScore} onChangeText={setHomeScore} keyboardType="number-pad" />
-          <Input.Text label="Away Score" value={awayScore} onChangeText={setAwayScore} keyboardType="number-pad" />
-        </>}
+        {eventType === 'game' && (
+          <>
+            <Input.Select
+              label="Game Outcome"
+              value={gameOutcome}
+              onValueChange={value => setGameOutcome(value as GameOutcome | '')}
+              options={[{ label: 'Not set', value: '' }, { label: 'Win', value: 'win' }, { label: 'Loss', value: 'loss' }, { label: 'Draw', value: 'draw' }]}
+            />
+            <Input.Text label="Home Score" value={homeScore} onChangeText={setHomeScore} keyboardType="number-pad" />
+            <Input.Text label="Away Score" value={awayScore} onChangeText={setAwayScore} keyboardType="number-pad" />
+          </>
+        )}
         <AppButton onPress={handleSubmit} loading={saving} disabled={saving}>{isEdit ? 'Save Changes' : 'Create Event'}</AppButton>
       </ScrollView>
       <AppSnackbar visible={Boolean(error)} variant="error" onDismiss={() => setError('')}>{error}</AppSnackbar>
