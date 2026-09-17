@@ -12,9 +12,12 @@ import {
   getLastPractice,
   getNextGame,
   getNextPractice,
+  getTeamAttendance,
+  getTeamStats,
 } from '@/api/schedule';
 import EventCard from '@/components/EventCard';
 import { AttendanceCard } from '@/components/AttendenceCard';
+import { WinLossRateCard } from '@/components/WinLossRateCard';
 import { useScheduleInvalidationStore } from '@/hooks/useScheduleInvalidationStore';
 
 const TeamDetails = () => {
@@ -30,6 +33,21 @@ const TeamDetails = () => {
     absent: 0,
     total: 0,
   });
+  const [overallAttendance, setOverallAttendance] = useState({
+    present: 0,
+    late: 0,
+    absent: 0,
+    total: 0,
+  });
+
+  const [teamStats, setTeamStats] = useState({
+    wins: 0,
+    losses: 0,
+    draws: 0,
+    total: 0,
+    winRate: 0,
+  });
+
   const [rosterCount, setRosterCount] = useState(0);
   const [error, setError] = useState('');
 
@@ -64,13 +82,22 @@ const TeamDetails = () => {
       getNextPractice(teamId as string),
       getNextGame(teamId as string),
       getLastPractice(teamId as string),
+      getTeamAttendance(teamId as string),
+      getTeamStats(teamId as string),
     ])
-      .then(([team, roster, practice, game, lastPractice]) => {
+      .then(([team, roster, practice, game, lastPractice, attendance, stats]) => {
         setTeam(team);
         setRosterCount(roster.count);
         setNextPractice(practice);
         setNextGame(game);
         setLastPracticeAttendance(lastPractice);
+        setOverallAttendance({
+          present: attendance.present,
+          late: attendance.late,
+          absent: attendance.absent,
+          total: attendance.total,
+        });
+        setTeamStats(stats);
       })
       .catch((error: any) => {
         const message =
@@ -109,7 +136,7 @@ const TeamDetails = () => {
   }
 
   return (
-    <ScreenContainer>
+    <ScreenContainer.Scroll>
       <View style={{ padding: 16, gap: 24 }}>
         {nextGame ? (
           <View>
@@ -143,13 +170,27 @@ const TeamDetails = () => {
 
         <View>
           <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
-            Last Practice Attendance
+            Overall Attendance
           </Text.Caption>
 
           <AttendanceCard
-            present={lastPracticeAttendance.present}
-            absent={lastPracticeAttendance.absent}
-            total={lastPracticeAttendance.total}
+            present={overallAttendance.present}
+            late={overallAttendance.late}
+            absent={overallAttendance.absent}
+            total={overallAttendance.total}
+          />
+        </View>
+
+        <View>
+          <Text.Caption style={{ textTransform: 'uppercase', marginBottom: 8 }}>
+            Win Loss Rate
+          </Text.Caption>
+
+          <WinLossRateCard
+            wins={teamStats.wins}
+            losses={teamStats.losses}
+            draws={teamStats.draws}
+            total={teamStats.total}
           />
         </View>
       </View>
@@ -162,7 +203,7 @@ const TeamDetails = () => {
           {error}
         </SnackBar>
       )}
-    </ScreenContainer>
+    </ScreenContainer.Scroll>
   );
 };
 

@@ -43,6 +43,21 @@ export type UpdateScheduleInput = Partial<Omit<CreateScheduleInput, 'teamId'>> &
 
 export type ScheduleStatus = 'scheduled' | 'cancelled';
 
+export interface AttendanceSummary {
+  present: number;
+  late: number;
+  absent: number;
+  total: number;
+}
+
+export interface TeamStats {
+  wins: number;
+  losses: number;
+  draws: number;
+  total: number;
+  winRate: number;
+}
+
 export interface ScheduleOccurrence {
   scheduleId: string;
   recurrenceGroupId?: string | null;
@@ -53,6 +68,9 @@ export interface ScheduleOccurrence {
   startTime?: string | null;
   endTime?: string | null;
   status: ScheduleStatus;
+  attendance?: {
+    status?: 'present' | 'late' | 'absent' | null;
+  }[];
   gameOutcome?: GameOutcome | null;
   homeScore?: number | null;
   awayScore?: number | null;
@@ -138,6 +156,20 @@ export const getLastPractice = async (teamId: string) => {
   return response.data.data;
 };
 
+export const getTeamStats = async (teamId: string): Promise<TeamStats> => {
+  const response = await api.get(`/schedules/team/${teamId}/stats`);
+
+  return response.data.data;
+};
+
+export const getTeamAttendance = async (
+  teamId: string,
+): Promise<AttendanceSummary> => {
+  const response = await api.get(`schedules/team/${teamId}/attendance`);
+
+  return response.data.data;
+};
+
 export const getNextGame = async (teamId: string) => {
   const response = await api.get(`schedules/team/${teamId}/next-game`);
 
@@ -150,7 +182,9 @@ export const updateAttendance = async (scheduleId: string, payload: any) => {
   return response.data.data;
 };
 
-export const getPlayerAttendanceRecord = async (profileId: string) => {
+export const getPlayerAttendanceRecord = async (
+  profileId: string,
+): Promise<AttendanceSummary> => {
   const response = await api.get(`/schedules/player/${profileId}/attendance`);
 
   return response.data.data;

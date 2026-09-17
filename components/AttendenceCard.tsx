@@ -22,12 +22,14 @@ export const AttendanceCard = ({
 }: AttendanceCardProps) => {
   const theme = useAppTheme();
 
-  const attendanceTotal = total ?? present + late + absent;
+  const attendanceTotal = present + late + absent;
+  const attendedCount = present + late;
+  const displayedTotal = total ?? attendanceTotal;
   const attendancePercentage = attendanceTotal > 0
-    ? Math.round((present / attendanceTotal) * 100)
+    ? Math.min(100, Math.max(0, Math.round((attendedCount / attendanceTotal) * 100)))
     : 0;
   const progress = attendanceTotal > 0
-    ? present / attendanceTotal
+    ? Math.min(1, Math.max(0, attendedCount / attendanceTotal))
     : 0;
 
   const styles = createStyles(theme.colors);
@@ -38,15 +40,15 @@ export const AttendanceCard = ({
         <Card.Content style={styles.content}>
           <View style={styles.headerRow}>
             <View style={styles.titleContainer}>
-                <Text variant="titleLarge" style={styles.heading}>
-                  {heading ?? 'Attendance Rate'}
-                </Text>
+              <Text variant="titleLarge" style={styles.heading}>
+                {heading ?? 'Attendance Rate'}
+              </Text>
 
-                {subheading ? (
-                  <Text variant="bodyLarge" style={styles.subheading}>
-                    {subheading}
-                  </Text>
-                ) : null}
+              {subheading ? (
+                <Text variant="bodyLarge" style={styles.subheading}>
+                  {subheading}
+                </Text>
+              ) : null}
             </View>
 
             <Text style={styles.percentage}>{attendancePercentage}%</Text>
@@ -81,7 +83,7 @@ export const AttendanceCard = ({
             />
 
             <AttendanceStat
-              value={attendanceTotal}
+              value={displayedTotal}
               label="Total"
               accentColor={theme.colors.status.neutral}
               style={styles.statCard}
