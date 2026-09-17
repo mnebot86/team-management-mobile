@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import AppIcon from '@/components/AppIcon';
 import Input from '@/components/ui/Input';
 import Text from '@/components/ui/Text';
@@ -36,13 +35,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       edges={['top']}
       style={{
         backgroundColor: theme.colors.screen.headerBackground,
-      }}
-    >
+      }}>
       <View
         style={{
           padding: 12,
-        }}
-      >
+        }}>
         {!!onEditPress && (
           <Pressable
             onPress={onEditPress}
@@ -53,8 +50,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
               right: 0,
               zIndex: 1,
               padding: 6,
-            }}
-          >
+            }}>
             <AppIcon
               name="pencil"
               size={22}
@@ -67,8 +63,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-          }}
-        >
+          }}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             {!!onBackPress && (
               <Pressable
@@ -76,8 +71,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                 accessibilityLabel={backLabel}
                 onPress={onBackPress}
                 hitSlop={20}
-                style={{ marginRight: 10, padding: 2 }}
-              >
+                style={{ marginRight: 10, padding: 2 }}>
                 <AppIcon name="arrow-left" size={24} />
               </Pressable>
             )}
@@ -86,8 +80,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
               <Pressable
                 onPress={onMenuPress}
                 hitSlop={20}
-                style={{ marginRight: 10, padding: 2 }}
-              >
+                style={{ marginRight: 10, padding: 2 }}>
                 <AppIcon name="menu" size={24} />
               </Pressable>
             )}
@@ -102,8 +95,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                   style={{
                     color: theme.colors.text.secondary,
                     marginTop: 2,
-                  }}
-                >
+                  }}>
                   {subtitle}
                 </Text.Body>
               )}
@@ -121,8 +113,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           <View
             style={{
               marginTop: subtitle ? 16 : 12,
-            }}
-          >
+            }}>
             <Input.Text {...textInputProps} />
           </View>
         )}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Snackbar as PaperSnackbar, SnackbarProps as PaperSnackbarProps } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import type { AppTheme } from '@/themes/theme';
 
 type Variant = 'success' | 'error' | 'info';
 
@@ -8,27 +9,27 @@ type AppSnackBarProps = PaperSnackbarProps & {
   variant?: Variant;
 };
 
-const getBackgroundColor = (variant: Variant | undefined, theme: any) => {
+const getBackgroundColor = (variant: Variant | undefined, theme: AppTheme) => {
   switch (variant) {
-    case 'success':
-      return theme.colors.status.success;
-    case 'error':
-      return theme.colors.status.error;
-    case 'info':
-      return theme.colors.status.info;
-    default:
-      return theme.colors.card.elevatedBackground;
+  case 'success':
+    return theme.colors.status.success;
+  case 'error':
+    return theme.colors.status.error;
+  case 'info':
+    return theme.colors.status.info;
+  default:
+    return theme.colors.card.elevatedBackground;
   }
 };
 
-const getTextColor = (variant: Variant | undefined, theme: any) => {
+const getTextColor = (variant: Variant | undefined, theme: AppTheme) => {
   switch (variant) {
-    case 'success':
-    case 'error':
-    case 'info':
-      return theme.colors.button.primaryText;
-    default:
-      return theme.colors.text.primary;
+  case 'success':
+  case 'error':
+  case 'info':
+    return theme.colors.button.primaryText;
+  default:
+    return theme.colors.text.primary;
   }
 };
 
@@ -58,8 +59,7 @@ const SnackBar: React.FC<AppSnackBarProps> = ({
           ...theme.colors,
           onSurface: textColor,
         },
-      }}
-    >
+      }}>
       {children}
     </PaperSnackbar>
   );

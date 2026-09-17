@@ -3,7 +3,6 @@ import { StyleProp, TextStyle } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { TextInput } from 'react-native-paper';
 import { useAppTheme } from '@/hooks/useAppTheme';
-
 import InputText from './InputText';
 
 interface InputDateTimeProps {
@@ -26,16 +25,20 @@ const InputDateTime = ({
   const { teamId } = useLocalSearchParams<{ teamId: string }>();
   const theme = useAppTheme();
 
-  const displayValue = value
-    ? mode === 'date'
-      ? value.toLocaleDateString()
-      : mode === 'datetime'
-        ? value.toLocaleString()
-        : value.toLocaleTimeString([], {
-          hour: 'numeric',
-          minute: '2-digit',
-        })
-    : '';
+  let displayValue = '';
+
+  if (value) {
+    if (mode === 'date') {
+      displayValue = value.toLocaleDateString();
+    } else if (mode === 'datetime') {
+      displayValue = value.toLocaleString();
+    } else {
+      displayValue = value.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+  }
 
   return (
     <InputText
@@ -44,12 +47,12 @@ const InputDateTime = ({
       placeholder={placeholder}
       editable={false}
       style={style}
-      right={
+      right={(
         <TextInput.Icon
           icon={mode === 'date' ? 'calendar' : 'clock-outline'}
           color={theme.colors.icon.secondary}
         />
-      }
+      )}
       onPressIn={() => {
         router.push({
           pathname: '/teams/team/[teamId]/pick-date-modal',

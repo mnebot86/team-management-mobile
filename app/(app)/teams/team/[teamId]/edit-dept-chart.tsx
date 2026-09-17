@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Trash2 } from 'lucide-react-native';
-
 import { deleteDeptChart, updateDeptChart } from '@/api/deptCharts';
 import ScreenContainer from '@/components/layout/Screen';
 import AppButton from '@/components/ui/Button';
@@ -34,11 +33,13 @@ const EditDeptChartModal = () => {
 
     if (!params.deptChartId) {
       showError(undefined, 'A depth chart is required.');
+
       return;
     }
 
     if (!trimmedName) {
       showError(undefined, 'Please enter a depth chart name.');
+
       return;
     }
 
@@ -103,8 +104,7 @@ const EditDeptChartModal = () => {
               compact
               style={styles.actionButton}
               disabled={isBusy}
-              onPress={() => router.back()}
-            >
+              onPress={() => router.back()}>
               Cancel
             </AppButton>
 
@@ -114,8 +114,7 @@ const EditDeptChartModal = () => {
               style={styles.actionButton}
               loading={isSaving}
               disabled={isBusy || !name.trim()}
-              onPress={handleSave}
-            >
+              onPress={handleSave}>
               Save Changes
             </AppButton>
           </View>
@@ -126,15 +125,24 @@ const EditDeptChartModal = () => {
           accessibilityLabel="Delete depth chart"
           disabled={isBusy}
           onPress={confirmDelete}
-          style={({ pressed }) => [
-            styles.deleteAction,
-            {
-              backgroundColor: theme.colors.card.background,
-              borderColor: theme.colors.card.border,
-              opacity: isBusy ? 0.45 : pressed ? 0.7 : 1,
-            },
-          ]}
-        >
+          style={({ pressed }) => {
+            let opacity = 1;
+
+            if (isBusy) {
+              opacity = 0.45;
+            } else if (pressed) {
+              opacity = 0.7;
+            }
+
+            return [
+              styles.deleteAction,
+              {
+                backgroundColor: theme.colors.card.background,
+                borderColor: theme.colors.card.border,
+                opacity,
+              },
+            ];
+          }}>
           <View style={styles.deleteCopy}>
             <Text.Body style={[styles.deleteTitle, { color: theme.colors.error }]}>
               Delete depth chart
@@ -148,8 +156,7 @@ const EditDeptChartModal = () => {
       <AppSnackbar
         visible={snackbar.visible}
         variant="error"
-        onDismiss={() => setSnackbar({ visible: false, message: '' })}
-      >
+        onDismiss={() => setSnackbar({ visible: false, message: '' })}>
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

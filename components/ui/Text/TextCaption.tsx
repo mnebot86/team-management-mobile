@@ -18,8 +18,7 @@ const TextCaption = ({ children, style }: TextCaptionProps) => {
           color: theme.colors.text.secondary,
         },
         style,
-      ]}
-    >
+      ]}>
       {children}
     </PaperText>
   );

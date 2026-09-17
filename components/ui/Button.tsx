@@ -4,7 +4,6 @@ import {
   Button as PaperButton,
   ButtonProps as PaperButtonProps,
 } from 'react-native-paper';
-
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type AppButtonProps = Omit<PaperButtonProps, 'mode'> & {
@@ -18,17 +17,17 @@ const mapVariantToMode = (
   variant: AppButtonProps['variant'],
 ): PaperButtonProps['mode'] => {
   switch (variant) {
-    case 'secondary':
-    case 'outline':
-    case 'danger':
-      return 'outlined';
+  case 'secondary':
+  case 'outline':
+  case 'danger':
+    return 'outlined';
 
-    case 'text':
-    case 'header':
-      return 'text';
+  case 'text':
+  case 'header':
+    return 'text';
 
-    default:
-      return 'contained';
+  default:
+    return 'contained';
   }
 };
 
@@ -51,6 +50,33 @@ const AppButton = ({
   const isHeader = variant === 'header';
   const isText = variant === 'text';
   const isDisabled = props.disabled;
+  let buttonColor: string = theme.colors.button.secondaryBackground;
+  let textColor: string = theme.colors.button.secondaryText;
+  let borderColor = 'transparent';
+
+  if (isHeader || isText) {
+    buttonColor = 'transparent';
+  } else if (isDisabled) {
+    buttonColor = theme.colors.status.neutral;
+  } else if (isPrimary) {
+    buttonColor = theme.colors.button.primaryBackground;
+  }
+
+  if (isDisabled) {
+    textColor = theme.colors.text.secondary;
+  } else if (isHeader) {
+    textColor = theme.colors.text.primary;
+  } else if (isDanger) {
+    textColor = theme.colors.error;
+  } else if (isPrimary) {
+    textColor = theme.colors.button.primaryText;
+  }
+
+  if (isDanger) {
+    borderColor = theme.colors.error;
+  } else if (isSecondary) {
+    borderColor = theme.colors.button.border;
+  }
 
   return (
     <PaperButton
@@ -61,35 +87,13 @@ const AppButton = ({
           ? theme.colors.error
           : theme.colors.button.ripple
       }
-      buttonColor={
-        isHeader || isText
-          ? 'transparent'
-          : isDisabled
-            ? theme.colors.status.neutral
-            : isPrimary
-              ? theme.colors.button.primaryBackground
-              : theme.colors.button.secondaryBackground
-      }
-      textColor={
-        isDisabled
-          ? theme.colors.text.secondary
-          : isHeader
-            ? theme.colors.text.primary
-            : isDanger
-              ? theme.colors.error
-              : isPrimary
-                ? theme.colors.button.primaryText
-                : theme.colors.button.secondaryText
-      }
+      buttonColor={buttonColor}
+      textColor={textColor}
       style={[
         {
           width: fullWidth ? '100%' : undefined,
           borderRadius: rounded ? 28 : 8,
-          borderColor: isDanger
-            ? theme.colors.error
-            : isSecondary
-              ? theme.colors.button.border
-              : 'transparent',
+          borderColor,
         },
         style,
       ]}
@@ -101,15 +105,7 @@ const AppButton = ({
       ]}
       labelStyle={[
         {
-          color: isDisabled
-            ? theme.colors.text.secondary
-            : isHeader
-              ? theme.colors.text.primary
-              : isDanger
-                ? theme.colors.error
-                : isPrimary
-                  ? theme.colors.button.primaryText
-                  : theme.colors.button.secondaryText,
+          color: textColor,
         },
         labelStyle,
       ]}

@@ -19,8 +19,7 @@ const TextHeading = ({ children, style }: TextHeadingProps) => {
           fontWeight: '700',
         },
         style,
-      ]}
-    >
+      ]}>
       {children}
     </PaperText>
   );

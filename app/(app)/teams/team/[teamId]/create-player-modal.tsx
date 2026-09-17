@@ -30,6 +30,7 @@ const CreatePlayerModal = () => {
 
       if (!teamId) {
         setError('No team selected');
+
         return;
       }
 
@@ -40,11 +41,10 @@ const CreatePlayerModal = () => {
       };
 
       await createAndInsertPlayerToTeam(payload, teamId as string);
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to create player';
+    } catch (err: unknown) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Failed to create player';
 
       setError(message);
     } finally {
@@ -52,7 +52,7 @@ const CreatePlayerModal = () => {
 
       router.back();
     }
-  }, [firstName, lastName, avatar, router]);
+  }, [avatar, firstName, getTeamId, lastName]);
 
   const handleCancel = useCallback(() => {
     setFirstName('');
@@ -61,7 +61,7 @@ const CreatePlayerModal = () => {
     setError('');
 
     router.back();
-  }, [router]);
+  }, []);
 
   return (
     <ScreenContainer>
@@ -89,8 +89,7 @@ const CreatePlayerModal = () => {
         <AppButton
           onPress={handleCancel}
           style={{ flex: 1 }}
-          variant="outline"
-        >
+          variant="outline">
           Cancel
         </AppButton>
 
@@ -98,8 +97,7 @@ const CreatePlayerModal = () => {
           disabled={disabled}
           onPress={handleCreatePlayer}
           loading={loading}
-          style={{ flex: 1 }}
-        >
+          style={{ flex: 1 }}>
           Create Player
         </AppButton>
       </View>
@@ -107,8 +105,7 @@ const CreatePlayerModal = () => {
       {!!error && (
         <SnackBar
           visible={true}
-          onDismiss={() => setError('')}
-        >
+          onDismiss={() => setError('')}>
           {error}
         </SnackBar>
       )}

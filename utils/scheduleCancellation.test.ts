@@ -73,22 +73,26 @@ test('series-scoped edits and cancellations target sibling occurrences', () => {
 });
 
 test('occurrence deletion removes only its unique scheduleId', () => {
-  const sections = [{ data: [
-    { scheduleId: 'one', recurrenceGroupId: 'group' },
-    { scheduleId: 'two', recurrenceGroupId: 'group' },
-  ] }];
+  const sections = [{
+    data: [
+      { scheduleId: 'one', recurrenceGroupId: 'group' },
+      { scheduleId: 'two', recurrenceGroupId: 'group' },
+    ],
+  }];
   const result = removeDeletedSchedules(sections, { scheduleId: 'one', scope: 'occurrence', recurrenceGroupId: 'group' });
-  assert.deepEqual(result[0].data.map((item: any) => item.scheduleId), ['two']);
+  assert.deepEqual(result[0].data.map(item => item.scheduleId), ['two']);
 });
 
 test('series deletion removes all recurrenceGroupId siblings', () => {
-  const sections = [{ data: [
-    { scheduleId: 'one', recurrenceGroupId: 'group' },
-    { scheduleId: 'two', recurrenceGroupId: 'group' },
-    { scheduleId: 'three', recurrenceGroupId: 'other' },
-  ] }];
+  const sections = [{
+    data: [
+      { scheduleId: 'one', recurrenceGroupId: 'group' },
+      { scheduleId: 'two', recurrenceGroupId: 'group' },
+      { scheduleId: 'three', recurrenceGroupId: 'other' },
+    ],
+  }];
   const result = removeDeletedSchedules(sections, { scheduleId: 'one', scope: 'series', recurrenceGroupId: 'group' });
-  assert.deepEqual(result[0].data.map((item: any) => item.scheduleId), ['three']);
+  assert.deepEqual(result[0].data.map(item => item.scheduleId), ['three']);
 });
 
 test('socket updates refetch only the affected active team', () => {

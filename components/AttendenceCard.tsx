@@ -1,6 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { Card, ProgressBar, Text } from 'react-native-paper';
-
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type AttendanceCardProps = {
@@ -99,7 +98,7 @@ type AttendanceStatProps = {
   value: number;
   label: string;
   accentColor: string;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 };
 
 const AttendanceStat = ({

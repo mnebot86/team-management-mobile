@@ -69,7 +69,7 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  }, [email, password]);
+  }, [email, password, saveToken, setAuth, setProfile]);
 
   return (
     <ScreenContainer.Centered>
@@ -82,8 +82,7 @@ const Login = () => {
           justifyContent: 'center',
           alignItems: 'center',
           marginBottom: 20,
-        }}
-      >
+        }}>
         <AppIcon name="account-outline" variant="accent" size={38} />
       </View>
 
@@ -99,9 +98,9 @@ const Login = () => {
         label="Email"
         placeholder="you@example.com"
         left={<TextInput.Icon icon="email-outline" />}
-        autoCapitalize='none'
+        autoCapitalize="none"
         style={{ marginBottom: 16 }}
-        onChangeText={(text) => {
+        onChangeText={text => {
           setEmail(text);
 
           if (error) setError(null);
@@ -114,7 +113,7 @@ const Login = () => {
         secureTextEntry
         left={<TextInput.Icon icon="lock-outline" />}
         style={{ marginBottom: 8 }}
-        onChangeText={(text) => {
+        onChangeText={text => {
           setPassword(text);
 
           if (error) setError(null);
@@ -129,12 +128,12 @@ const Login = () => {
         </Pressable>
       </View>
 
-      <Button onPress={handleLogin} disabled={disabled} variant='secondary'>
+      <Button onPress={handleLogin} disabled={disabled} variant="secondary">
         Sign In
       </Button>
 
       <View style={{ flexDirection: 'row', marginTop: 24 }}>
-        <Text.Muted>Don't have an account? </Text.Muted>
+        <Text.Muted>Don&apos;t have an account? </Text.Muted>
 
         <Pressable onPress={() => router.push('/(auth)/create-account')}>
           <Text.Body variant="accent">
@@ -146,8 +145,7 @@ const Login = () => {
       <SnackBar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </SnackBar>
     </ScreenContainer.Centered>

@@ -52,9 +52,9 @@ const calculateUnreadCount = (
   notifications: Notification[],
   profileId: string,
 ) =>
-  notifications.filter((notification) =>
+  notifications.filter(notification =>
     notification.recipients.some(
-      (recipient) =>
+      recipient =>
         recipient.profileId === profileId &&
         recipient.readAt === null,
     ),
@@ -95,11 +95,11 @@ export const useNotificationStore = create<NotificationState>(
       });
     },
 
-    markAllAsRead: (profileId) => {
+    markAllAsRead: profileId => {
       const readAt = new Date().toISOString();
-      const notifications = get().notifications.map((notification) => ({
+      const notifications = get().notifications.map(notification => ({
         ...notification,
-        recipients: notification.recipients.map((recipient) =>
+        recipients: notification.recipients.map(recipient =>
           recipient.profileId === profileId
             ? { ...recipient, readAt: recipient.readAt ?? readAt }
             : recipient,
@@ -109,14 +109,14 @@ export const useNotificationStore = create<NotificationState>(
       set({ notifications, unreadCount: 0 });
     },
 
-    setUnreadCount: (unreadCount) => set({ unreadCount }),
+    setUnreadCount: unreadCount => set({ unreadCount }),
 
     markAsRead: (
       notificationId,
       profileId,
     ) => {
       const notifications = get().notifications.map(
-        (notification) => {
+        notification => {
           if (notification._id !== notificationId) {
             return notification;
           }
@@ -124,7 +124,7 @@ export const useNotificationStore = create<NotificationState>(
           return {
             ...notification,
             recipients:
-              notification.recipients.map((recipient) =>
+              notification.recipients.map(recipient =>
                 recipient.profileId === profileId
                   ? {
                     ...recipient,

@@ -16,14 +16,14 @@ interface DateTimeStore {
   reset: () => void;
 }
 
-export const useDateTimeStore = create<DateTimeStore>((set) => ({
+export const useDateTimeStore = create<DateTimeStore>(set => ({
   startDate: undefined,
   startTime: undefined,
   endTime: undefined,
   recurrenceEndDate: undefined,
 
   setField: (field, value) =>
-    set((state) => ({
+    set(state => ({
       ...state,
       [field]: value,
     })),

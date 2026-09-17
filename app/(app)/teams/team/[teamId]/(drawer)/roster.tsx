@@ -4,7 +4,7 @@ import { FlatList } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
-import { getTeamRoster } from '@/api/teamMembers';
+import { getTeamRoster, TeamRosterMember } from '@/api/teamMembers';
 import PlayerCard from '@/components/PlayerCard';
 import SegmentBar from '@/components/ui/SegmentBar';
 import type { SegmentOption } from '@/components/ui/SegmentBar';
@@ -20,8 +20,8 @@ const rosterFilters: SegmentOption<RosterFilter>[] = [
 const Roster = () => {
   const { getTeamId } = useTeamStore();
 
-  const [roster, setRoster] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [roster, setRoster] = useState<TeamRosterMember[]>([]);
+  const [, setLoading] = useState(false);
   const [filter, setFilter] = useState<RosterFilter>('player');
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
@@ -49,15 +49,14 @@ const Roster = () => {
           if (isActive) {
             setRoster(roster);
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           if (!isActive) {
             return;
           }
 
-          const message =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Failed to load roster';
+          const message = err instanceof Error
+            ? err.message
+            : 'Failed to load roster';
 
           setSnackbar({
             visible: true,
@@ -78,7 +77,7 @@ const Roster = () => {
     }, [filter, teamId]),
   );
 
-  const handleSelectPlayer = (item: any) => {
+  const handleSelectPlayer = (item: TeamRosterMember) => {
     if (!teamId) {
       setSnackbar({
         visible: true,
@@ -101,25 +100,27 @@ const Roster = () => {
     <ScreenContainer>
       <FlatList
         data={roster}
-        keyExtractor={(item: any) => item.profileId}
+        keyExtractor={(item: TeamRosterMember) => item.profileId}
         contentContainerStyle={{
           padding: 16,
           gap: 16,
         }}
-        ListHeaderComponent={
+        ListHeaderComponent={(
           <SegmentBar
             value={filter}
             onValueChange={setFilter}
             options={rosterFilters}
             style={{ marginBottom: 8 }}
           />
-        }
+        )}
         renderItem={({ item }) => (
           <PlayerCard
             firstName={item.firstName || 'Unknown'}
             lastName={item.lastName || 'Player'}
             jerseyNumber={item.jerseyNumber}
-            positions={Array.isArray(item.positions) ? item.positions : typeof item.positions === 'string' ? item.positions.split(',').map((value: string) => value.trim()).filter(Boolean) : []}
+            positions={Array.isArray(item.positions)
+              ? item.positions
+              : item.positions?.split(',').map(value => value.trim()).filter(Boolean) ?? []}
             imageUrl={item.imageUrl || ''}
             onPress={() => handleSelectPlayer(item)}
           />
@@ -129,8 +130,7 @@ const Roster = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

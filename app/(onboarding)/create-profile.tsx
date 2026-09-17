@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { View } from "react-native";
-import ScreenContainer from "@/components/layout/Screen";
-import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
-import { userCreateProfile } from "@/api/profile";
-import { useSessionStore } from "@/hooks/useSessionStore";
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import ScreenContainer from '@/components/layout/Screen';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { userCreateProfile } from '@/api/profile';
+import { useSessionStore } from '@/hooks/useSessionStore';
 import { router } from 'expo-router';
 import AppSnackbar from '@/components/ui/SnackBar';
 import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
@@ -12,8 +12,8 @@ import AvatarPicker, { AvatarFile } from '@/components/avatar/AvatarPicker';
 const CreateProfile = () => {
   const { setProfile } = useSessionStore();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [avatar, setAvatar] = useState<AvatarFile>();
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
@@ -80,8 +80,7 @@ const CreateProfile = () => {
             variant="primary"
             disabled={isDisabled}
             loading={loading}
-            onPress={handleSubmit}
-          >
+            onPress={handleSubmit}>
             Continue
           </Button>
         </View>
@@ -90,8 +89,7 @@ const CreateProfile = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

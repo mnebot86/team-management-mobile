@@ -6,6 +6,7 @@ type TextSubheadingProps = React.ComponentProps<typeof PaperText>;
 
 const TextSubheading = ({ children, style, ...props }: TextSubheadingProps) => {
   const theme = useAppTheme();
+
   return (
     <PaperText
       variant="titleMedium"
@@ -16,8 +17,7 @@ const TextSubheading = ({ children, style, ...props }: TextSubheadingProps) => {
         },
         style,
       ]}
-      {...props}
-    >
+      {...props}>
       {children}
     </PaperText>
   );

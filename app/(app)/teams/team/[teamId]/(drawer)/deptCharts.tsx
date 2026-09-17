@@ -10,10 +10,9 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import { Eye, X } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getFootballFormationCoordinates } from '@/utils/footballFormation';
-
 import {
   getDeptChartFilters,
   getDeptCharts,
@@ -47,7 +46,7 @@ const getInitials = (player: DeptChartPlayer) => {
 const DeptCharts = () => {
   const theme = useAppTheme();
   const safeAreaInsets = useSafeAreaInsets();
-  const teamId = useTeamStore((state) => state.getTeamId());
+  const teamId = useTeamStore(state => state.getTeamId());
 
   const [filters, setFilters] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>();
@@ -81,7 +80,7 @@ const DeptCharts = () => {
 
         setFilters(nextFilters);
         setRoster(players);
-        setSelectedFilter((currentFilter) =>
+        setSelectedFilter(currentFilter =>
           currentFilter && nextFilters.includes(currentFilter)
             ? currentFilter
             : nextFilters[0],
@@ -90,7 +89,7 @@ const DeptCharts = () => {
         if (nextFilters.length === 0) {
           setDeptCharts([]);
         }
-      }).catch((error) => {
+      }).catch(error => {
         if (!isActive) return;
 
         setFilters([]);
@@ -129,10 +128,10 @@ const DeptCharts = () => {
       setDeptCharts([]);
 
       getDeptCharts(teamId, selectedFilter)
-        .then((charts) => {
+        .then(charts => {
           if (isActive) setDeptCharts(charts);
         })
-        .catch((error) => {
+        .catch(error => {
           if (!isActive) return;
 
           setDeptCharts([]);
@@ -161,8 +160,7 @@ const DeptCharts = () => {
           backgroundColor: theme.colors.card.background,
           borderColor: theme.colors.card.border,
         },
-      ]}
-    >
+      ]}>
       <View style={[styles.cardHeader, { borderBottomColor: theme.colors.card.border }]}>
         <View style={styles.positionTitle}>
           <View style={[styles.positionBadge, { backgroundColor: theme.colors.avatar.background }]}>
@@ -177,10 +175,10 @@ const DeptCharts = () => {
         {item.players
           .slice()
           .sort((a, b) => a.depth - b.depth)
-          .map((player) => {
+          .map(player => {
             const isStarter = player.depth === 1;
             const rosterPlayer = roster.find(
-              (item) => item.profileId === player.profileId,
+              item => item.profileId === player.profileId,
             );
             const displayPlayer: DeptChartPlayer = {
               ...player,
@@ -216,8 +214,7 @@ const DeptCharts = () => {
                         ? theme.colors.segment.selectedBackground
                         : theme.colors.primary,
                     },
-                  ]}
-                >
+                  ]}>
                   {imageUrl ? (
                     <Image
                       source={{ uri: imageUrl }}
@@ -230,8 +227,7 @@ const DeptCharts = () => {
                         color: isStarter
                           ? theme.colors.segment.selectedText
                           : theme.colors.auth.headerText,
-                      }}
-                    >
+                      }}>
                       {getInitials(displayPlayer)}
                     </Text.Body>
                   )}
@@ -266,8 +262,7 @@ const DeptCharts = () => {
               backgroundColor: theme.colors.card.background,
               borderColor: theme.colors.card.border,
             },
-          ]}
-        >
+          ]}>
           <Text.Subheading>{item.name}</Text.Subheading>
           <Text.Body variant="muted" style={styles.emptyMessage}>
             This formation does not have any positions.
@@ -315,7 +310,7 @@ const DeptCharts = () => {
     <ScreenContainer>
       <FlatList
         data={deptCharts}
-        keyExtractor={(item) => item._id}
+        keyExtractor={item => item._id}
         renderItem={renderDeptChart}
         contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={styles.cardGap} />}
@@ -323,9 +318,8 @@ const DeptCharts = () => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.tabs}
-          >
-            {filters.map((filter) => {
+            contentContainerStyle={styles.tabs}>
+            {filters.map(filter => {
               const isSelected = filter === selectedFilter;
 
               return (
@@ -345,8 +339,7 @@ const DeptCharts = () => {
                         : theme.colors.segment.border,
                       opacity: pressed ? 0.75 : 1,
                     },
-                  ]}
-                >
+                  ]}>
                   <Text.Body
                     style={[
                       styles.tabText,
@@ -355,8 +348,7 @@ const DeptCharts = () => {
                           ? theme.colors.segment.selectedText
                           : theme.colors.segment.text,
                       },
-                    ]}
-                  >
+                    ]}>
                     {filter}
                   </Text.Body>
                 </Pressable>
@@ -381,8 +373,7 @@ const DeptCharts = () => {
       <AppSnackbar
         visible={snackbar.visible}
         variant="error"
-        onDismiss={() => setSnackbar({ visible: false, message: '' })}
-      >
+        onDismiss={() => setSnackbar({ visible: false, message: '' })}>
         {snackbar.message}
       </AppSnackbar>
 
@@ -390,12 +381,10 @@ const DeptCharts = () => {
         visible={Boolean(viewingChart)}
         animationType="slide"
         presentationStyle="fullScreen"
-        onRequestClose={closeFormation}
-      >
+        onRequestClose={closeFormation}>
         <SafeAreaView
           edges={['top', 'bottom', 'left', 'right']}
-          style={[styles.viewer, { backgroundColor: theme.colors.screen.background }]}
-        >
+          style={[styles.viewer, { backgroundColor: theme.colors.screen.background }]}>
           <View style={[styles.viewerHeader, { top: safeAreaInsets.top + 10 }]}>
             <View style={styles.viewerTitleContainer}>
               <Text.Subheading numberOfLines={1} style={styles.viewerTitle}>
@@ -414,8 +403,7 @@ const DeptCharts = () => {
                   backgroundColor: theme.colors.avatar.background,
                   opacity: pressed ? 0.7 : 1,
                 },
-              ]}
-            >
+              ]}>
               <X size={24} color={theme.colors.icon.primary} />
             </Pressable>
           </View>
@@ -433,7 +421,7 @@ const DeptCharts = () => {
               {viewingPositions.map((position, positionIndex) => {
                 const coordinate = formationCoordinates.get(position) ?? { x: 50, y: 50 };
                 const player = position.players.slice().sort((a, b) => a.depth - b.depth)[0];
-                const rosterPlayer = roster.find((item) => item.profileId === player?.profileId);
+                const rosterPlayer = roster.find(item => item.profileId === player?.profileId);
 
                 const displayPlayer: DeptChartPlayer | undefined = player ? {
                   ...player,
@@ -441,6 +429,13 @@ const DeptCharts = () => {
                   lastName: player.lastName ?? rosterPlayer?.lastName,
                   jerseyNumber: player.jerseyNumber ?? rosterPlayer?.jerseyNumber,
                 } : undefined;
+                let fieldLabel = position.shortName;
+
+                if (displayPlayer?.jerseyNumber !== undefined) {
+                  fieldLabel = `#${displayPlayer.jerseyNumber}`;
+                } else if (displayPlayer) {
+                  fieldLabel = getInitials(displayPlayer);
+                }
 
                 return (
                   <View
@@ -448,17 +443,14 @@ const DeptCharts = () => {
                     style={[
                       styles.fieldPlayer,
                       { left: `${coordinate.x}%`, top: `${coordinate.y}%` },
-                    ]}
-                  >
+                    ]}>
                     <View style={[styles.fieldAvatarRing, { borderColor: theme.colors.accent }]}>
                       <View style={[styles.fieldAvatar, { backgroundColor: theme.colors.card.background }]}>
                         {rosterPlayer?.imageUrl ? (
                           <Image source={{ uri: rosterPlayer.imageUrl }} style={styles.avatarImage} />
                         ) : (
                           <Text.Body style={styles.fieldInitials}>
-                            {displayPlayer?.jerseyNumber !== undefined
-                              ? `#${displayPlayer.jerseyNumber}`
-                              : displayPlayer ? getInitials(displayPlayer) : position.shortName}
+                            {fieldLabel}
                           </Text.Body>
                         )}
                       </View>

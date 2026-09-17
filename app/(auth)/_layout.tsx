@@ -26,7 +26,8 @@ export default function AuthLayout() {
             onBackPress={() => navigation.goBack()}
           />
         ),
-      }} />
+      }}
+      />
       <Stack.Screen name="reset-password" options={{
         header: ({ navigation }) => (
           <AppHeader
@@ -35,7 +36,8 @@ export default function AuthLayout() {
             onBackPress={() => navigation.replace('login')}
           />
         ),
-      }} />
+      }}
+      />
     </Stack>
   );
 }

@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Pressable, SectionList, StyleSheet, View } from 'react-native';
-
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-
 import { getTeamInviteCodes } from '@/api/teams';
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
@@ -45,6 +43,15 @@ const CodeCard = ({
   onToggleStatus,
 }: CodeCardProps) => {
   const theme = useAppTheme();
+  let statusBackground = 'rgba(239,68,68,0.12)';
+
+  if (active) {
+    statusBackground = theme.dark
+      ? 'rgba(34,197,94,0.18)'
+      : 'rgba(34,197,94,0.12)';
+  } else if (theme.dark) {
+    statusBackground = 'rgba(239,68,68,0.18)';
+  }
 
   const handleCopyCode = async () => {
     await Clipboard.setStringAsync(code);
@@ -60,8 +67,7 @@ const CodeCard = ({
           backgroundColor: theme.colors.surface,
         },
       ]}
-      elevation={1}
-    >
+      elevation={1}>
       <View style={styles.card}>
         <View style={styles.cardTitle}>
           <View>
@@ -73,8 +79,7 @@ const CodeCard = ({
                 {
                   backgroundColor: theme.colors.surfaceVariant,
                 },
-              ]}
-            >
+              ]}>
               <Text.Caption>{role}</Text.Caption>
             </View>
           </View>
@@ -82,25 +87,15 @@ const CodeCard = ({
           <View
             style={[
               styles.statusPill,
-              {
-                backgroundColor: active
-                  ? theme.dark
-                    ? 'rgba(34,197,94,0.18)'
-                    : 'rgba(34,197,94,0.12)'
-                  : theme.dark
-                    ? 'rgba(239,68,68,0.18)'
-                    : 'rgba(239,68,68,0.12)',
-              },
-            ]}
-          >
+              { backgroundColor: statusBackground },
+            ]}>
             <Text.Caption
               style={{
                 color: active
                   ? theme.colors.primary
                   : theme.colors.error,
                 fontWeight: '600',
-              }}
-            >
+              }}>
               {active ? 'Active' : 'Inactive'}
             </Text.Caption>
           </View>
@@ -110,16 +105,14 @@ const CodeCard = ({
           <Text.Caption
             style={{
               color: theme.colors.onSurfaceVariant,
-            }}
-          >
+            }}>
             Uses {usedCount} / {maxUses}
           </Text.Caption>
 
           <Text.Caption
             style={{
               color: theme.colors.onSurfaceVariant,
-            }}
-          >
+            }}>
             Expires{' '}
             {expiresAt
               ? dayjs(expiresAt).format('MMM DD, YYYY')
@@ -130,8 +123,7 @@ const CodeCard = ({
         <Text.Caption
           style={{
             color: theme.colors.onSurfaceVariant,
-          }}
-        >
+          }}>
           Created {dayjs(createdAt).format('MMM DD, YYYY')}
         </Text.Caption>
       </View>
@@ -142,8 +134,7 @@ const CodeCard = ({
           {
             borderTopColor: theme.colors.outlineVariant,
           },
-        ]}
-      >
+        ]}>
         <Pressable
           onPress={onToggleStatus}
           style={({ pressed }) => [
@@ -156,13 +147,11 @@ const CodeCard = ({
                 ? theme.colors.surfaceVariant
                 : 'transparent',
             },
-          ]}
-        >
+          ]}>
           <Text.Body
             style={{
               color: theme.colors.error,
-            }}
-          >
+            }}>
             {active ? 'Deactivate' : 'Activate'}
           </Text.Body>
         </Pressable>
@@ -177,13 +166,11 @@ const CodeCard = ({
                 ? theme.colors.surfaceVariant
                 : 'transparent',
             },
-          ]}
-        >
+          ]}>
           <Text.Body
             style={{
               color: theme.colors.onSurfaceVariant,
-            }}
-          >
+            }}>
             Copy Code
           </Text.Body>
         </Pressable>
@@ -216,10 +203,10 @@ const InviteCodeScreen = () => {
     try {
       const updatedInvite = await updateInviteCodeStatus(inviteId);
 
-      setSections((prev) => {
-        const invites = prev.flatMap((section) => section.data);
+      setSections(prev => {
+        const invites = prev.flatMap(section => section.data);
 
-        const updatedInvites = invites.map((invite) =>
+        const updatedInvites = invites.map(invite =>
           invite._id === inviteId
             ? {
               ...invite,
@@ -229,11 +216,11 @@ const InviteCodeScreen = () => {
         );
 
         const activeInvites = updatedInvites.filter(
-          (invite) => invite.active,
+          invite => invite.active,
         );
 
         const inactiveInvites = updatedInvites.filter(
-          (invite) => !invite.active,
+          invite => !invite.active,
         );
 
         return [
@@ -256,7 +243,7 @@ const InviteCodeScreen = () => {
     <ScreenContainer>
       <SectionList
         sections={sections}
-        keyExtractor={(item) => item._id}
+        keyExtractor={item => item._id}
         contentContainerStyle={styles.content}
         renderSectionHeader={({ section }) => (
           <Text.Label style={styles.header}>
@@ -275,8 +262,7 @@ const InviteCodeScreen = () => {
       <Snackbar
         visible={snackbarVisible}
         duration={2000}
-        onDismiss={() => setSnackbarVisible(false)}
-      >
+        onDismiss={() => setSnackbarVisible(false)}>
         Invite code copied to clipboard.
       </Snackbar>
     </ScreenContainer>

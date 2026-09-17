@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import { getTeamMember } from '@/api/teamMembers';
@@ -10,6 +9,18 @@ import { getPlayerAttendanceRecord } from '@/api/schedule';
 import SnackBar from '@/components/ui/SnackBar';
 import { AttendanceCard } from '@/components/AttendenceCard';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import type { AppTheme } from '@/themes/theme';
+
+type PlayerDetailsData = {
+  firstName: string;
+  lastName: string;
+  positions?: string[] | string;
+  jerseyNumber?: string | number | null;
+  avatar?: string | null;
+  imageUrl?: string | null;
+  isClaimed?: boolean;
+  linkCode?: string;
+};
 
 const PlayerDetails = () => {
   const theme = useAppTheme();
@@ -21,7 +32,7 @@ const PlayerDetails = () => {
   const { playerId, teamId } = useLocalSearchParams();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [player, setPlayer] = useState<any>(null);
+  const [player, setPlayer] = useState<PlayerDetailsData | null>(null);
   const [attendance, setAttendance] = useState({
     present: 0,
     late: 0,
@@ -30,14 +41,17 @@ const PlayerDetails = () => {
   });
   const [error, setError] = useState('');
 
-  const positionLabels = Array.isArray(player?.positions)
-    ? player.positions.filter((value: unknown) => typeof value === 'string' && value.trim() !== '')
-    : typeof player?.positions === 'string'
-      ? player.positions.split(',').map((value: string) => value.trim()).filter(Boolean)
-      : [];
+  let positionLabels: string[] = [];
+
+  if (Array.isArray(player?.positions)) {
+    positionLabels = player.positions.filter(value => value.trim() !== '');
+  } else if (typeof player?.positions === 'string') {
+    positionLabels = player.positions.split(',').map(value => value.trim()).filter(Boolean);
+  }
   const positionInitials = positionLabels.map((position: string) => {
     if (/^[A-Z0-9]{1,4}$/.test(position)) return position;
-    return position.split(/[\s/-]+/).filter(Boolean).map((word) => word[0]).join('').toUpperCase();
+
+    return position.split(/[\s/-]+/).filter(Boolean).map(word => word[0]).join('').toUpperCase();
   });
   const hasJerseyNumber = player?.jerseyNumber !== null
     && player?.jerseyNumber !== undefined
@@ -52,6 +66,7 @@ const PlayerDetails = () => {
         if (!playerId || !teamId) {
           setError('Missing player or team information');
           setIsLoading(false);
+
           return;
         }
 
@@ -61,11 +76,10 @@ const PlayerDetails = () => {
 
           setPlayer(response);
           setAttendance(attendanceRecord);
-        } catch (err: any) {
-          const message =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Failed to load player details';
+        } catch (err: unknown) {
+          const message = err instanceof Error
+            ? err.message
+            : 'Failed to load player details';
 
           setError(message);
         } finally {
@@ -106,7 +120,7 @@ const PlayerDetails = () => {
           <View style={styles.avatarContainer}>
             {(player?.avatar || player?.imageUrl) ? (
               <Image
-                source={{ uri: player?.avatar || player?.imageUrl }}
+                source={{ uri: player?.avatar || player?.imageUrl || undefined }}
                 style={styles.avatarImage}
                 resizeMode="cover"
               />
@@ -127,8 +141,7 @@ const PlayerDetails = () => {
                 {positionInitials.map((position: string, index: number) => (
                   <View
                     key={`${position}-${index}`}
-                    style={[styles.positionBadge, { backgroundColor: colors.avatar.background, borderColor: colors.avatar.border }]}
-                  >
+                    style={[styles.positionBadge, { backgroundColor: colors.avatar.background, borderColor: colors.avatar.border }]}>
                     <Text.Caption style={[styles.positionBadgeText, { color: colors.onSurface }]}>{position}</Text.Caption>
                   </View>
                 ))}
@@ -191,7 +204,7 @@ const PlayerDetails = () => {
   );
 };
 
-const createStyles = (colors: any) =>
+const createStyles = (colors: AppTheme['colors']) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: 16,

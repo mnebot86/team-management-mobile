@@ -31,7 +31,7 @@ export const TeamDashboardLayout = () => {
           drawerLabel: 'Roster',
           header: ({ navigation }) => (
             <AppHeader
-              title='Roster'
+              title="Roster"
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
                 <IconButton
@@ -54,7 +54,7 @@ export const TeamDashboardLayout = () => {
           drawerLabel: 'Schedule',
           header: ({ navigation }) => (
             <AppHeader
-              title='Schedule'
+              title="Schedule"
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
                 <IconButton
@@ -77,7 +77,7 @@ export const TeamDashboardLayout = () => {
           drawerLabel: 'Plans',
           header: ({ navigation }) => (
             <AppHeader
-              title='Plans'
+              title="Plans"
               onMenuPress={() => navigation.toggleDrawer()}
               headerContent={(
                 <IconButton
@@ -100,7 +100,7 @@ export const TeamDashboardLayout = () => {
           drawerLabel: 'Dept Charts',
           header: ({ navigation }) => (
             <AppHeader
-              title='Dept Charts'
+              title="Dept Charts"
               onMenuPress={() => navigation.toggleDrawer()}
             />
           ),
@@ -113,7 +113,7 @@ export const TeamDashboardLayout = () => {
           drawerLabel: 'Settings',
           header: ({ navigation }) => (
             <AppHeader
-              title='Settings'
+              title="Settings"
               onMenuPress={() => navigation.toggleDrawer()}
             />
           ),
@@ -121,6 +121,6 @@ export const TeamDashboardLayout = () => {
       />
     </Drawer>
   );
-}
+};
 
 export default TeamDashboardLayout;

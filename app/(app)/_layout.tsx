@@ -32,6 +32,7 @@ export default function AuthLayout() {
     if (!profile?._id || unreadCount === 0 || markingAllRead) return;
 
     setMarkingAllRead(true);
+
     try {
       await markAllNotificationsRead();
       markAllAsRead(profile._id);
@@ -95,7 +96,7 @@ export default function AuthLayout() {
         socket.off('notification:read', handleNotificationRead);
         socket.off('notifications:read-all', handleAllRead);
       };
-    } catch (error) {
+    } catch {
       console.warn('Socket has not been initialized.');
     }
   }, [
@@ -177,8 +178,7 @@ export default function AuthLayout() {
                   disabled={markingAllRead}
                   onPress={handleMarkAllRead}
                   hitSlop={12}
-                  style={{ opacity: markingAllRead ? 0.5 : 1, padding: 4 }}
-                >
+                  style={{ opacity: markingAllRead ? 0.5 : 1, padding: 4 }}>
                   <Text.Body style={{ fontWeight: '700' }}>Read all</Text.Body>
                 </Pressable>
               ) : null}
@@ -195,8 +195,7 @@ export default function AuthLayout() {
               {unreadCount > 0 && (
                 <Badge
                   size={18}
-                  style={styles.badge}
-                >
+                  style={styles.badge}>
                   {unreadCount > 99
                     ? '99+'
                     : unreadCount}

@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Button, useTheme } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { DateTimeField, useDateTimeStore } from '@/hooks/useDateTimeStore';
-
 import Screen from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 
 export default function PickDateModal() {
-  const theme = useTheme();
 
   const { mode, value, field } = useLocalSearchParams<{
     mode?: string;
@@ -17,7 +15,7 @@ export default function PickDateModal() {
     field?: DateTimeField;
   }>();
 
-  const setField = useDateTimeStore((state) => state.setField);
+  const setField = useDateTimeStore(state => state.setField);
 
   const [selectedDate, setSelectedDate] = useState(
     value ? new Date(value) : new Date()
@@ -50,8 +48,7 @@ export default function PickDateModal() {
             }
 
             router.back();
-          }}
-        >
+          }}>
           Done
         </Button>
       </View>

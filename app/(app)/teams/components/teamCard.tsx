@@ -17,8 +17,9 @@ type TeamCardProps = {
   empty?: boolean;
 };
 
-const TeamCard = ({ team, onPress, empty }: TeamCardProps) => {
+const TeamCard = ({ team, onPress }: TeamCardProps) => {
   const theme = useAppTheme();
+
   return (
     <Pressable
       style={[
@@ -28,8 +29,7 @@ const TeamCard = ({ team, onPress, empty }: TeamCardProps) => {
           borderColor: theme.colors.card.border,
         },
       ]}
-      onPress={onPress}
-    >
+      onPress={onPress}>
       <View style={styles.leftSection}>
         <View
           style={[
@@ -38,8 +38,7 @@ const TeamCard = ({ team, onPress, empty }: TeamCardProps) => {
               backgroundColor: theme.colors.avatar.background,
               borderColor: theme.colors.avatar.border,
             },
-          ]}
-        >
+          ]}>
           <MaterialIcons
             name="groups"
             size={28}

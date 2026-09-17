@@ -7,7 +7,6 @@ export default function Index() {
   const user = getUser();
   const profile = getProfile();
 
-
   if (!user) return <Redirect href="/(auth)/login" />;
   if (user && !profile) return <Redirect href="/(onboarding)/create-profile" />;
 
@@ -16,6 +15,6 @@ export default function Index() {
   //   return <Redirect href="/(onboarding)/welcome" />;
   // }
 
-  // return <Redirect href="/(app)/dashboard" />; 
+  // return <Redirect href="/(app)/dashboard" />;
   return <Redirect href="/(app)/teams" />; //Until dashboard is finish
 }

@@ -8,7 +8,7 @@ export default function EditScheduleModal() {
     teamId,
     scheduleId,
     schedule: raw,
-    editScope
+    editScope,
   } = useLocalSearchParams<{ teamId: string; scheduleId: string; schedule: string; editScope?: 'occurrence' | 'series' }>();
 
   const schedule = useMemo(() => {
@@ -27,7 +27,7 @@ export default function EditScheduleModal() {
       pathname: '/(app)/teams/team/[teamId]/(drawer)/schedule',
       params: { teamId },
     });
-  }, [router, teamId]);
+  }, [teamId]);
 
   return (
     <ScreenContainer.Scroll>
@@ -38,5 +38,6 @@ export default function EditScheduleModal() {
         editScope={editScope}
         onSuccess={handleSuccess}
       />
-    </ScreenContainer.Scroll>);
+    </ScreenContainer.Scroll>
+  );
 }

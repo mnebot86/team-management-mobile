@@ -13,7 +13,7 @@ interface BottomSheetProps {
 export const BottomSheet = ({
   visible,
   onClose,
-  title,
+  title: _title,
   children,
 }: BottomSheetProps) => {
   const theme = useAppTheme();
@@ -31,8 +31,7 @@ export const BottomSheet = ({
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           minHeight: 320,
-        }}
-      >
+        }}>
         <View
           style={{
             width: 48,
@@ -49,6 +48,6 @@ export const BottomSheet = ({
       </Modal>
     </Portal>
   );
-}
+};
 
 export default BottomSheet;

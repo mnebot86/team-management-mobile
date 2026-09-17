@@ -16,17 +16,17 @@ type PlayerCardProps = {
 const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, onPress }: PlayerCardProps) => {
   const theme = useAppTheme();
   const colors = theme.colors;
-  const styles = createStyles(colors);
+  const styles = createStyles();
 
   const displayPositions = (positions ?? []).filter(Boolean);
-  const positionInitials = displayPositions.map((position) => {
+  const positionInitials = displayPositions.map(position => {
     const trimmed = position.trim();
     if (/^[A-Z0-9]{1,4}$/.test(trimmed)) return trimmed;
 
     return trimmed
       .split(/[\s/-]+/)
       .filter(Boolean)
-      .map((word) => word[0])
+      .map(word => word[0])
       .join('')
       .toUpperCase();
   }).filter(Boolean);
@@ -43,8 +43,7 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
           borderColor: colors.card.border,
         },
       ]}
-      onPress={onPress}
-    >
+      onPress={onPress}>
       <View style={styles.leftSection}>
         <View
           style={[
@@ -53,8 +52,7 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
               backgroundColor: colors.avatar.background,
               borderColor: colors.avatar.border,
             },
-          ]}
-        >
+          ]}>
           {imageUrl ? (
             <Image
               source={{ uri: imageUrl }}
@@ -82,8 +80,7 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
                   style={[
                     styles.positionBadge,
                     { backgroundColor: colors.avatar.background, borderColor: colors.avatar.border },
-                  ]}
-                >
+                  ]}>
                   <Text.Caption style={[styles.positionBadgeText, { color: colors.text.primary }]}>
                     {position}
                   </Text.Caption>
@@ -97,7 +94,7 @@ const PlayerCard = ({ firstName, lastName, jerseyNumber, positions, imageUrl, on
   );
 };
 
-const createStyles = (colors: any) =>
+const createStyles = () =>
   StyleSheet.create({
     card: {
       flexDirection: 'row',

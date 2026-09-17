@@ -14,6 +14,7 @@ import {
   getNextPractice,
   getTeamAttendance,
   getTeamStats,
+  ScheduleOccurrence,
 } from '@/api/schedule';
 import EventCard from '@/components/EventCard';
 import { AttendanceCard } from '@/components/AttendenceCard';
@@ -26,9 +27,9 @@ const TeamDetails = () => {
 
   const [loading, setLoading] = useState(false);
   const [team, setTeam] = useState<ITeam | null>(null);
-  const [nextPractice, setNextPractice] = useState<any>(null);
-  const [nextGame, setNextGame] = useState<any>(null);
-  const [lastPracticeAttendance, setLastPracticeAttendance] = useState({
+  const [nextPractice, setNextPractice] = useState<ScheduleOccurrence | null>(null);
+  const [nextGame, setNextGame] = useState<ScheduleOccurrence | null>(null);
+  const [, setLastPracticeAttendance] = useState({
     present: 0,
     absent: 0,
     total: 0,
@@ -48,15 +49,15 @@ const TeamDetails = () => {
     winRate: 0,
   });
 
-  const [rosterCount, setRosterCount] = useState(0);
+  const [, setRosterCount] = useState(0);
   const [error, setError] = useState('');
 
   // Is this Needed?
-  const invalidationVersion = useScheduleInvalidationStore((state) =>
+  const invalidationVersion = useScheduleInvalidationStore(state =>
     typeof teamId === 'string' ? state.versions[teamId] ?? 0 : 0,
   );
 
-  const handleOpenSchedule = useCallback((schedule: any) => {
+  const handleOpenSchedule = useCallback((schedule: ScheduleOccurrence) => {
     if (!teamId || !schedule?.scheduleId) {
       return;
     }
@@ -69,7 +70,7 @@ const TeamDetails = () => {
         schedule: JSON.stringify(schedule),
       },
     });
-  }, [teamId, router]);
+  }, [teamId]);
 
   const loadTeamDetails = useCallback(() => {
     if (!teamId) return;
@@ -99,11 +100,10 @@ const TeamDetails = () => {
         });
         setTeamStats(stats);
       })
-      .catch((error: any) => {
-        const message =
-          error?.response?.data?.message ||
-          error?.message ||
-          'Failed to load team data';
+      .catch((error: unknown) => {
+        const message = error instanceof Error
+          ? error.message
+          : 'Failed to load team data';
 
         setError(message);
       })
@@ -198,8 +198,7 @@ const TeamDetails = () => {
       {!!error && (
         <SnackBar
           visible={true}
-          onDismiss={() => setError('')}
-        >
+          onDismiss={() => setError('')}>
           {error}
         </SnackBar>
       )}

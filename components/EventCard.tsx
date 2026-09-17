@@ -129,18 +129,28 @@ export const EventCard = ({
   const isCancelled = data.status === 'cancelled';
   const teamScore = data.isHomeGame ? data.homeScore : data.awayScore;
   const opponentScore = data.isHomeGame ? data.awayScore : data.homeScore;
-  const calculatedOutcome = teamScore != null && opponentScore != null
-    ? teamScore > opponentScore ? 'win' : teamScore < opponentScore ? 'loss' : 'draw'
-    : null;
+  let calculatedOutcome: 'win' | 'loss' | 'draw' | null = null;
+
+  if (teamScore != null && opponentScore != null) {
+    if (teamScore > opponentScore) {
+      calculatedOutcome = 'win';
+    } else if (teamScore < opponentScore) {
+      calculatedOutcome = 'loss';
+    } else {
+      calculatedOutcome = 'draw';
+    }
+  }
   const outcome = data.gameOutcome && data.gameOutcome !== 'pending'
     ? data.gameOutcome
     : calculatedOutcome;
   const outcomeLabel = outcome?.toUpperCase() ?? 'RESULT PENDING';
-  const outcomeColor = outcome === 'win'
-    ? colors.status.success
-    : outcome === 'loss'
-      ? colors.status.error
-      : colors.text.primary;
+  let outcomeColor = colors.text.primary;
+
+  if (outcome === 'win') {
+    outcomeColor = colors.status.success;
+  } else if (outcome === 'loss') {
+    outcomeColor = colors.status.error;
+  }
 
   return (
     <Pressable onPress={onPress}>
@@ -150,8 +160,7 @@ export const EventCard = ({
           { backgroundColor: colors.card.background },
           isCancelled && { opacity: 0.65 },
         ]}
-        mode="elevated"
-      >
+        mode="elevated">
         <View style={styles.container}>
           <View style={styles.content}>
             <View style={styles.headerRow}>
@@ -161,8 +170,7 @@ export const EventCard = ({
 
               <Chip
                 compact
-                style={{ backgroundColor: config.chipBackground, height: 32 }}
-              >
+                style={{ backgroundColor: config.chipBackground, height: 32 }}>
                 {config.label}
               </Chip>
 
@@ -189,8 +197,7 @@ export const EventCard = ({
             <Pressable
               onPress={handleOpenMaps}
               disabled={!address}
-              style={styles.infoRow}
-            >
+              style={styles.infoRow}>
               <MapPin size={18} color={colors.text.secondary} />
 
               <Text.Body
@@ -200,8 +207,7 @@ export const EventCard = ({
                     color: colors.primary,
                     textDecorationLine: address ? 'underline' : 'none',
                   },
-                ]}
-              >
+                ]}>
                 {location}
               </Text.Body>
             </Pressable>

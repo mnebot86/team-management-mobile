@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Pressable } from "react-native";
-import ScreenContainer from "@/components/layout/Screen";
-import Text from "@/components/ui/Text";
-import { useTheme } from "react-native-paper";
-import AppIcon from "@/components/AppIcon";
-import { router } from "expo-router";
+import React from 'react';
+import { View, Pressable } from 'react-native';
+import ScreenContainer from '@/components/layout/Screen';
+import Text from '@/components/ui/Text';
+import { useTheme } from 'react-native-paper';
+import AppIcon from '@/components/AppIcon';
+import { router } from 'expo-router';
 
 const WelcomeScreen = () => {
   const theme = useTheme();
@@ -18,23 +18,21 @@ const WelcomeScreen = () => {
             backgroundColor: theme.colors.surface,
             borderRadius: 20,
             padding: 20,
-            shadowColor: "#000",
+            shadowColor: '#000',
             shadowOpacity: 0.1,
             shadowRadius: 10,
             elevation: 3,
-          }}
-        >
+          }}>
           <View style={{ gap: 16 }}>
             <View
               style={{
                 width: 64,
                 height: 64,
                 borderRadius: 16,
-                backgroundColor: theme.colors.primary + "33",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+                backgroundColor: theme.colors.primary + '33',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               <AppIcon name="account-group-outline" size={32} variant="accent" />
             </View>
 
@@ -49,28 +47,26 @@ const WelcomeScreen = () => {
         </Pressable>
 
         <Pressable
-          onPress={() => router.push("/(app)/teams")}
+          onPress={() => router.push('/(app)/teams')}
           style={{
             backgroundColor: theme.colors.surface,
             borderRadius: 20,
             padding: 20,
-            shadowColor: "#000",
+            shadowColor: '#000',
             shadowOpacity: 0.1,
             shadowRadius: 10,
             elevation: 3,
-          }}
-        >
+          }}>
           <View style={{ gap: 16 }}>
             <View
               style={{
                 width: 64,
                 height: 64,
                 borderRadius: 16,
-                backgroundColor: theme.colors.surfaceVariant || "#eee",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+                backgroundColor: theme.colors.surfaceVariant || '#eee',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               <AppIcon name="account-plus-outline" size={32} variant="default" />
             </View>
 

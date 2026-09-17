@@ -9,7 +9,6 @@ import { useFocusEffect } from 'expo-router';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Snackbar, Surface } from 'react-native-paper';
-
 import {
   getNotifications as fetchNotifications,
   markNotificationRead,
@@ -29,22 +28,22 @@ const Notifications = () => {
   const theme = useAppTheme();
   const styles = createStyles(theme.colors);
   const notifications = useNotificationStore(
-    (state) => state.notifications,
+    state => state.notifications,
   );
 
   const setNotifications = useNotificationStore(
-    (state) => state.setNotifications,
+    state => state.setNotifications,
   );
 
   const markAsRead = useNotificationStore(
-    (state) => state.markAsRead,
+    state => state.markAsRead,
   );
 
   const profile = useSessionStore(
-    (state) => state.profile,
+    state => state.profile,
   );
 
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
     visible: false,
@@ -64,11 +63,10 @@ const Notifications = () => {
           const data = await fetchNotifications();
 
           setNotifications(data, profile._id);
-        } catch (err: any) {
-          const message =
-            err?.response?.data?.message ||
-            err?.message ||
-            'Failed to load notifications';
+        } catch (err: unknown) {
+          const message = err instanceof Error
+            ? err.message
+            : 'Failed to load notifications';
 
           setSnackbar({
             visible: true,
@@ -109,7 +107,7 @@ const Notifications = () => {
   };
 
   const isUnread = (notification: Notification) => Boolean(profile?._id && notification.recipients.some(
-    (recipient) => recipient.profileId === profile._id && recipient.readAt === null,
+    recipient => recipient.profileId === profile._id && recipient.readAt === null,
   ));
 
   const renderItem = ({
@@ -120,27 +118,26 @@ const Notifications = () => {
     const unread = isUnread(item);
 
     return (
-    <Pressable onPress={() => unread && handleNotificationPress(item._id)}>
-      <Surface
-        elevation={0}
-        style={[styles.card, unread && styles.unreadCard]}
-      >
-        {unread && <View style={styles.unreadMarker} />}
-        <View style={styles.content}>
-          <Text.Subheading style={unread ? styles.unreadTitle : undefined}>
-            {item.title}
-          </Text.Subheading>
+      <Pressable onPress={() => unread && handleNotificationPress(item._id)}>
+        <Surface
+          elevation={0}
+          style={[styles.card, unread && styles.unreadCard]}>
+          {unread && <View style={styles.unreadMarker} />}
+          <View style={styles.content}>
+            <Text.Subheading style={unread ? styles.unreadTitle : undefined}>
+              {item.title}
+            </Text.Subheading>
 
-          <Text.Body style={styles.message}>
-            {item.message}
-          </Text.Body>
+            <Text.Body style={styles.message}>
+              {item.message}
+            </Text.Body>
 
-          <Text.Caption>
-            {dayjs(item.createdAt).fromNow()}
-          </Text.Caption>
-        </View>
-      </Surface>
-    </Pressable>
+            <Text.Caption>
+              {dayjs(item.createdAt).fromNow()}
+            </Text.Caption>
+          </View>
+        </Surface>
+      </Pressable>
     );
   };
 
@@ -148,7 +145,7 @@ const Notifications = () => {
     <ScreenContainer>
       <FlatList
         data={notifications}
-        keyExtractor={(item) => item._id}
+        keyExtractor={item => item._id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -161,8 +158,7 @@ const Notifications = () => {
             visible: false,
             message: '',
           })
-        }
-      >
+        }>
         {snackbar.message}
       </Snackbar>
     </ScreenContainer>

@@ -7,7 +7,7 @@ import AppSnackbar from '@/components/ui/SnackBar';
 import { useTeamStore } from '@/hooks/useTeamStore';
 import EventCard from '@/components/EventCard';
 import Text from '@/components/ui/Text';
-import { getTeamSchedule } from '@/api/schedule';
+import { getTeamSchedule, ScheduleOccurrence, ScheduleSection } from '@/api/schedule';
 import { getSocket } from '@/socket';
 import SegmentBar from '@/components/ui/SegmentBar';
 import type { SegmentOption } from '@/components/ui/SegmentBar';
@@ -37,16 +37,16 @@ const Schedule = () => {
 
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [sections, setSections] = useState<any[]>([]);
+  const [sections, setSections] = useState<ScheduleSection[]>([]);
   const [period, setPeriod] = useState<SchedulePeriod>('upcoming');
   const [type, setType] = useState<ScheduleTypeFilter>('all');
   const activeRequestKey = useRef('');
 
   const teamId = getTeamId();
   const invalidationVersion = useScheduleInvalidationStore(
-    (state) => teamId ? state.versions[teamId] ?? 0 : 0,
+    state => teamId ? state.versions[teamId] ?? 0 : 0,
   );
-  const invalidateTeamSchedule = useScheduleInvalidationStore((state) => state.invalidateTeamSchedule);
+  const invalidateTeamSchedule = useScheduleInvalidationStore(state => state.invalidateTeamSchedule);
   const queryKey = useMemo(
     () => teamId ? scheduleQueryKey(teamId, period, type).join(':') : '',
     [period, teamId, type],
@@ -57,6 +57,7 @@ const Schedule = () => {
 
     const isNewQuery = activeRequestKey.current !== queryKey;
     activeRequestKey.current = queryKey;
+
     try {
       setLoading(true);
       setHasError(false);
@@ -107,7 +108,7 @@ const Schedule = () => {
         recurrenceGroupId?: string | null;
       }) => {
         if (!shouldRefetchForScheduleSocket(event.teamId, teamId)) return;
-        setSections((current) => removeDeletedSchedules(current, event));
+        setSections(current => removeDeletedSchedules(current, event));
         invalidateTeamSchedule(teamId);
       };
 
@@ -125,13 +126,12 @@ const Schedule = () => {
     }
   }, [invalidateTeamSchedule, teamId]);
 
-
   const [snackbar, setSnackbar] = useState<{ visible: boolean; message: string }>({
     visible: false,
     message: '',
   });
 
-  const handleOnSchedulePress = (schedule: any) => {
+  const handleOnSchedulePress = (schedule: ScheduleOccurrence) => {
     if (!teamId) return;
 
     router.push({
@@ -148,12 +148,12 @@ const Schedule = () => {
     <ScreenContainer>
       <SectionList
         sections={sections}
-        keyExtractor={(item) => scheduleOccurrenceKey(item)}
+        keyExtractor={item => scheduleOccurrenceKey(item)}
         contentContainerStyle={{
           padding: 16,
           paddingBottom: 32,
         }}
-        ListHeaderComponent={
+        ListHeaderComponent={(
           <View style={{ gap: 12, marginBottom: 8 }}>
             <SegmentBar
               value={period}
@@ -166,9 +166,8 @@ const Schedule = () => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8, paddingRight: 16 }}
-            >
-              {scheduleTypes.map((option) => {
+              contentContainerStyle={{ gap: 8, paddingRight: 16 }}>
+              {scheduleTypes.map(option => {
                 const selected = type === option.value;
 
                 return (
@@ -192,30 +191,28 @@ const Schedule = () => {
                       color: selected
                         ? theme.colors.segment.selectedText
                         : theme.colors.segment.text,
-                    }}
-                  >
+                    }}>
                     {option.label}
                   </Chip>
                 );
               })}
             </ScrollView>
           </View>
-        }
-        ListEmptyComponent={
+        )}
+        ListEmptyComponent={(
           <View style={{ alignItems: 'center', paddingHorizontal: 24, paddingVertical: 64 }}>
             {loading ? (
               <ActivityIndicator size="large" />
             ) : (
               <Text.Body
-                style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
-              >
+                style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
                 {hasError
                   ? 'Unable to load the schedule.'
                   : getScheduleEmptyMessage(period, type)}
               </Text.Body>
             )}
           </View>
-        }
+        )}
         renderSectionHeader={({ section }) => (
           <View
             style={{
@@ -223,15 +220,13 @@ const Schedule = () => {
               alignItems: 'center',
               marginTop: 24,
               marginBottom: 16,
-            }}
-          >
+            }}>
             <Text.Caption
               style={{
                 textTransform: 'uppercase',
                 marginRight: 12,
                 color: theme.colors.outline,
-              }}
-            >
+              }}>
               {section.title}
             </Text.Caption>
 
@@ -255,8 +250,7 @@ const Schedule = () => {
       <AppSnackbar
         visible={snackbar.visible}
         onDismiss={() => setSnackbar({ visible: false, message: '' })}
-        variant="error"
-      >
+        variant="error">
         {snackbar.message}
       </AppSnackbar>
     </ScreenContainer>

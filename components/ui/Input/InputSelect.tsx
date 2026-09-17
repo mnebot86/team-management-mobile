@@ -68,7 +68,7 @@ const InputSelect = ({
         placeholder={placeholder}
         value={value}
         renderRightIcon={() => null}
-        onChange={(item) => onValueChange(item.value)}
+        onChange={item => onValueChange(item.value)}
       />
     </View>
   );

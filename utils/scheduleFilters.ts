@@ -18,13 +18,15 @@ export const getScheduleEmptyMessage = (
   type: ScheduleTypeFilter,
 ) => {
   const periodLabel = period === 'upcoming' ? 'upcoming' : 'past';
-  const typeLabel = type === 'all'
-    ? 'schedule items'
-    : type === 'practice'
-      ? 'practices'
-      : type === 'other'
-        ? 'other schedule items'
-      : `${type}s`;
+  let typeLabel = `${type}s`;
+
+  if (type === 'all') {
+    typeLabel = 'schedule items';
+  } else if (type === 'practice') {
+    typeLabel = 'practices';
+  } else if (type === 'other') {
+    typeLabel = 'other schedule items';
+  }
 
   return `No ${periodLabel} ${typeLabel}.`;
 };
