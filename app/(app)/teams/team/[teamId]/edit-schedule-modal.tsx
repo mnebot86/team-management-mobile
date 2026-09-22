@@ -21,9 +21,7 @@ export default function EditScheduleModal() {
   }, [raw]);
 
   const handleSuccess = useCallback(() => {
-    router.dismiss();
-
-    router.replace({
+    router.dismissTo({
       pathname: '/(app)/teams/team/[teamId]/(drawer)/schedule',
       params: { teamId },
     });

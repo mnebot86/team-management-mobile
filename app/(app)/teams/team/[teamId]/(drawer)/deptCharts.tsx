@@ -9,8 +9,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { Eye, Pencil, X } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getFootballFormationCoordinates } from '@/utils/footballFormation';
 import {
@@ -152,7 +152,7 @@ const DeptCharts = () => {
     }, [selectedFilter, teamId]),
   );
 
-  const renderPosition = (item: DeptChartPosition) => (
+  const renderPosition = (item: DeptChartPosition, chart: DeptChart) => (
     <View
       style={[
         styles.card,
@@ -169,6 +169,32 @@ const DeptCharts = () => {
           <Text.Subheading style={styles.positionName}>{item.name}</Text.Subheading>
         </View>
 
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Edit ${item.name} position`}
+          onPress={() => {
+            if (!teamId || !item._id) return;
+
+            router.push({
+              pathname: '/(app)/teams/team/[teamId]/add-depth-position',
+              params: {
+                teamId,
+                deptChartId: chart._id,
+                name: chart.name,
+                positionId: item._id,
+              },
+            });
+          }}
+          style={({ pressed }) => [
+            styles.editButton,
+            {
+              backgroundColor: theme.colors.avatar.background,
+              opacity: pressed ? 0.7 : 1,
+            },
+          ]}>
+          <Pencil size={16} color={theme.colors.icon.primary} />
+          <Text.Body style={styles.editText}>Edit</Text.Body>
+        </Pressable>
       </View>
 
       <View style={styles.players}>
@@ -177,15 +203,18 @@ const DeptCharts = () => {
           .sort((a, b) => a.depth - b.depth)
           .map(player => {
             const isStarter = player.depth === 1;
+
             const rosterPlayer = roster.find(
               item => item.profileId === player.profileId,
             );
+
             const displayPlayer: DeptChartPlayer = {
               ...player,
               firstName: player.firstName ?? rosterPlayer?.firstName,
               lastName: player.lastName ?? rosterPlayer?.lastName,
               jerseyNumber: player.jerseyNumber ?? rosterPlayer?.jerseyNumber,
             };
+
             const imageUrl = rosterPlayer?.imageUrl;
 
             return (
@@ -215,6 +244,7 @@ const DeptCharts = () => {
                         : theme.colors.primary,
                     },
                   ]}>
+
                   {imageUrl ? (
                     <Image
                       source={{ uri: imageUrl }}
@@ -238,6 +268,7 @@ const DeptCharts = () => {
                     ? `${displayPlayer.firstName ?? ''} ${displayPlayer.lastName ?? ''}`.trim()
                     : 'Player'}
                 </Text.Subheading>
+
                 <Text.Body style={[styles.jerseyNumber, { color: theme.colors.text.secondary }]}>
                   {displayPlayer.jerseyNumber !== undefined ? `#${displayPlayer.jerseyNumber}` : ''}
                 </Text.Body>
@@ -252,6 +283,7 @@ const DeptCharts = () => {
     const positions = item.positions
       .slice()
       .sort((a, b) => a.sortOrder - b.sortOrder);
+
 
     if (positions.length === 0) {
       return (
@@ -293,7 +325,7 @@ const DeptCharts = () => {
 
         {positions.map((position, index) => (
           <View key={position._id ?? `${item._id}-${position.name}-${index}`}>
-            {renderPosition(position)}
+            {renderPosition(position, item)}
           </View>
         ))}
       </View>
@@ -301,6 +333,7 @@ const DeptCharts = () => {
   };
 
   const closeFormation = () => setViewingChart(undefined);
+
   const viewingPositions = viewingChart?.positions
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder) ?? [];
@@ -381,10 +414,11 @@ const DeptCharts = () => {
         visible={Boolean(viewingChart)}
         animationType="slide"
         presentationStyle="fullScreen"
+        supportedOrientations={['landscape']}
         onRequestClose={closeFormation}>
         <SafeAreaView
           edges={['top', 'bottom', 'left', 'right']}
-          style={[styles.viewer, { backgroundColor: theme.colors.screen.background }]}>
+          style={[styles.viewer, { backgroundColor: '#202932' }]}>
           <View style={[styles.viewerHeader, { top: safeAreaInsets.top + 10 }]}>
             <View style={styles.viewerTitleContainer}>
               <Text.Subheading numberOfLines={1} style={styles.viewerTitle}>
@@ -420,6 +454,15 @@ const DeptCharts = () => {
 
               {viewingPositions.map((position, positionIndex) => {
                 const coordinate = formationCoordinates.get(position) ?? { x: 50, y: 50 };
+                const shouldPlaceLabelAbove = viewingPositions.some(otherPosition => {
+                  if (otherPosition === position) return false;
+
+                  const otherCoordinate = formationCoordinates.get(otherPosition) ?? { x: 50, y: 50 };
+
+                  return Math.abs(otherCoordinate.x - coordinate.x) < 8
+                    && otherCoordinate.y > coordinate.y
+                    && otherCoordinate.y - coordinate.y < 16;
+                });
                 const player = position.players.slice().sort((a, b) => a.depth - b.depth)[0];
                 const rosterPlayer = roster.find(item => item.profileId === player?.profileId);
 
@@ -456,7 +499,11 @@ const DeptCharts = () => {
                       </View>
                     </View>
 
-                    <View style={styles.fieldPlayerLabel}>
+                    <View
+                      style={[
+                        styles.fieldPlayerLabel,
+                        shouldPlaceLabelAbove && styles.fieldPlayerLabelAbove,
+                      ]}>
                       <Text.Caption style={styles.fieldPositionText}>{position.shortName}</Text.Caption>
                     </View>
                   </View>
@@ -744,13 +791,18 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   fieldPlayerLabel: {
+    position: 'absolute',
+    top: 45,
     minWidth: 34,
     alignItems: 'center',
-    marginTop: 3,
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 10,
     backgroundColor: 'rgba(12,17,22,0.92)',
+  },
+  fieldPlayerLabelAbove: {
+    top: undefined,
+    bottom: 45,
   },
   fieldPositionText: {
     color: '#FFFFFF',

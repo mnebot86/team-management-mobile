@@ -68,6 +68,7 @@ const ScheduleDetails = () => {
       return null;
     }
   }, [scheduleParam]);
+
   const [schedule, setSchedule] = useState<ScheduleOccurrence | null>(parsedSchedule);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showEditScopeDialog, setShowEditScopeDialog] = useState(false);
