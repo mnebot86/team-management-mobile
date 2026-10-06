@@ -13,6 +13,7 @@ export default [
       'android/**',
       'ios/**',
       'dist/**',
+      'expo-env.d.ts',
     ],
   },
   {
