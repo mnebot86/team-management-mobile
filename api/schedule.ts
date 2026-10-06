@@ -125,7 +125,7 @@ export const cancelSchedule = async (
   scheduleId: string,
   payload: CancelScheduleInput,
 ) => {
-  const response = await api.patch(`/schedule/${scheduleId}/cancel`, payload);
+  const response = await api.patch(`/schedules/${scheduleId}/cancel`, payload);
 
   return response.data.data;
 };
@@ -134,7 +134,7 @@ export const deleteSchedule = async (
   scheduleId: string,
   scope: ScheduleMutationScope,
 ) => {
-  const response = await api.delete(`/schedule/${scheduleId}`, {
+  const response = await api.delete(`/schedules/${scheduleId}`, {
     params: { scope },
   });
 
@@ -146,7 +146,7 @@ export const getTeamSchedule = async (
   period: SchedulePeriod = 'upcoming',
   type: ScheduleTypeFilter = 'all',
 ) => {
-  const response = await api.get(`schedules/team/${teamId}`, {
+  const response = await api.get(`/schedules/team/${teamId}`, {
     params: buildScheduleQueryParams(period, type),
   });
 
@@ -154,13 +154,13 @@ export const getTeamSchedule = async (
 };
 
 export const getNextPractice = async (teamId: string): Promise<ScheduleOccurrence | null> => {
-  const response = await api.get(`schedules/team/${teamId}/next-practice`);
+  const response = await api.get(`/schedules/team/${teamId}/next-practice`);
 
   return response.data.data;
 };
 
 export const getLastPractice = async (teamId: string): Promise<AttendanceSummary> => {
-  const response = await api.get(`schedules/team/${teamId}/last-practice`);
+  const response = await api.get(`/schedules/team/${teamId}/last-practice`);
 
   return response.data.data;
 };
@@ -174,13 +174,13 @@ export const getTeamStats = async (teamId: string): Promise<TeamStats> => {
 export const getTeamAttendance = async (
   teamId: string,
 ): Promise<AttendanceSummary> => {
-  const response = await api.get(`schedules/team/${teamId}/attendance`);
+  const response = await api.get(`/schedules/team/${teamId}/attendance`);
 
   return response.data.data;
 };
 
 export const getNextGame = async (teamId: string) => {
-  const response = await api.get(`schedules/team/${teamId}/next-game`);
+  const response = await api.get(`/schedules/team/${teamId}/next-game`);
 
   return response.data.data;
 };

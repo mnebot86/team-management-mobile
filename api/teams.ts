@@ -35,7 +35,7 @@ export const getTeams = async (): Promise<TeamMembership[]> => {
 };
 
 export const getActiveTeamsCount = async () => {
-  const response = await api.get('/active-team-count');
+  const response = await api.get('/teams/active-team-count');
 
   return response.data.data;
 };
