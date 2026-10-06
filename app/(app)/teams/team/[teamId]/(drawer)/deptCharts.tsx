@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
-import { Eye, Pencil, X } from 'lucide-react-native';
+import { Pencil, X } from 'lucide-react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getFootballFormationCoordinates } from '@/utils/footballFormation';
 import {
@@ -283,7 +283,6 @@ const DeptCharts = () => {
     const positions = item.positions
       .slice()
       .sort((a, b) => a.sortOrder - b.sortOrder);
-
 
     if (positions.length === 0) {
       return (

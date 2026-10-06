@@ -1,6 +1,7 @@
 {
   "name": "team-app-mobile",
   "version": "1.0.0",
+  "packageManager": "npm@11.3.0",
   "main": "expo-router/entry",
   "scripts": {
     "lint": "eslint . --ext .ts,.tsx",
