@@ -31,11 +31,10 @@ const CreatePlanModal = () => {
   const handleCreate = useCallback(async () => {
     try {
       const payload = {
-        teamId,
         title,
         description,
         totalDurationMinutes: Number(durationMinutes),
-        status: 'draft',
+        status: 'draft' as const,
         sections: [],
       };
 

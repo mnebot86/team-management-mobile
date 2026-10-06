@@ -1,4 +1,5 @@
 import api from './axios';
+import type { ApiResponse } from './types';
 
 export interface CreateDeptChartPayload {
   name: string;
@@ -63,14 +64,14 @@ export interface DeptChart {
 export const createDeptChart = async (
   teamId: string,
   payload: CreateDeptChartPayload,
-) => {
-  const response = await api.post(`/dept-charts/${teamId}`, payload);
+): Promise<DeptChart> => {
+  const response = await api.post<ApiResponse<DeptChart>>(`/dept-charts/${teamId}`, payload);
 
   return response.data.data;
 };
 
 export const getDeptChartFilters = async (teamId: string): Promise<string[]> => {
-  const response = await api.get(`/dept-charts/${teamId}/filters`);
+  const response = await api.get<ApiResponse<string[]>>(`/dept-charts/${teamId}/filters`);
 
   return response.data.data;
 };
@@ -79,7 +80,7 @@ export const getDeptCharts = async (
   teamId: string,
   name: string,
 ): Promise<DeptChart[]> => {
-  const response = await api.get(`/dept-charts/${teamId}`, {
+  const response = await api.get<ApiResponse<DeptChart[]>>(`/dept-charts/${teamId}`, {
     params: { name },
   });
 
@@ -90,7 +91,7 @@ export const updateDeptChart = async (
   deptChartId: string,
   payload: UpdateDeptChartPayload,
 ): Promise<DeptChart> => {
-  const response = await api.patch(`/dept-charts/${deptChartId}`, payload);
+  const response = await api.patch<ApiResponse<DeptChart>>(`/dept-charts/${deptChartId}`, payload);
 
   return response.data.data;
 };
@@ -98,7 +99,7 @@ export const updateDeptChart = async (
 export const deleteDeptChart = async (
   deptChartId: string,
 ): Promise<DeptChart> => {
-  const response = await api.delete(`/dept-charts/${deptChartId}`);
+  const response = await api.delete<ApiResponse<DeptChart>>(`/dept-charts/${deptChartId}`);
 
   return response.data.data;
 };
