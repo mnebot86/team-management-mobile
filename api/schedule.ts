@@ -144,8 +144,8 @@ export const cancelSchedule = async (
 export const deleteSchedule = async (
   scheduleId: string,
   scope: ScheduleMutationScope,
-): Promise<ScheduleOccurrence> => {
-  const response = await api.delete<ApiResponse<ScheduleOccurrence>>(apiPaths.deleteSchedule(scheduleId), {
+): Promise<null> => {
+  const response = await api.delete<ApiResponse<null>>(apiPaths.deleteSchedule(scheduleId), {
     params: { scope },
   });
 
