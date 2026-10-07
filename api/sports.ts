@@ -1,4 +1,5 @@
 import api from './axios';
+import type { ApiResponse } from './types';
 
 export interface SportPositionDefinition {
   id: string;
@@ -29,13 +30,13 @@ export interface SportDefinition {
 }
 
 export const getSports = async (): Promise<SportDefinition[]> => {
-  const response = await api.get('/sports');
+  const response = await api.get<ApiResponse<SportDefinition[]>>('/sports');
 
   return response.data.data;
 };
 
 export const getSport = async (sportId: string): Promise<SportDefinition> => {
-  const response = await api.get(`/sports/${sportId}`);
+  const response = await api.get<ApiResponse<SportDefinition>>(`/sports/${sportId}`);
 
   return response.data.data;
 };

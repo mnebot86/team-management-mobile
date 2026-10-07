@@ -1,13 +1,10 @@
 import api from './axios';
+import type { ApiResponse, ReactNativeFormDataFile } from './types';
 
 interface CreateAndInsertPlayerToTeamParams {
   firstName: string;
   lastName: string;
-  avatar?: {
-    uri: string;
-    name: string;
-    type: string;
-  };
+  avatar?: ReactNativeFormDataFile;
 }
 
 interface EditTeamMemberParams {
@@ -15,18 +12,14 @@ interface EditTeamMemberParams {
   lastName: string;
   jerseyNumber: string;
   positionIds: string[];
-  avatar?: {
-    uri: string;
-    name: string;
-    type: string;
-  };
+  avatar?: ReactNativeFormDataFile;
   avatarPublicId?: string;
 }
 
 export const createAndInsertPlayerToTeam = async (
   payload: CreateAndInsertPlayerToTeamParams,
   teamId: string,
-) => {
+): Promise<TeamRosterMember> => {
   const formData = new FormData();
 
   formData.append('firstName', payload.firstName);
@@ -37,10 +30,10 @@ export const createAndInsertPlayerToTeam = async (
       uri: payload.avatar.uri,
       name: payload.avatar.name,
       type: payload.avatar.type,
-    } as unknown as Blob);
+    });
   }
 
-  const response = await api.post(`/team-members/${teamId}`, formData, {
+  const response = await api.post<ApiResponse<TeamRosterMember>>(`/team-members/${teamId}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -58,28 +51,40 @@ export interface TeamRosterMember {
   role: string;
   jerseyNumber?: number | string;
   positions?: string[] | string;
+  positionIds?: string[];
   imageUrl?: string;
+  avatar?: string | null;
+  avatarPublicId?: string | null;
+  isClaimed?: boolean;
+  linkCode?: string;
+}
+
+export interface RosterCount {
+  count: number;
 }
 
 export const getTeamRoster = async (
   teamId: string,
   role?: TeamRosterRole,
 ): Promise<TeamRosterMember[]> => {
-  const response = await api.get(`/team-members/${teamId}`, {
+  const response = await api.get<ApiResponse<TeamRosterMember[]>>(`/team-members/${teamId}`, {
     params: role ? { role } : undefined,
   });
 
   return response.data.data;
 };
 
-export const getRosterCount = async (teamId: string) => {
-  const response = await api.get(`/team-members/${teamId}/count`);
+export const getRosterCount = async (teamId: string): Promise<RosterCount> => {
+  const response = await api.get<ApiResponse<RosterCount>>(`/team-members/${teamId}/count`);
 
   return response.data.data;
 };
 
-export const getTeamMember = async (teamId: string, profileId: string) => {
-  const response = await api.get(`/team-members/${teamId}/member/${profileId}`);
+export const getTeamMember = async (
+  teamId: string,
+  profileId: string,
+): Promise<TeamRosterMember> => {
+  const response = await api.get<ApiResponse<TeamRosterMember>>(`/team-members/${teamId}/member/${profileId}`);
 
   return response.data.data;
 };
@@ -88,7 +93,7 @@ export const editTeamMember = async (
   payload: EditTeamMemberParams,
   teamId: string,
   profileId: string
-) => {
+): Promise<TeamRosterMember> => {
   const formData = new FormData();
 
   formData.append('firstName', payload.firstName);
@@ -105,10 +110,10 @@ export const editTeamMember = async (
       uri: payload.avatar.uri,
       name: payload.avatar.name,
       type: payload.avatar.type,
-    } as unknown as Blob);
+    });
   }
 
-  const response = await api.patch(`/team-members/${teamId}/member/${profileId}`, formData, {
+  const response = await api.patch<ApiResponse<TeamRosterMember>>(`/team-members/${teamId}/member/${profileId}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

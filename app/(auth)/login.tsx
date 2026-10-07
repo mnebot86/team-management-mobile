@@ -38,8 +38,7 @@ const Login = () => {
       setLoading(true);
 
       const authResponse = await login(payload);
-      const token = authResponse?.token ?? authResponse?.accessToken ?? '';
-      const user = authResponse?.user ?? authResponse;
+      const { token, user } = authResponse;
 
       if (!token) {
         throw new Error('Login did not return a valid session token.');

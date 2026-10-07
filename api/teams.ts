@@ -1,5 +1,7 @@
 import api from './axios';
 import type { ITeam } from '@/types/team';
+import type { ApiResponse } from './types';
+import { apiPaths } from './contracts';
 
 export interface CreateTeamParams {
   name: string;
@@ -22,44 +24,75 @@ export interface TeamMembership {
   team: ITeam;
 }
 
-export const createTeam = async (payload: CreateTeamParams) => {
-  const response = await api.post('/teams', payload);
+export interface ActiveTeamCount {
+  count: number;
+}
+
+export interface TeamInviteCode {
+  _id: string;
+  teamId: string;
+  role: CreateInviteCode['role'];
+  code: string;
+  active: boolean;
+  maxUses: number;
+  usedCount: number;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamInviteSection {
+  title: string;
+  data: TeamInviteCode[];
+}
+
+export interface JoinedTeamMembership {
+  teamId: string;
+  profileId: string;
+  role: CreateInviteCode['role'];
+}
+
+export const createTeam = async (payload: CreateTeamParams): Promise<ITeam> => {
+  const response = await api.post<ApiResponse<ITeam>>('/teams', payload);
 
   return response.data.data;
 };
 
 export const getTeams = async (): Promise<TeamMembership[]> => {
-  const response = await api.get('/teams');
+  const response = await api.get<ApiResponse<TeamMembership[]>>('/teams');
 
   return response.data.data;
 };
 
-export const getActiveTeamsCount = async () => {
-  const response = await api.get('/teams/active-team-count');
+export const getActiveTeamsCount = async (): Promise<ActiveTeamCount> => {
+  const response = await api.get<ApiResponse<ActiveTeamCount>>(apiPaths.activeTeamCount);
 
   return response.data.data;
 };
 
 export const getTeam = async (teamId: string): Promise<ITeam> => {
-  const response = await api.get(`/teams/${teamId}`);
+  const response = await api.get<ApiResponse<ITeam>>(`/teams/${teamId}`);
 
   return response.data.data;
 };
 
-export const createInviteCode = async (payload: CreateInviteCode, teamId: string) => {
-  const response = await api.post(`/teams/${teamId}/invites`, payload);
+export const createInviteCode = async (
+  payload: CreateInviteCode,
+  teamId: string,
+): Promise<TeamInviteCode> => {
+  const response = await api.post<ApiResponse<TeamInviteCode>>(`/teams/${teamId}/invites`, payload);
 
   return response.data.data;
 };
 
-export const getTeamInviteCodes = async (teamId: string) => {
-  const response = await api.get(`/teams/${teamId}/invites`);
+export const getTeamInviteCodes = async (teamId: string): Promise<TeamInviteSection[]> => {
+  const response = await api.get<ApiResponse<TeamInviteSection[]>>(`/teams/${teamId}/invites`);
 
   return response.data.data;
 };
 
-export const joinTeamByCode = async (payload: JoinTeam) => {
-  const response = await api.post('/teams/join', payload, {
+export const joinTeamByCode = async (payload: JoinTeam): Promise<JoinedTeamMembership> => {
+  const response = await api.post<ApiResponse<JoinedTeamMembership>>('/teams/join', payload, {
     retryUnauthorizedOnce: true,
     skipSessionLogoutOnUnauthorized: true,
   });

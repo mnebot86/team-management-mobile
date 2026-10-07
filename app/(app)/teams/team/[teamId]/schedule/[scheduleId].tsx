@@ -216,19 +216,23 @@ const ScheduleDetails = () => {
 
     try {
       await updateAttendance(scheduleId, {
-        attendance: attendance.map(player => {
+        attendance: attendance.flatMap(player => {
+          if (!player.status) {
+            return [];
+          }
+
           const fullName = typeof player.name === 'string' ? player.name : '';
           const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
           const firstName = nameParts[0] ?? '';
           const lastName = nameParts.slice(1).join(' ');
 
-          return {
+          return [{
             profileId: player.id,
             firstName,
             lastName,
             jerseyNumber: player.number === '--' ? '' : player.number,
             status: player.status,
-          };
+          }];
         }),
       });
 

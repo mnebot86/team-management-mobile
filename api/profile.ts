@@ -1,20 +1,17 @@
 import api from './axios';
+import type { ApiProfile, ApiResponse, ReactNativeFormDataFile } from './types';
 
 interface CreateProfileParams {
   firstName: string;
   lastName: string;
-  avatar?: {
-    uri: string;
-    name: string;
-    type: string;
-  };
+  avatar?: ReactNativeFormDataFile;
 }
 
 export const userCreateProfile = async ({
   firstName,
   lastName,
   avatar,
-}: CreateProfileParams) => {
+}: CreateProfileParams): Promise<ApiProfile> => {
   const formData = new FormData();
 
   formData.append('firstName', firstName);
@@ -25,10 +22,10 @@ export const userCreateProfile = async ({
       uri: avatar.uri,
       name: avatar.name,
       type: avatar.type,
-    } as unknown as Blob);
+    });
   }
 
-  const response = await api.post('/profiles', formData, {
+  const response = await api.post<ApiResponse<ApiProfile>>('/profiles', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

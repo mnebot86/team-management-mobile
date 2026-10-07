@@ -77,8 +77,12 @@ const EditPlayerScreen = () => {
           );
 
           if (player?.avatar) {
-            setAvatar(player.avatar);
-            setAvatarPublicId(player.avatar.publicId || '');
+            setAvatar({
+              uri: player.avatar,
+              name: 'current-avatar',
+              type: 'image/jpeg',
+            });
+            setAvatarPublicId(player.avatarPublicId || '');
           }
         } catch (err: unknown) {
           const message = err instanceof Error

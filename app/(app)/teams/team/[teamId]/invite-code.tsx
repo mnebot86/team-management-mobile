@@ -2,29 +2,17 @@ import { useCallback, useState } from 'react';
 import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { getTeamInviteCodes } from '@/api/teams';
+import {
+  getTeamInviteCodes,
+  type TeamInviteCode as InviteCode,
+  type TeamInviteSection as InviteSection,
+} from '@/api/teams';
 import ScreenContainer from '@/components/layout/Screen';
 import Text from '@/components/ui/Text';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import dayjs from 'dayjs';
 import { Snackbar, Surface } from 'react-native-paper';
 import { updateInviteCodeStatus } from '@/api/invites';
-
-type InviteCode = {
-  _id: string;
-  code: string;
-  role: 'owner' | 'coach' | 'player';
-  active: boolean;
-  maxUses: number;
-  usedCount: number;
-  expiresAt: Date | null;
-  createdAt: Date | null;
-};
-
-type InviteSection = {
-  title: string;
-  data: InviteCode[];
-};
 
 type CodeCardProps = InviteCode & {
   onCopySuccess: () => void;

@@ -1,6 +1,8 @@
 import api from './axios';
 import { buildScheduleQueryParams } from '@/utils/scheduleFilters';
 import type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters';
+import type { ApiResponse } from './types';
+import { apiPaths, mapTeamStats, type TeamStatsContract } from './contracts';
 
 export type { SchedulePeriod, ScheduleTypeFilter } from '@/utils/scheduleFilters';
 
@@ -50,12 +52,16 @@ export interface AttendanceSummary {
   total: number;
 }
 
-export interface TeamStats {
-  wins: number;
-  losses: number;
-  draws: number;
-  total: number;
-  winRate: number;
+export type TeamStats = TeamStatsContract;
+
+export interface UpdateAttendanceInput {
+  attendance: {
+    profileId: string;
+    firstName: string;
+    lastName: string;
+    jerseyNumber: string | number;
+    status: 'present' | 'late' | 'absent';
+  }[];
 }
 
 export interface ScheduleOccurrence {
@@ -106,8 +112,10 @@ export interface CancelScheduleInput {
   reason?: string;
 }
 
-export const createSchedule = async (payload: CreateScheduleInput) => {
-  const response = await api.post('/schedules', payload);
+export const createSchedule = async (
+  payload: CreateScheduleInput,
+): Promise<ScheduleOccurrence> => {
+  const response = await api.post<ApiResponse<ScheduleOccurrence>>('/schedules', payload);
 
   return response.data.data;
 };
@@ -115,8 +123,8 @@ export const createSchedule = async (payload: CreateScheduleInput) => {
 export const updateSchedule = async (
   scheduleId: string,
   payload: UpdateScheduleInput,
-) => {
-  const response = await api.patch(`/schedules/${scheduleId}`, payload);
+): Promise<ScheduleOccurrence> => {
+  const response = await api.patch<ApiResponse<ScheduleOccurrence>>(`/schedules/${scheduleId}`, payload);
 
   return response.data.data;
 };
@@ -124,8 +132,11 @@ export const updateSchedule = async (
 export const cancelSchedule = async (
   scheduleId: string,
   payload: CancelScheduleInput,
-) => {
-  const response = await api.patch(`/schedules/${scheduleId}/cancel`, payload);
+): Promise<ScheduleOccurrence> => {
+  const response = await api.patch<ApiResponse<ScheduleOccurrence>>(
+    apiPaths.cancelSchedule(scheduleId),
+    payload,
+  );
 
   return response.data.data;
 };
@@ -133,8 +144,8 @@ export const cancelSchedule = async (
 export const deleteSchedule = async (
   scheduleId: string,
   scope: ScheduleMutationScope,
-) => {
-  const response = await api.delete(`/schedules/${scheduleId}`, {
+): Promise<null> => {
+  const response = await api.delete<ApiResponse<null>>(apiPaths.deleteSchedule(scheduleId), {
     params: { scope },
   });
 
@@ -145,8 +156,8 @@ export const getTeamSchedule = async (
   teamId: string,
   period: SchedulePeriod = 'upcoming',
   type: ScheduleTypeFilter = 'all',
-) => {
-  const response = await api.get(`/schedules/team/${teamId}`, {
+): Promise<ScheduleSection[]> => {
+  const response = await api.get<ApiResponse<ScheduleSection[]>>(apiPaths.teamSchedule(teamId), {
     params: buildScheduleQueryParams(period, type),
   });
 
@@ -154,39 +165,42 @@ export const getTeamSchedule = async (
 };
 
 export const getNextPractice = async (teamId: string): Promise<ScheduleOccurrence | null> => {
-  const response = await api.get(`/schedules/team/${teamId}/next-practice`);
+  const response = await api.get<ApiResponse<ScheduleOccurrence | null>>(`/schedules/team/${teamId}/next-practice`);
 
   return response.data.data;
 };
 
 export const getLastPractice = async (teamId: string): Promise<AttendanceSummary> => {
-  const response = await api.get(`/schedules/team/${teamId}/last-practice`);
+  const response = await api.get<ApiResponse<AttendanceSummary>>(`/schedules/team/${teamId}/last-practice`);
 
   return response.data.data;
 };
 
 export const getTeamStats = async (teamId: string): Promise<TeamStats> => {
-  const response = await api.get(`/schedules/team/${teamId}/stats`);
+  const response = await api.get<ApiResponse<TeamStats>>(apiPaths.teamScheduleStats(teamId));
 
-  return response.data.data;
+  return mapTeamStats(response.data.data);
 };
 
 export const getTeamAttendance = async (
   teamId: string,
 ): Promise<AttendanceSummary> => {
-  const response = await api.get(`/schedules/team/${teamId}/attendance`);
+  const response = await api.get<ApiResponse<AttendanceSummary>>(`/schedules/team/${teamId}/attendance`);
 
   return response.data.data;
 };
 
-export const getNextGame = async (teamId: string) => {
-  const response = await api.get(`/schedules/team/${teamId}/next-game`);
+export const getNextGame = async (teamId: string): Promise<ScheduleOccurrence | null> => {
+  const response = await api.get<ApiResponse<ScheduleOccurrence | null>>(`/schedules/team/${teamId}/next-game`);
 
   return response.data.data;
 };
 
-export const updateAttendance = async (scheduleId: string, payload: unknown) => {
-  const response = await api.patch(`/schedules/${scheduleId}/attendance`, payload);
+export const updateAttendance = async (
+  scheduleId: string,
+  payload: UpdateAttendanceInput,
+): Promise<ScheduleOccurrence> => {
+  const response = await api.patch<ApiResponse<ScheduleOccurrence>>(`/schedules/${scheduleId}/attendance`, payload);
 
   return response.data.data;
 };
@@ -194,7 +208,7 @@ export const updateAttendance = async (scheduleId: string, payload: unknown) => 
 export const getPlayerAttendanceRecord = async (
   profileId: string,
 ): Promise<AttendanceSummary> => {
-  const response = await api.get(`/schedules/player/${profileId}/attendance`);
+  const response = await api.get<ApiResponse<AttendanceSummary>>(`/schedules/player/${profileId}/attendance`);
 
   return response.data.data;
 };

@@ -32,11 +32,7 @@ const CreateProfile = () => {
         lastName,
         avatar,
       });
-      const profile = createdProfile?.profile ?? createdProfile;
-
-      if (profile && typeof profile === 'object') {
-        setProfile(profile);
-      }
+      setProfile(createdProfile);
 
       // Rethinking this path
       // router.replace('/(onboarding)/welcome');
